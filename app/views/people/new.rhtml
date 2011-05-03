@@ -1,0 +1,173 @@
+<style>
+
+  .tt_controls_month_of_birth #keyboard { display:none; }
+
+  #tt_page_month_of_birth .options{height:19em;}
+
+  .tt_controls_home_village #space , #apostrophe { display:inline; }
+
+  .tt_controls_current_traditional_authority_ta #space { display:inline; }
+
+  .tt_controls_current_village_residence #space { display:inline; }
+
+  .tt_controls_cell_phone_number #num , #plus, #apostrophe, #star, #abc, #date, #slash, #minus, #comma, #percent, #decimal { display:none; }
+
+  .tt_controls_home_phone_number #num , #plus, #apostrophe, #star, #abc, #date, #slash, #minus, #comma, #percent, #decimal { display:none; }
+
+  .tt_controls_office_phone_number #num , #plus, #apostrophe, #star, #abc, #date, #slash, #minus, #comma, #percent, #decimal { display:none; }
+
+</style>
+
+<script>
+  <% if params[:relation] %>
+  var tt_cancel_destination = "/patients/relationships?patient_id=<%=h params[:relation] -%>"
+  <% else %>
+  var tt_cancel_destination = "/clinic"
+  <% end %>
+
+  var dob_year = null ; var dob_month = null ; dob_day = null;
+  var set_dob = null;
+
+  var skipped = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+  
+  function seen(page) {
+    for (var i = page; i >= 0; i--) {
+      skipped[i] = 1;
+    }
+  }
+
+  function validPhoneNum(type){
+    text = document.getElementById('tt_page_' + type).getElementsByTagName("input")[0]
+    if (text.value == 'Unknown')
+      return true
+
+    if (text.value.match("^0\\d{10}$"))
+      return false
+
+    if (text.value.length == 10){
+      return true
+    }else if (text.value.length == 8){
+      return true
+    }else if (text.value.length == 7){
+      return true
+    }
+
+    return false
+  }
+
+
+  function setDOB() {
+    try {
+      dob_year = document.getElementById('tt_page_year_of_birth').getElementsByTagName("input")[0].value
+    }catch(e){ dob_year = dob_year }
+    try {
+      dob_month = document.getElementById('tt_page_month_of_birth').getElementsByTagName("input")[0].getAttribute('tstvalue')
+      if (dob_month.length == 1)
+        dob_month = 0 + dob_month
+    }catch(e){ dob_month = dob_month }
+    try {
+      dob_day = document.getElementById('tt_page_birth_day').getElementsByTagName("input")[0].value
+      if (dob_day.length == 1)
+        dob_day = 0 + dob_day
+    }catch(e){ dob_day = dob_day }
+
+    set_dob = (dob_year + '-' + dob_month + '-' + dob_day)
+    return true
+  }
+
+  function validateDOB() {
+    setDOB();
+    curr_date = new Date();
+
+    if (dateCreate(set_dob) == 'Invalid Date') {
+      if (set_dob.split('-')[1] == 'Unknown')
+        return true
+
+      if (curr_date.getFullYear() == parseInt(dob_year)) {
+        if ((curr_date.getMonth() + 1) < parseInt(dob_month)){
+          if (document.getElementById('tt_page_month_of_birth') != null)
+            return true
+
+          return false
+        }
+      }
+
+      if (dob_month == 'Unknown'){
+        if (curr_date.getFullYear() == parseInt(dob_year)) {
+          if ((curr_date.getMonth() + 1) < parseInt(dob_month))
+            return false
+        }
+      }
+    }else{
+      if (document.getElementById('tt_page_month_of_birth') != null)
+        return true
+
+      if (curr_date < dateCreate(set_dob)) 
+        return false
+    }
+    return true
+  }
+
+  function dateCreate(date_str){
+    intyear = 0 ; intmonth = 0 ; intday = 0;
+    intyear = parseInt(date_str.substring(0,4))
+    intmonth = (parseInt(date_str.substring(5,7)) - 1)
+    intday = (parseInt(date_str.substring(8,10)))
+
+    if (intmonth == -1)
+      intmonth = (parseInt(date_str.substring(5,7).substring(1,2)) - 1)
+
+    if (intday == 0)
+      intday = parseInt(date_str.substring(8,10).substring(1,2))
+
+    return new Date(intyear,intmonth,intday);
+  }
+</script>
+
+<% form_for :person, @person, :url => { :action => "create" } do |f| %>
+
+  <%= text_field_tag "person[names][given_name]", params[:given_name], {:id => 'given_name', :field_type => 'alpha', :helpText => 'First name', :ajaxURL => '/person_names/given_names?search_string=', :allowFreeText => true, :condition => '$("given_name").value == "" || skipped[tstCurrentPage] == 1', :tt_onLoad => 'seen(tstCurrentPage);' } %>
+  
+  <%= text_field_tag "person[names][family_name]", params[:family_name], {:id => 'family_name', :field_type => 'alpha', :helpText => 'Last name', :ajaxURL => '/person_names/family_names?search_string=', :allowFreeText => true, :condition => '$("family_name").value == "" || skipped[tstCurrentPage] == 1', :tt_onLoad => 'seen(tstCurrentPage);' } %>
+
+  Gender: <%= f.select :gender, {"" => "", "Male" => "M", "Female" => "F"}, {:selected => params[:gender]}, {:id => 'gender', :helpText => 'Gender', :condition => '$("gender").value == "" || skipped[tstCurrentPage] == 1', :tt_onLoad => 'seen(tstCurrentPage);' } %>
+
+  <%= text_field_tag "person[names][family_name2]", params[:family_name2], {:id => 'family_name2', :field_type => 'alpha', :helpText => 'Mother\'s Surname', :ajaxURL => '/person_names/family_name2?search_string=', :allowFreeText => true, :condition => '$("family_name2").value == "" || skipped[tstCurrentPage] == 1', :tt_onLoad => 'seen(tstCurrentPage);' } if ask_mothers_surname %>
+
+  <%= text_field_tag "person[birth_year]", nil, {:helpText => 'Year of Birth', :field_type => 'number', :absoluteMin => "1890", :min => "1940", :absoluteMax => Date.today.year, :tt_pageStyleClass => "Numeric NumbersOnly", :tt_onLoad => 'seen(tstCurrentPage);',:validationJS => "setDOB();" }  %>
+
+  <%= select_tag "person[birth_month]", month_name_options, {:helpText => 'Month of Birth', :condition => '$("person_birth_year").value.toLowerCase() != "unknown"',:validationJS => "validateDOB();",:validationMessage => 'Please enter a valid date'}%>
+
+  <%= text_field_tag "person[age_estimate]", nil, {:helpText => 'Age Estimate', :absoluteMin => 1, :absoluteMax => age_limit, :field_type => 'number', :condition => '$("person_birth_year").value == "Unknown"', :tt_pageStyleClass => "Numeric NumbersOnly"} %> 
+
+  <%= text_field_tag "person[birth_day]",  nil, :field_type => 'number', :helpText => 'Birth Day', :condition => '($("person_birth_year").value != "Unknown") && ($("person_birth_month").value != "Unknown")', :tt_onLoad => "getDayOfMonthPicker($('person_birth_year').value, $('person_birth_month').value)" ,:validationJS => "validateDOB()",:validationMessage => 'Please enter a valid date'%>
+
+  <%= text_field_tag "person[addresses][address2]", params[:address2], {:id => 'address2', :field_type => 'alpha', :helpText => 'Home Village', :ajaxURL => '/person_addresses/address2?search_string=', :allowFreeText => true, :condition => '$("address2").value == "" || skipped[tstCurrentPage] == 1', :tt_onLoad => 'seen(tstCurrentPage);' } if ask_home_village %>
+  
+  <%= text_field_tag "person[addresses][county_district]",  params[:county_district], {:field_type => 'alpha', :helpText => 'Current Traditional Authority (TA)', :ajaxURL => '/person_addresses/traditional_authority?search_string=', :allowFreeText => true }%>
+
+  <%= text_field_tag "person[addresses][city_village]",  params[:city_village], {:field_type => 'alpha', :helpText => 'Current Village (residence)', :ajaxURL => '/person_addresses/village?search_string=', :allowFreeText => true }%>
+
+  <%= text_field_tag "person[cell_phone_number]",  params[:cell_phone_number], {:field_type => 'number',:validationJS =>"validPhoneNum('cell_phone_number')", :helpText => 'Cell Phone Number', :allowFreeText => true, :validationMessage => "You must enter a valid number" }%>
+
+  <% ask_multiple_phone_numbers = GlobalProperty.find_by_property("ask_multiple_phone_numbers").property_value rescue 'false'
+     if ask_multiple_phone_numbers == 'true' 
+  %>
+  <%= text_field_tag "person[office_phone_number]",  params[:office_phone_number], {:field_type => 'number', :helpText => 'Office Phone Number', :allowFreeText => true }%>
+
+  <%= text_field_tag "person[home_phone_number]",  params[:home_phone_number], {:field_type => 'number', :helpText => 'Home Phone Number', :allowFreeText => true }%>
+  <%end%>
+
+  <%= select_tag("person[occupation]", options_for_select([" ", "Housewife", "Farmer", "Police", "Soldier", "Business", "Teacher", "Student", "Healthcare Worker"].sort.concat(["Other"]) ,params[:occupation]),:helpText =>"Occupation",:allowFreeText => true, :tt_onLoad => 'seen(tstCurrentPage);')%>
+  
+  <!-- Make sure patient is created -->
+
+  <%= hidden_field_tag "person[patient]", "" %>
+
+  <%= hidden_field_tag "relation", params[:relation] %>
+  
+  <%= hidden_field_tag :identifier, params[:identifier] %>
+
+  <%= submit_tag "Create person" %>
+  
+<% end %>
