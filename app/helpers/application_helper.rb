@@ -17,7 +17,7 @@ module ApplicationHelper
   
   def fancy_or_high_contrast_touch
     fancy = GlobalProperty.find_by_property("interface").property_value == "fancy" rescue false
-    fancy ? "touch-fancy.css" : "touch.css"
+    fancy ? "touch-fancy.css" : "touch-basic.css"
   end
   
   def show_intro_text
@@ -55,9 +55,8 @@ module ApplicationHelper
   end
 
   def version
-    #"Bart Version: #{BART_VERSION}#{' ' + BART_SETTINGS['installation'] if BART_SETTINGS}, #{File.ctime(File.join(RAILS_ROOT, 'config', 'environment.rb')).strftime('%d-%b-%Y')}"
     style = "style='background-color:red;'" unless session[:datetime].blank?
-    "Bart Version: #{BART_VERSION} - <span #{style}>#{(session[:datetime].to_date rescue Date.today).strftime('%A, %d-%b-%Y')}</span>"
+    "Radiology Version: #{RADIOLOGY_VERSION} - <span #{style}>#{(session[:datetime].to_date rescue Date.today).strftime('%A, %d-%b-%Y')}</span>"
   end
   
   def welcome_message

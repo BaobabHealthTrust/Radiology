@@ -1,0 +1,55 @@
+<script>
+  var tt_cancel_destination = "/patients/show/<%= @patient.patient_id -%>";
+</script>
+
+<% form_tag "/encounters/create", :method => :post do 
+   options = "<option value=''></option>"
+   options+="<option value='Xray'>Xray</option>"
+   options+="<option value='Ultrasound'>Ultrasound</option>"
+%>
+
+<%= touch_select_tag "TYPE", @patient, options ,
+{:id => "investigation_type",
+:helpText => "Investigation type",
+:tt_pageStyleClass => "NoKeyboard NoInput small" } %>
+
+
+<% options = "<option value=''></option>"
+   options+="<option value='Skull'>Skull</option>"
+   options+="<option value='Facial bones'>Facial bones</option>"
+   options+="<option value='C-spine'>C-spine</option>"
+   options+="<option value='T-spine'>T-spine</option>"
+   options+="<option value='L-spine'>L-spine</option>"
+   options+="<option value='Upper limb'>Upper limb</option>"
+   options+="<option value='Lower limb'>Lower limb</option>"
+   options+="<option value='Chest'>Chest</option>"
+   options+="<option value='Abdomen'>Abdomen</option>"
+   options+="<option value='Pelvis'>Pelvis</option>"
+   options+="<option value='Contrast GI study'>Contrast GI study</option>"
+   options+="<option value='Contrast UT study'>Contrast UT study</option>"
+   options+="<option value='HSG'>HSG</option>"
+   options+="<option value='Other'>Other</option>"
+%>
+
+<%= touch_select_tag "X-RAY", @patient, options ,
+{:id => "xray_type",
+:helpText => "Xray type",
+:tt_pageStyleClass => "NoKeyboard NoInput small" } %>
+
+<%= touch_location_tag "REFERRED BY", @patient, nil,
+{:id => "referred_by",
+:helpText => "Referred from"} %>
+
+
+<% options = "<option value=''></option>"
+   options+="<option value='Xray'>Paying</option>"
+   options+="<option value='Ultrasound'>Non paying</option>"
+%>
+
+<%= touch_select_tag "PAYMENT TO PHYSICIAN", @patient, options ,
+{:id => "payment_method",
+:helpText => "Payment method",
+:tt_pageStyleClass => "NoKeyboard NoInput small" } %>
+
+<%end%>
+

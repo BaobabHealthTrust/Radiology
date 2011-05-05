@@ -15,7 +15,8 @@ class PatientsController < ApplicationController
       @prescriptions = restriction.filter_orders(@prescriptions)
       @programs = restriction.filter_programs(@programs)
     end
-    render :template => 'dashboards/overview', :layout => 'dashboard' 
+    #render :template => 'dashboards/overview', :layout => 'patient_dashboard' 
+    render :layout => 'patient_dashboard' 
   end
 
   def treatment
