@@ -10,8 +10,6 @@ class SessionsController < ApplicationController
     user = User.authenticate(params[:login], params[:password])
     if user
       self.current_user = user      
-      location = Location.find(GlobalProperty.find_by_property('current_health_center_id').property_value)
-      session[:location_id] = location.id if location
       redirect_to '/clinic'
     else
       note_failed_signin

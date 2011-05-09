@@ -19,6 +19,14 @@ class PatientsController < ApplicationController
     render :layout => 'patient_dashboard' 
   end
 
+  def visit_summary
+    @patient = Patient.find(params[:id])
+    encounter_types = EncounterType.find(:all,:conditions =>["name IN (?)",['EXAMINATION','LAB']])
+    @encounters = Encounter.find(:all,:conditions =>["encounter_type IN (?) AND patient_id = ? AND DATE(encounter_datetime)=?",
+                                 encounter_types.collect{|e|e.id},@patient.id,(session[:datetime].to_date rescue Date.today)])
+    render :partial => 'summary' and return 
+  end
+
   def treatment
     #@prescriptions = @patient.orders.current.prescriptions.all
     type = EncounterType.find_by_name('TREATMENT')

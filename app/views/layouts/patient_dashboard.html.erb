@@ -73,9 +73,9 @@
       </div>
 
       <select id="tabs">
-        <option value = ''>Visit Summary</option>
-        <option value = ''>Previous Investigations</a></option>
-        <option value = ''>Film Sizes</option>
+        <option value = '/patients/visit_summary/<%=@patient.id%>'>Visit Summary</option>
+        <option value = '/investigation/previous_investigations/<%=@patient.id%>'>Previous Investigations</a></option>
+        <option value = '/film/previous_films/<%=@patient.id%>'>Film Sizes</option>
         <option value = ''>Report</option>
       </select>
       

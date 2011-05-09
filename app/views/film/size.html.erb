@@ -12,7 +12,13 @@
   options += "<option value='13x18'>13x18</option>"
 %>
 
-<%= touch_select_tag "SIZE", @patient, options ,
+<%= hidden_field_tag "encounter[encounter_type_name]", "LAB" %>
+<%= hidden_field_tag "encounter[patient_id]", @patient.id %>
+<%= hidden_field_tag "encounter[encounter_datetime]", DateTime.now() %>
+<%= hidden_field_tag "encounter[provider_id]", session[:user_id] %>
+
+
+<%= touch_select_tag "VSD Size", @patient, options ,
 {:id => "film_size",
 :helpText => "Film size",
 :tt_pageStyleClass => "NoKeyboard NoInput small" } %>
