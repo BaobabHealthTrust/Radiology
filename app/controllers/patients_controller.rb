@@ -16,12 +16,12 @@ class PatientsController < ApplicationController
       @programs = restriction.filter_programs(@programs)
     end
     #render :template => 'dashboards/overview', :layout => 'patient_dashboard' 
-    render :layout => 'patient_dashboard' 
+    render :layout => 'dashboard' 
   end
 
   def visit_summary
     @patient = Patient.find(params[:id])
-    encounter_types = EncounterType.find(:all,:conditions =>["name IN (?)",['EXAMINATION','LAB']])
+    encounter_types = EncounterType.find(:all,:conditions =>["name IN (?)",['EXAMINATION','FILM SIZE']])
     @encounters = Encounter.find(:all,:conditions =>["encounter_type IN (?) AND patient_id = ? AND DATE(encounter_datetime)=?",
                                  encounter_types.collect{|e|e.id},@patient.id,(session[:datetime].to_date rescue Date.today)])
     render :partial => 'summary' and return 
@@ -235,33 +235,9 @@ class PatientsController < ApplicationController
     render :layout => "menu"
   end
 
-  def export_to_csv
-    ( Patient.find(:all,:limit => 10) || [] ).each do | patient |
-      csv_string = FasterCSV.generate do |csv|
-        # header row
-        csv << ["ARV number", "National ID"]
-        csv << [patient.arv_number, patient.national_id]
-        csv << ["Name", "Age","Sex","Init Wt(Kg)","Init Ht(cm)","BMI","Transfer-in"]
-        transfer_in = patient.person.observations.recent(1).question("HAS TRANSFER LETTER").all rescue nil
-        transfer_in.blank? == true ? transfer_in = 'NO' : transfer_in = 'YES'
-        csv << [patient.name,patient.person.age, patient.person.sex,patient.initial_weight,patient.initial_height,patient.initial_bmi,transfer_in]
-        csv << ["Location", "Land-mark","Occupation","Init Wt(Kg)","Init Ht(cm)","BMI","Transfer-in"]
-
-=begin
-        # data rows
-        @users.each do |user|
-          csv << [user.id, user.username, user.salt]
-        end
-=end
-      end
-      # send it to the browsah
-      send_data csv_string.gsub(' ','_'),
-              :type => 'text/csv; charset=iso-8859-1; header=present',
-              :disposition => "attachment:wq
-              ; filename=patient-#{patient.id}.csv"
-    end
-  end
-   
+  def examination
+    @patient = Patient.find(params[:id])
+  end 
 
   
 private

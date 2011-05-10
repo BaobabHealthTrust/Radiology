@@ -12,13 +12,13 @@
   options += "<option value='13x18'>13x18</option>"
 %>
 
-<%= hidden_field_tag "encounter[encounter_type_name]", "LAB" %>
+<%= hidden_field_tag "encounter[encounter_type_name]", "FILM SIZE" %>
 <%= hidden_field_tag "encounter[patient_id]", @patient.id %>
 <%= hidden_field_tag "encounter[encounter_datetime]", DateTime.now() %>
 <%= hidden_field_tag "encounter[provider_id]", session[:user_id] %>
 
 
-<%= touch_select_tag "VSD Size", @patient, options ,
+<%= touch_select_tag "SIZE", @patient, options ,
 {:id => "film_size",
 :helpText => "Film size",
 :tt_pageStyleClass => "NoKeyboard NoInput small" } %>
@@ -33,7 +33,7 @@
   options += "<option value='5 films'>5 Films</option>"
 %>
 
-<%= touch_select_tag "REFERRED BY", @patient, options ,
+<%= touch_select_tag "BAD", @patient, options ,
 {:id => "bad_film",
 :helpText => "Bad film(s) used",
 :tt_pageStyleClass => "NoKeyboard NoInput small" } %>
@@ -49,7 +49,7 @@
   options += "<option value='5 films'>5 Films</option>"
 %>
 
-<%= touch_select_tag "REFERRED", @patient, options ,
+<%= touch_select_tag "GOOD", @patient, options ,
 {:id => "good_film",
 :helpText => "Good film(s) used",
 :tt_pageStyleClass => "NoKeyboard NoInput small" } %>

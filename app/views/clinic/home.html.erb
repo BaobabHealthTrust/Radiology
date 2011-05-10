@@ -1,0 +1,19 @@
+<div id = 'home'>
+
+<div id="facility"><%=Location.current_health_center.name%></div>
+      <div id="location"><%=Location.current_location.name%></div>
+      <div id="date"><%=session[:datetime].to_date rescue Date.today%></div>
+      <div id="user"><%=User.current_user.username%></div>
+      <select id="tabs">
+        <option value="/clinic/overview">Overview</option>
+        <option value="">Reports</option>
+        <option value="">Admin</option>
+      </select>     
+
+      <select id="links">
+        <option value="/user/logout">Logout</option>
+        <option value="/people/search" ttSize="190px">Find by Name</option>
+        <option value="find_by_id.html" ttSize="190px">Find by ID</option>
+        <option value="find_by_xray.html" ttSize="190px">Find by Xray</option>
+      </select>
+</div>

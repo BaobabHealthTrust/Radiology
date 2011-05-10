@@ -1,0 +1,32 @@
+<style>
+  .td_blue {
+    background-color:lightblue;
+  }
+
+#summary {
+  width:100%;
+  border-style:solid;
+  border-width:1px;
+}
+
+th {
+  text-align:left;
+}
+</style>
+<table id='summary'>
+<!--caption style="text-align:left;"><%=session[:datetime].to_date.strftime('%A %B %d %Y') rescue Date.today.strftime('%A %m %B %Y')%></caption-->
+<tr>
+  <th>Encounter date</th>
+</tr>
+<%
+color = 'white'
+@examinations.map do | date , values |
+  #next if name == 'WORKSTATION LOCATION'
+  if color == 'blue' then color = 'white' else color = 'blue' end
+%>
+  <tr>
+    <td class="td_<%=color%>"><%= date %></td>
+    <td class="td_<%=color%>"><%= values || '&nbsp;'%></td>
+  </tr>
+<%end%>
+</table>

@@ -1,2 +1,105 @@
-<h1>Patients#show</h1>
-<p>Find me in app/views/patients/show.html.erb</p>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xml:lang="en" xmlns="http://www.w3.org/1999/xhtml" lang="en">
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <title>Patients Show</title>
+    <link href="../stylesheets/touch-fancy.css" media="screen"
+      rel="stylesheet" type="text/css" />
+    <link href="../stylesheets/graytabs.css" media="screen" rel="stylesheet"
+      type="text/css" />
+    <link href="../stylesheets/dashboard.css" media="screen"
+      rel="stylesheet" type="text/css" />
+    <script language="javascript" type="text/javascript"
+      src="../javascripts/dashboard.js"></script>
+    <style type="text/css">
+      .personal-details-label {
+        font-weight: bold;
+      }
+
+      #personal-details {
+        font-size: 1em;
+        height: 195px;
+        max-width: 720px;
+        margin: 5px;
+        overflow: auto;
+      }
+
+      #menu {
+        float: right;
+        height: 680px;
+        overflow: auto;
+        width: 253px;
+        border: thin solid #EEEEEE;
+        margin-right: 5px;
+        margin-top: 5px;
+      }
+
+      .menu-button {
+        width: 245px;
+      }
+
+      #visit-summary {
+        background: none repeat scroll 0 0 white;
+        margin-top: 10px;
+        float: left;
+        height: 236px;
+        width: 276px;
+      }
+
+      #btnCancel , #btnNext {
+        margin-top: 10px;
+        min-width: 140px;
+      }
+
+      #patient-dashboard-applicationname span {
+        font-size:32px;
+      }
+    
+      .patientLabel {
+        width:40%;
+      }
+    </style>
+    <script language="javascript">
+      tstUsername = "<%=User.current_user.username%>";
+      tstCurrentDate = "<%=session[:datetime].to_date rescue Date.today %>";
+      tt_cancel_show = 'application_dashboard.html';
+      tt_cancel_destination = 'application_dashboard.html';
+      var plot;
+    </script>
+  </head>
+  <body id="container">
+    <div id="dashboard">
+      <div id="project_name"><span style="font-size: 0.7em">Radiology</span></div>        
+      <div id="patient_name"><%=@patient.name%></div>
+      <div id="patient_id"><%=@patient.national_id_with_dashes%></div> 
+
+      <div id="patient_card">
+        <div id="patient_gender" value="Female" style="font-size: 0.4em">Gender</div>
+        <div id="access_number" value="<%=@patient.person.age%>">Age</div>
+        <div id="access_number" value="OPD/1"> Referral From</div>
+        <div id="exam_number" value="R00002325"> Exam Number</div>
+        <div id="type_of_exam" value="Xray - Facial bones"> Type of Exam </div>
+      </div>
+
+      <select id="tabs">
+        <option value = '/patients/visit_summary/<%=@patient.id%>'>Visit Summary</option>
+        <option value = '/investigation/previous_investigations/<%=@patient.id%>'>Previous Investigations</a></option>
+        <option value = '/film/previous_films/<%=@patient.id%>'>Film Sizes</option>
+        <option value = '/report/examination/<%=@patient.id%>'>Report</option>
+      </select>
+      
+        
+      <select id="links">
+        <option value="/investigation/new/<%=@patient.id%>">Investigation</option>
+        <option value="/film/size/<%=@patient.id%>">Film Sizes</option>
+        <option value = '/patients/examination/<%=@patient.id%>'>Report</option>
+      </select>
+    </div>
+
+    <!--div id="footer" class="dark">
+    <div id="buttons" class="buttons" style="top: 0px;">
+      <button id="finish" class="green"
+        onmousedown="window.location = 'application_dashboard.html'"><span>Finish</span></button>
+    </div!-->
+  </body>
+</html>

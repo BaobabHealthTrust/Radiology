@@ -228,5 +228,24 @@ class ReportController < ApplicationController
       @patients   = Patient.appointment_dates(@start_date, @end_date)
     end
   end
-
+  
+  def examination
+    @patient = Patient.find(params[:id])
+    encounter_type = EncounterType.find_by_name('OBSERVATIONS').id
+    @examinations = Hash.new()
+    Observation.find(:all,
+      :joins => "INNER JOIN encounter e USING(encounter_id)",
+      :conditions =>["patient_id = ? AND encounter_type = ?",
+      params[:id],encounter_type]).map do | obs |
+        name = obs_to = obs.to_s.split(':')[0]
+        value = obs_to = obs.to_s.split(':')[1]
+        next if name == 'WORKSTATION LOCATION'
+        @examinations[obs.obs_datetime.to_date] = nil if @examinations[obs.obs_datetime.to_date].blank? 
+        case name
+          when 'REFERRED BY'
+        end                                                      
+    end
+    render :partial => 'examination' and return
+  end
+    
 end

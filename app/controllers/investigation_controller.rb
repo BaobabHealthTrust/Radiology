@@ -20,13 +20,13 @@ class InvestigationController < ApplicationController
                                                             'Payment method' => nil,
                                                             } if @previous_investigations[obs.obs_datetime.to_date].blank? 
       case  name
+        when 'INVESTIGATION TYPE'
+          @previous_investigations[obs.obs_datetime.to_date]['Investigation type'] = value
+        when 'XRAY'
+          @previous_investigations[obs.obs_datetime.to_date]['Xray type'] = value
         when 'REFERRED BY'
           @previous_investigations[obs.obs_datetime.to_date]['Referred from'] = value
-        when 'TYPE OF CARDIAC PROBLEM'
-          @previous_investigations[obs.obs_datetime.to_date]['Investigation type'] = value
-        when 'CHEST X-RAY OR CT SCAN CONSTRUCT'
-          @previous_investigations[obs.obs_datetime.to_date]['Xray type'] = value
-        when 'COST OF TRADITIONAL PRACTITIONER VISIT'
+        when 'PAY CATEGORY'
           @previous_investigations[obs.obs_datetime.to_date]['Payment method'] = value
       end                                                      
     end

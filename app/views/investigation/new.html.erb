@@ -13,7 +13,7 @@
 <%= hidden_field_tag "encounter[encounter_datetime]", DateTime.now() %>
 <%= hidden_field_tag "encounter[provider_id]", session[:user_id] %>
 
-<%= touch_select_tag "TYPE", @patient, options ,
+<%= touch_select_tag "INVESTIGATION TYPE", @patient, options ,
 {:id => "investigation_type",
 :helpText => "Investigation type",
 :tt_pageStyleClass => "NoKeyboard NoInput small" } %>
@@ -36,7 +36,7 @@
    options+="<option value='Other'>Other</option>"
 %>
 
-<%= touch_select_tag "X-RAY", @patient, options ,
+<%= touch_select_tag "XRAY", @patient, options ,
 {:id => "xray_type",
 :helpText => "Xray type",
 :tt_pageStyleClass => "NoKeyboard NoInput small" } %>
@@ -51,8 +51,8 @@
    options+="<option value='Ultrasound'>Non paying</option>"
 %>
 
-<%= touch_select_tag "PAYMENT TO PHYSICIAN", @patient, options ,
-{:id => "payment_method",
+<%= touch_select_tag "PAY CATEGORY", @patient, options ,
+{:id => "pay_category",
 :helpText => "Payment method",
 :tt_pageStyleClass => "NoKeyboard NoInput small" } %>
 

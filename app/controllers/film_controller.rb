@@ -4,7 +4,7 @@ class FilmController < ApplicationController
   end
 
   def previous_films
-   encounter_type = EncounterType.find_by_name('LAB').id
+   encounter_type = EncounterType.find_by_name('FILM SIZE').id
    @previous_films = Hash.new()
    Observation.find(:all,
     :joins => "INNER JOIN encounter e USING(encounter_id)",
@@ -20,11 +20,11 @@ class FilmController < ApplicationController
                                                   } if @previous_films[obs.obs_datetime.to_date].blank? 
 
       case  name
-        when 'SIZE OF VENTRICULAR SEPTAL DEFECT'
+        when 'SIZE'
           @previous_films[obs.obs_datetime.to_date]['Size'] = value
-        when 'REFERRED BY'
+        when 'BAD'
           @previous_films[obs.obs_datetime.to_date]['Bad film'] = value
-        when 'REFERRED'
+        when 'GOOD'
           @previous_films[obs.obs_datetime.to_date]['Good film'] = value
       end                                                      
     end
