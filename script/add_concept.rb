@@ -18,5 +18,5 @@
     concept_name.save
   end
 
-  add('GOOD')
+  add('BAD')
 

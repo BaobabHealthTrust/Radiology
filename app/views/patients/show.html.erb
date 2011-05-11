@@ -65,9 +65,29 @@
       tt_cancel_show = 'application_dashboard.html';
       tt_cancel_destination = 'application_dashboard.html';
       var plot;
+
+      
+      function disable(){
+        buttons = document.getElementsByClassName('blue')
+
+
+        <% if @examination.blank? %>
+          for (i = 0 ; i < buttons.length ; i++) {
+            if (!buttons[i].attributes[2].value.match(/investigation/))
+              buttons[i].style.display = 'none'
+              //buttons[i].disabled = true;
+          }
+        <% else %>
+          for (i = 0 ; i < buttons.length ; i++) {
+            if (buttons[i].attributes[2].value.match(/investigation/))
+              buttons[i].style.display = 'none'
+              //buttons[i].disabled = true;
+          }
+        <% end %>
+      }
     </script>
   </head>
-  <body id="container">
+  <body id="container" onload = 'disable();'>
     <div id="dashboard">
       <div id="project_name"><span style="font-size: 0.7em">Radiology</span></div>        
       <div id="patient_name"><%=@patient.name%></div>
@@ -90,9 +110,9 @@
       
         
       <select id="links">
-        <option value="/investigation/new/<%=@patient.id%>">Investigation</option>
-        <option value="/film/size/<%=@patient.id%>">Film Sizes</option>
-        <option value = '/patients/examination/<%=@patient.id%>'>Report</option>
+        <option id ='investigation' value="/investigation/new/<%=@patient.id%>">Investigation</option>
+        <option id ='film_size' value="/film/size/<%=@patient.id%>">Film Sizes</option>
+        <option id='examination_report' value = '/patients/examination/<%=@patient.id%>'>Report</option>
       </select>
     </div>
 
