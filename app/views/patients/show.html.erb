@@ -76,9 +76,9 @@
       <div id="patient_card">
         <div id="patient_gender" value="Female" style="font-size: 0.4em">Gender</div>
         <div id="access_number" value="<%=@patient.person.age%>">Age</div>
-        <div id="access_number" value="OPD/1"> Referral From</div>
-        <div id="exam_number" value="R00002325"> Exam Number</div>
-        <div id="type_of_exam" value="Xray - Facial bones"> Type of Exam </div>
+        <div id="access_number" value="<%=@referredfrom%>"> Referral From</div>
+        <div id="exam_number" value="<%= @examnum %>">Exam Number</div>
+        <div id="type_of_exam" value="<%=@examtype%>">Type of Exam</div>
       </div>
 
       <select id="tabs">

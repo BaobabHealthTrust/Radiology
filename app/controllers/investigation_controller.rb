@@ -10,8 +10,8 @@ class InvestigationController < ApplicationController
     :joins => "INNER JOIN encounter e USING(encounter_id)",
     :conditions =>["patient_id = ? AND encounter_type = ?",
     params[:id],encounter_type]).map do | obs |
-      name = obs_to = obs.to_s.split(':')[0]
-      value = obs_to = obs.to_s.split(':')[1]
+      name = obs_to = obs.to_s.split(':')[0].strip
+      value = obs_to = obs.to_s.split(':')[1].strip
       next if name == 'WORKSTATION LOCATION'
       @previous_investigations[obs.obs_datetime.to_date] = {
                                                             'Investigation type' => nil,

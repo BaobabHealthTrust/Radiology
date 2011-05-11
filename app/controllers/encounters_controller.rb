@@ -105,6 +105,19 @@ class EncountersController < ApplicationController
       end
     end
 
+
+    #handling Xray encounters - creating patient's xray identifiers if needed
+    if Location.current_location.name.match(/X-RAY|XRAY/i) and encounter.name == 'EXAMINATION'
+      next_exam_number = PatientIdentifier.next_available_exam_number
+      observation = {}
+      observation[:encounter_id] = encounter.id
+      observation[:obs_datetime] = encounter.encounter_datetime || Time.now()
+      observation[:person_id] = encounter.patient_id
+      observation[:concept_name] = "EXAM NUMBER"
+      observation[:value_text] = next_exam_number
+      Observation.create(observation)
+    end
+
     # Go to the next task in the workflow (or dashboard)
     redirect_to next_task(@patient) 
   end

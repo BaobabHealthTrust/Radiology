@@ -19,6 +19,11 @@ class UserController < ApplicationController
         Location.current_location = location if location
 
         show_activites_property = GlobalProperty.find_by_property("show_activities_after_login").property_value rescue "false"
+        if show_activites_property == "true"
+          redirect_to(:action => "activities") 
+        else                   
+          redirect_to("/")
+        end
       else
         flash[:error] = "Invalid username or password"
       end      

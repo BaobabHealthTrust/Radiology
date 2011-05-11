@@ -2,9 +2,10 @@
   User.current_user = User.find_by_username("admin")
   Location.current_location = Location.current_health_center
 
-  def add(name , id)
+  def add(name)
+    id = Concept.find(:last,:order =>'concept_id DESC').concept_id + 1
     concept = Concept.new()
-    concept.concept_id = id
+    #concept.concept_id = id
     concept.class_id = 7
     concept.datatype_id = 3
     concept.is_set = 0
@@ -17,5 +18,5 @@
     concept_name.save
   end
 
-  add('BAD',7820)
+  add('GOOD')
 

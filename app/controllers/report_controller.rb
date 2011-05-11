@@ -241,9 +241,8 @@ class ReportController < ApplicationController
         value = obs_to = obs.to_s.split(':')[1]
         next if name == 'WORKSTATION LOCATION'
         @examinations[obs.obs_datetime.to_date] = nil if @examinations[obs.obs_datetime.to_date].blank? 
-        case name
-          when 'REFERRED BY'
-        end                                                      
+        @examinations[obs.obs_datetime.to_date] += '<br />' + obs.value_text unless  @examinations[obs.obs_datetime.to_date].blank?
+        @examinations[obs.obs_datetime.to_date] = obs.value_text if  @examinations[obs.obs_datetime.to_date].blank?
     end
     render :partial => 'examination' and return
   end

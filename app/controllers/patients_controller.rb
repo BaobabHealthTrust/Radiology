@@ -16,6 +16,27 @@ class PatientsController < ApplicationController
       @programs = restriction.filter_programs(@programs)
     end
     #render :template => 'dashboards/overview', :layout => 'patient_dashboard' 
+    encounter_type = EncounterType.find(:first,:conditions =>["name = ?",'EXAMINATION'])
+    @examination = Encounter.find(:first,:conditions =>["encounter_type = ? AND patient_id = ? AND DATE(encounter_datetime)=?",
+                                 encounter_type.id,@patient.id,session_date])
+
+    (@examination.observations).map do | obs |
+      name = obs_to = obs.to_s.split(':')[0].strip
+      value = obs_to = obs.to_s.split(':')[1].strip
+      next if name == 'WORKSTATION LOCATION'
+      case  name
+        when 'EXAM NUMBER'
+          @examnum = value
+        when 'XRAY'
+          @examtype = value
+        when 'REFERRED BY'
+          @referredfrom = value
+      end
+    end rescue []
+
+
+
+
     render :layout => 'dashboard' 
   end
 
