@@ -14,7 +14,8 @@ th {
 }
 </style>
 <table id='summary'>
-<caption style="text-align:left;"><%=session[:datetime].to_date.strftime('%A %B %d %Y') rescue Date.today.strftime('%A %m %B %Y')%></caption>
+<% encounter_date = @encounters.last.encounter_datetime.strftime('%A %B %d %Y') rescue nil %>
+<caption style="text-align:left;"><%=encounter_date || session[:datetime].to_date.strftime('%A %B %d %Y') rescue Date.today.strftime('%A %m %B %Y')%></caption>
 <tr>
   <!--th>Encounter</th-->
   <th>Observation</th>

@@ -2,23 +2,20 @@ class PatientsController < ApplicationController
   before_filter :find_patient, :except => [:void]
   
   def show
-    session[:mastercard_ids] = []
-    session_date = session[:datetime].to_date rescue Date.today
-    @encounters = @patient.encounters.find_by_date(session_date)
-    @prescriptions = @patient.orders.unfinished.prescriptions.all
-    @programs = @patient.patient_programs.all
-    @alerts = @patient.alerts
-    # This code is pretty hacky at the moment
-    @restricted = ProgramLocationRestriction.all(:conditions => {:location_id => Location.current_health_center.id })
-    @restricted.each do |restriction|    
-      @encounters = restriction.filter_encounters(@encounters)
-      @prescriptions = restriction.filter_orders(@prescriptions)
-      @programs = restriction.filter_programs(@programs)
+    encounter_types = EncounterType.find(:all,:conditions =>["name IN (?)",['EXAMINATION','FILM SIZE']])
+    if @patient.blank? and params[:patient_id]
+      @patient = Patient.find(params[:patient_id])
+      @examinations = Encounter.find(:all,:conditions =>["encounter_type IN (?) AND patient_id = ? AND DATE(encounter_datetime)=?",
+                                 encounter_types.collect{|e|e.id},@patient.id,params[:encounter_date]]) 
     end
-    #render :template => 'dashboards/overview', :layout => 'patient_dashboard' 
-    encounter_type = EncounterType.find(:first,:conditions =>["name = ?",'EXAMINATION'])
+
+    session_date = session[:datetime].to_date rescue Date.today
+    @examinations = Encounter.find(:all,:conditions =>["encounter_type IN (?) AND patient_id = ? AND DATE(encounter_datetime)=?",
+                                 encounter_types.collect{|e|e.id},@patient.id,session_date]) if @examinations.blank?
+
+    @alerts = @patient.alerts
     @examination = Encounter.find(:first,:conditions =>["encounter_type = ? AND patient_id = ? AND DATE(encounter_datetime)=?",
-                                 encounter_type.id,@patient.id,session_date])
+                                 encounter_types.first.id,@patient.id,params[:encounter_date] || session_date])
 
     (@examination.observations).map do | obs |
       name = obs_to = obs.to_s.split(':')[0].strip

@@ -119,10 +119,25 @@ class PeopleController < ApplicationController
     redirect_to :action => "index" and return
   end
 
-  def find_by_arv_number
+  def find_by_exam_number
     if request.post?
-      redirect_to :action => 'search' ,
-        :identifier => "#{Location.current_arv_code} #{params[:arv_number]}" and return
+      index = 0 ; last_exam_num = params[:exam_number] 
+      last_exam_num.each_char do | c |
+        next if c == 'R'
+        break unless c == '0'
+        index+=1
+      end unless last_exam_num.blank?
+
+      exam_number = 'R' + (last_exam_num[index..-1].to_s.rjust(8,'0'))      
+
+      ob = Observation.find(:first,
+                       :conditions =>["value_text = ? AND voided = 0",exam_number])
+      if ob.blank?
+        redirect_to :action => 'find_by_exam_number' and return
+      else
+        redirect_to :controller => 'patients', :action => 'show' ,
+        :patient_id => ob.person_id,:encounter_date => ob.obs_datetime.to_date and return
+      end
     end
   end
   

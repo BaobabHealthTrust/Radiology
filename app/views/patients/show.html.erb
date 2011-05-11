@@ -1,7 +1,7 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xml:lang="en" xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
-    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <!--meta http-equiv="content-type" content="text/html; charset=UTF-8">
     <title>Patients Show</title>
     <link href="../stylesheets/touch-fancy.css" media="screen"
       rel="stylesheet" type="text/css" />
@@ -10,7 +10,7 @@
     <link href="../stylesheets/dashboard.css" media="screen"
       rel="stylesheet" type="text/css" />
     <script language="javascript" type="text/javascript"
-      src="../javascripts/dashboard.js"></script>
+      src="../javascripts/dashboard.js"></script-->
     <style type="text/css">
       .personal-details-label {
         font-weight: bold;
@@ -62,8 +62,8 @@
     <script language="javascript">
       tstUsername = "<%=User.current_user.username%>";
       tstCurrentDate = "<%=session[:datetime].to_date rescue Date.today %>";
-      tt_cancel_show = 'application_dashboard.html';
-      tt_cancel_destination = 'application_dashboard.html';
+      tt_cancel_show = '/clinic';
+      tt_cancel_destination = '/clinic';
       var plot;
 
       
