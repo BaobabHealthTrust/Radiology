@@ -1,0 +1,40 @@
+<body onload="works();">
+<object ID="WebBrowser1" WIDTH="0" HEIGHT="0" 
+  CLASSID="CLSID:8856F961-340A-11D0-A96B-00C04FD705A2"> 
+</object>
+
+
+<h1>Patients#radiology_visit_report</h1>
+<p>Find me in app/views/patients/radiology_visit_report.html.erb</p>
+</body>
+
+<script>
+  
+  function works(){
+    buttonsdiv = document.getElementById('buttons');
+    buttonsdiv.innerHTML+= "<button id='printButton' class='button navButton' style='float:left;' onclick='printPage();'>";
+  }
+
+  function printPage(){
+    buttonsdiv = document.getElementById('buttons');
+    buttonsdiv.style.display = 'none';
+    if (document.all) 
+    {
+      WebBrowser1.ExecWB(6, 6) //use 6, 1 to prompt the print dialog or 6, 6 to omit it; 
+      WebBrowser1.outerHTML = "";
+    }
+    else
+    {
+      window.print();
+    } 
+    buttonsdiv.style.display = 'inline';
+  }
+</script>
+
+<style>
+  #printButton{
+    float:left;
+    position: absolute;
+    left:10px;
+  }
+</style>

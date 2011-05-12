@@ -247,6 +247,9 @@ class PatientsController < ApplicationController
     @patient = Patient.find(params[:id])
   end 
 
+  def radiology_visit_report
+    render :layout => "menu"
+  end
   
 private
   

@@ -110,9 +110,10 @@
       
         
       <select id="links">
-        <option id ='investigation' value="/investigation/new/<%=@patient.id%>">Investigation</option>
-        <option id ='film_size' value="/film/size/<%=@patient.id%>">Film Sizes</option>
-        <option id='examination_report' value = '/patients/examination/<%=@patient.id%>'>Report</option>
+        <option value="/investigation/new/<%=@patient.id%>">Investigation</option>
+        <option value="/film/size/<%=@patient.id%>">Film Sizes</option>
+        <option value = '/patients/examination/<%=@patient.id%>'>Report</option>
+        <!--option value = '/patients/radiology_visit_report?id=<%=@patient.id%>&date=<%=@encounter_date%>'>Visit report print</option-->
       </select>
     </div>
 
