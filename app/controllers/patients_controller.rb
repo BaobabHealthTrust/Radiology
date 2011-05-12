@@ -3,19 +3,11 @@ class PatientsController < ApplicationController
   
   def show
     encounter_types = EncounterType.find(:all,:conditions =>["name IN (?)",['EXAMINATION','FILM SIZE']])
-    if @patient.blank? and params[:patient_id]
-      @patient = Patient.find(params[:patient_id])
-      @examinations = Encounter.find(:all,:conditions =>["encounter_type IN (?) AND patient_id = ? AND DATE(encounter_datetime)=?",
-                                 encounter_types.collect{|e|e.id},@patient.id,params[:encounter_date]]) 
-    end
+    session_date = params[:encounter_date].to_date rescue nil
+    session_date = (session[:datetime].to_date rescue Date.today) if session_date.blank?
 
-    session_date = session[:datetime].to_date rescue Date.today
-    @examinations = Encounter.find(:all,:conditions =>["encounter_type IN (?) AND patient_id = ? AND DATE(encounter_datetime)=?",
-                                 encounter_types.collect{|e|e.id},@patient.id,session_date]) if @examinations.blank?
-
-    @alerts = @patient.alerts
     @examination = Encounter.find(:first,:conditions =>["encounter_type = ? AND patient_id = ? AND DATE(encounter_datetime)=?",
-                                 encounter_types.first.id,@patient.id,params[:encounter_date] || session_date])
+                                 encounter_types.first.id,@patient.id,session_date])
 
     (@examination.observations).map do | obs |
       name = obs_to = obs.to_s.split(':')[0].strip
@@ -30,18 +22,16 @@ class PatientsController < ApplicationController
           @referredfrom = value
       end
     end rescue []
-
-
-
+    @encounter_date = session_date
 
     render :layout => 'dashboard' 
   end
 
   def visit_summary
-    @patient = Patient.find(params[:id])
+    @patient = Patient.find(params[:id]) ; @encounter_date = params[:date]
     encounter_types = EncounterType.find(:all,:conditions =>["name IN (?)",['EXAMINATION','FILM SIZE']])
     @encounters = Encounter.find(:all,:conditions =>["encounter_type IN (?) AND patient_id = ? AND DATE(encounter_datetime)=?",
-                                 encounter_types.collect{|e|e.id},@patient.id,(session[:datetime].to_date rescue Date.today)])
+                                 encounter_types.collect{|e|e.id},@patient.id,params[:date]])
     render :partial => 'summary' and return 
   end
 

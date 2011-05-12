@@ -102,7 +102,7 @@
       </div>
 
       <select id="tabs">
-        <option value = '/patients/visit_summary/<%=@patient.id%>'>Visit Summary</option>
+        <option value = '/patients/visit_summary?id=<%=@patient.id%>&date=<%=@encounter_date%>'>Visit Summary</option>
         <option value = '/investigation/previous_investigations/<%=@patient.id%>'>Previous Investigations</a></option>
         <option value = '/film/previous_films/<%=@patient.id%>'>Film Sizes</option>
         <option value = '/report/examination/<%=@patient.id%>'>Report</option>
