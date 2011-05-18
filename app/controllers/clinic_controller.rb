@@ -57,11 +57,11 @@ class ClinicController < ApplicationController
   end
 
   def users
-    render :template => 'clinic/users', :layout => 'clinic' 
+    #render :template => 'clinic/users', :layout => 'clinic' 
   end
 
   def administration
-    @reports = [['/clinic/users','User accounts/settings'],['/drug/management','Drug Management']]
+    @reports = [['/clinic/users','User accounts/settings']]
     @landing_dashboard = 'clinic_administration'
     render :template => 'clinic/administration', :layout => 'clinic' 
   end
