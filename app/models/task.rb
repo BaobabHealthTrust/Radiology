@@ -111,7 +111,7 @@ class Task < ActiveRecord::Base
       # We need to skip this task for some reason
       next if skip
 
-      if location.name.match(/HIV|ART/i)
+      unless location.name.split(' ').collect{|t|t.upcase}.include?('XRAY')
        task = self.validate_task(patient,task,location,session_date.to_date)
       end
 

@@ -49,8 +49,6 @@
           <% if person.addresses.first && person.addresses.first.address2.present? %>Home Village: <%=h person.addresses.first.address2 -%>,<% end %>
           <% if person.addresses.first && person.addresses.first.city_village.present? %>Current Village: <%=h person.addresses.first.city_village -%>,<% end %>
           <% if person.names.first && person.names.first.family_name2.present? %>Mother's Surname: <%=h person.names.first.family_name2 -%><% end %>
-          <% if Location.current_location.name.match(/ART|HIV/) && person.patient.arv_number %>, ARV number: <%=h person.patient.arv_number -%><% end %>
-          <% if Location.current_location.name.match(/ART|HIV/).blank? && person.patient.arv_number.blank? %>, ID: <%=h person.patient.national_id -%><% end %>
           <%=h ' Died' if person.dead == 1 rescue '' -%>
         </option>
       <% end -%>

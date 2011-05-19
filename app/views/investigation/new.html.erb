@@ -41,6 +41,63 @@
 :helpText => "Xray type",
 :tt_pageStyleClass => "NoKeyboard NoInput small" } %>
 
+<%
+   lower_limb = "<option value=''></option>"
+   lower_limb+="<option value='Left Hip'>Left Hip</option>"
+   lower_limb+="<option value='Right Hip'>Right Hip</option>"
+   lower_limb+="<option value='Left Femur'>Left Femur</option>"
+   lower_limb+="<option value='Right Femur'>Right Femur</option>"
+   lower_limb+="<option value='Left Knee'>Left Knee</option>"
+   lower_limb+="<option value='Right Knee'>Right Knee</option>"
+   lower_limb+="<option value='Left Tibia/Fibula'>Left Tibia/Fibula</option>"
+   lower_limb+="<option value='Right Tibia/Fibula'>Right Tibia/Fibula</option>"
+   lower_limb+="<option value='Left Ankle'>Left Ankle</option>"
+   lower_limb+="<option value='Right Ankle'>Right Ankle</option>"
+   lower_limb+="<option value='Left Foot'>Left Foot</option>"
+   lower_limb+="<option value='Right Foot'>Right Foot</option>"
+   lower_limb+="<option value='Left Toes'>Left Toes</option>"
+   lower_limb+="<option value='Right Toes'>Right Toes</option>"
+
+   upper_limb = "<option value=''></option>"
+   upper_limb+="<option value='Left Shoulder'>Left Shoulder</option>"
+   upper_limb+="<option value='Right Shoulder'>Right Shoulder</option>"
+   upper_limb+="<option value='Left Humerus'>Left Humerus</option>"
+   upper_limb+="<option value='Right Humerus'>Right Humerus</option>"
+   upper_limb+="<option value='Left Elbow'>Left Elbow</option>"
+   upper_limb+="<option value='Right Elbow'>Right Elbow</option>"
+   upper_limb+="<option value='Left Radius/Ulna'>Left Radius/Ulna</option>"
+   upper_limb+="<option value='Right Radius/Ulna'>Right Radius/Ulna</option>"
+   upper_limb+="<option value='Left Wrist'>Left Wrist</option>"
+   upper_limb+="<option value='Right Wrist'>Right Wrist</option>"
+   upper_limb+="<option value='Left Hand'>Left Hand</option>"
+   upper_limb+="<option value='Right Hand'>Right Hand</option>"
+   upper_limb+="<option value='Left Fingers'>Left Fingers</option>"
+   upper_limb+="<option value='Right Fingers'>Right Fingers</option>"
+%>
+<script>
+  function captionChange(){
+    selected_text = document.getElementById('xray_type').value;
+    document.getElementsByClassName('helpTextClass')[0].innerHTML+= " " + selected_text;
+    /*limb_type = document.getElementById('limb_type');
+    if(selected_text == 'Lower limb'){
+      limb_type.innerHTML = lower_limb 
+    } else { limb_type.innerHTML = upper_limb }
+    */
+  }
+</script>
+
+<%= touch_select_tag "LIMB TYPE", @patient, lower_limb ,
+{:id => "lower_limb",
+:helpText => "Which part of Lower limb",
+:condition => '$("xray_type").value =="Lower limb"',
+:tt_pageStyleClass => "NoKeyboard NoInput small" } %>
+
+<%= touch_select_tag "LIMB TYPE", @patient, upper_limb ,
+{:id => "upper_limb",
+:helpText => "Which part of Upper limb",
+:condition => '$("xray_type").value =="Upper limb"',
+:tt_pageStyleClass => "NoKeyboard NoInput small" } %>
+
 <%= touch_location_tag "REFERRED BY", @patient, nil,
 {:id => "referred_by",
 :helpText => "Referred from"} %>
