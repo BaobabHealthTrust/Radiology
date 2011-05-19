@@ -1,6 +1,8 @@
 <script>
-  var tt_cancel_destination = "/patients/show/<%= @patient.patient_id -%>";
+  dat = "<%=@encounter_date.to_date rescue Date.today %>"
+  tt_cancel_destination = '/patients/show?encounter_date=' + dat + '&patient_id=' + '<%=@patient.id%>'
 </script>
+
 
 <% form_tag "/encounters/create", :method => :post do 
   options = "<option value=''></option>"
@@ -14,7 +16,7 @@
 
 <%= hidden_field_tag "encounter[encounter_type_name]", "FILM SIZE" %>
 <%= hidden_field_tag "encounter[patient_id]", @patient.id %>
-<%= hidden_field_tag "encounter[encounter_datetime]", DateTime.now() %>
+ <%= hidden_field_tag "encounter[encounter_datetime]", @encounter_date.to_date.to_s + Time.now.strftime(' %H:%M:%S').to_time rescue DateTime.now() %>
 <%= hidden_field_tag "encounter[provider_id]", session[:user_id] %>
 
 

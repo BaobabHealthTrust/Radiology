@@ -1,6 +1,7 @@
 class FilmController < ApplicationController
   def size
     @patient = Patient.find(params[:id])
+    @encounter_date = params[:encounter_date]
   end
 
   def previous_films

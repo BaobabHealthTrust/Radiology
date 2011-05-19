@@ -245,6 +245,7 @@ class PatientsController < ApplicationController
 
   def examination
     @patient = Patient.find(params[:id])
+    @encounter_date = params[:encounter_date]
   end 
 
   def radiology_visit_report

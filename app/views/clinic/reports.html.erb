@@ -18,14 +18,19 @@
     width:155px; 
     float:right;
   }
+
+  caption {
+    float: left;
+    font-weight: bold;
+  }
 </style>
 <%= stylesheet_link_tag 'extra_buttons' %>
-
+<base target = "_parent">
 <div id="tab" style="height: 461px;">
   <div class="panel" style="width:980px">
-    <h2>Select report to view</h2>
     <div style="height:970px;overflow:auto;">
     <table id="stats" style="height: 400px;" cellpadding="10">
+      <caption>Select report to view</caption>
       <% if  Encounter.count > 0 %>
         <% (@reports || []).each do |name,path| %>
           <tr>
@@ -37,3 +42,4 @@
     </div>
   </div>        
 </div>
+</base>

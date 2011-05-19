@@ -105,14 +105,14 @@
         <option value = '/patients/visit_summary?id=<%=@patient.id%>&date=<%=@encounter_date%>'>Visit Summary</option>
         <option value = '/investigation/previous_investigations/<%=@patient.id%>'>Previous Investigations</a></option>
         <option value = '/film/previous_films/<%=@patient.id%>'>Film Sizes</option>
-        <option value = '/report/examination/<%=@patient.id%>'>Report</option>
+        <option value = '/report/examination/<%=@patient.id%>'>Notes</option>
       </select>
       
         
       <select id="links">
         <option value="/investigation/new/<%=@patient.id%>">Investigation</option>
-        <option value="/film/size/<%=@patient.id%>">Film Sizes</option>
-        <option value = '/patients/examination/<%=@patient.id%>'>Report</option>
+        <option value="/film/size?id=<%=@patient.id%>&date=<%=@encounter_date%>">Film Sizes</option>
+        <option value = '/patients/examination?id=<%=@patient.id%>&date=<%=@encounter_date%>'>Notes</option>
         <!--option value = '/patients/radiology_visit_report?id=<%=@patient.id%>&date=<%=@encounter_date%>'>Visit report print</option-->
       </select>
     </div>

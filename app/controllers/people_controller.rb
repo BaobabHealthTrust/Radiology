@@ -140,7 +140,32 @@ class PeopleController < ApplicationController
       end
     end
   end
-  
+
+  def date_select
+    @selected = params[:id]
+  end
+
+  def show
+    start_year = params[:start_date]["(1i)"]
+    start_month = params[:start_date]["(2i)"]
+    start_day = params[:start_date]["(3i)"]
+
+    end_year = params[:end_date]["(1i)"]
+    end_month = params[:end_date]["(2i)"]
+    end_day = params[:end_date]["(3i)"]
+    case params[:id]
+      when 'overview'
+        @xray = 'Overview'
+      when 'film_used'
+        @xray = 'FILM SIZE'
+      when 'investigations'
+        @xray = 'EXAMINATION'
+    end
+    start_date = Date.new(start_year.to_i,start_month.to_i,start_day.to_i)
+    end_date = Date.new(end_year.to_i,end_month.to_i,end_day.to_i)
+    @encounters = Report.radiology(start_date,end_date)
+  end
+    
 private
   
   def search_complete_url(found_person_id, primary_person_id) 
