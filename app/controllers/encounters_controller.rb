@@ -1,23 +1,17 @@
 class EncountersController < ApplicationController
 
   def create
-    if params['encounter']['encounter_type_name'] == 'ART_INITIAL'
-      if params[:observations][0]['concept_name'] == 'EVER RECEIVED ART' and params[:observations][0]['value_coded_or_text'] == 'NO'
+    if params['encounter']['encounter_type_name'] == 'EXAMINATION'
+      if (params[:observations][1]['value_coded_or_text'] == 'Upper limb' or params[:observations][1]['value_coded_or_text'] == 'Lower limb')
+        limb_type = nil
+        (params[:observations] || []).each do |observation|
+          next unless observation['concept_name'] == 'LIMB TYPE' 
+          limb_type = observation['value_coded_or_text']
+        end 
+        params[:observations][1]['value_coded_or_text'] += ' - ' + limb_type
         observations = []
         (params[:observations] || []).each do |observation|
-          next if observation['concept_name'] == 'HAS TRANSFER LETTER'
-          next if observation['concept_name'] == 'HAS THE PATIENT TAKEN ART IN THE LAST TWO WEEKS'
-          next if observation['concept_name'] == 'HAS THE PATIENT TAKEN ART IN THE LAST TWO MONTHS'
-          next if observation['concept_name'] == 'ART NUMBER AT PREVIOUS LOCATION'
-          next if observation['concept_name'] == 'DATE ART LAST TAKEN'
-          next if observation['concept_name'] == 'LAST ART DRUGS TAKEN'
-          observations << observation
-        end
-      elsif params[:observations][4]['concept_name'] == 'DATE ART LAST TAKEN' and params[:observations][4]['value_datetime'] != 'Unknown'
-        observations = []
-        (params[:observations] || []).each do |observation|
-          next if observation['concept_name'] == 'HAS THE PATIENT TAKEN ART IN THE LAST TWO WEEKS'
-          next if observation['concept_name'] == 'HAS THE PATIENT TAKEN ART IN THE LAST TWO MONTHS'
+          next if observation['concept_name'] == 'LIMB TYPE' 
           observations << observation
         end
       end

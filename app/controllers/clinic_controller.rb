@@ -22,9 +22,8 @@ class ClinicController < ApplicationController
 
   def reports
     @reports = [
-                ["Overview","/people/date_select?id=overview"],
-                ["Film(s) used","/people/date_select?id=film_used"], 
-                ["Investigations", "/people/date_select?id=investigations"]
+                ["Investigations", "/people/date_select?id=investigations"],
+                ["Film(s) used","/people/date_select?id=film_used"]
               ]
     render :template => 'clinic/reports', :layout => 'clinic' 
   end

@@ -86,7 +86,9 @@
       </div>  
     </div>
     <script>
-          document.getElementById('navigation_value').innerHTML = current + " of " + total;
+      try {
+        document.getElementById('navigation_value').innerHTML = current + " of " + total;
+      } catch(e) {}
     </script>
   </body>
 </html>

@@ -1,0 +1,103 @@
+<html>
+<head>
+<%= stylesheet_link_tag "cohort" %>
+<style>
+  #head {
+    padding-left:10px;
+  }
+
+  #head p {
+    font-weight:bold;
+  }
+
+  table {
+    border-style:none;
+  }
+
+  th {
+    border-style:none;
+    border-width:1px;
+  }
+
+  td {
+    text-align:center;
+    vertical-align:top;
+  }
+
+  .row_break td {
+    border-width:0px;
+  }
+
+  div.scrollTableContainer {
+    border-style:solid;
+  }
+
+  .survival-analysis th, .survival-analysis td {
+    text-align:left;
+  }
+</style>
+
+<script>
+  var tt_cancel_destination = "/clinic"
+</script>
+</head>
+
+<body>
+
+<div id = 'head'>
+<h1><%= Location.current_health_center.name %></h1>
+<p><%= Location.current_location.name %></p>
+<p>Statastics by study for:&nbsp;<%=@start_date%>&nbsp;to&nbsp;<%=@end_date%></p>
+</div>
+
+<div class='scrollTableContainer'>
+<table class='dataTable' cellspacing='0'>
+<thead>
+<tr>
+  <th>&nbsp;</th>
+  <th style = "text-align:left;padding-left:10px;">DATE</th>
+  <th style = "text-align:left;padding-left:10px;">ENCOUNTER NAME</th>
+  <th>&nbsp;</th>
+  <th>&nbsp;</th>
+</tr>
+</thead>
+<tbody>
+
+<%@encounters.map do | date , values | %>
+<tr>
+  <td style ="border-width:0px">&nbsp;</td>
+  <td style="text-align:left;padding-left:10px;"><%=date%></td>
+  <td style="text-align:left;padding-left:10px;">
+    <% if @xray == "Overview" or @xray == 'FILM SIZE'%>
+      FILM SIZE<br />
+    <%end%>
+    <% if @xray == "Overview" or @xray == 'EXAMINATION'%>
+      EXAMINATION
+    <%end%>
+  </td>
+  <td style="text-align:center;">
+    <% if @xray == "Overview" or @xray == 'FILM SIZE'%>
+      <%=values['FILM SIZE']%><br />
+    <%end%>
+    <% if @xray == "Overview" or @xray == 'EXAMINATION'%>
+      <%=values['EXAMINATION']%>
+    <%end%>
+  </td>
+  <td style ="border-width:0px">&nbsp;</td>
+</tr>
+
+<tr class = 'row_break'>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+</tr>
+
+<%end%>
+
+
+</tbody>
+</table>
+</div>
+</body>
+</html>

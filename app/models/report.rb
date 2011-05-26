@@ -69,17 +69,22 @@ module Report
   def self.radiology(start_date,end_date)
     encounter_types = EncounterType.find(:all,:conditions =>["name IN (?)",['FILM SIZE','EXAMINATION']]).collect{| e | e.id } rescue []
     return if encounter_types.blank?
-    encounters = Hash.new()
-    observations = Encounter.find(:all,
+    statastics = Hash.new(0)
+    encounters = Encounter.find(:all,
       :conditions =>["DATE(encounter_datetime) >= ? AND DATE(encounter_datetime) <= ?
       AND encounter_type IN (?)",start_date,end_date,encounter_types])
 
-    observations.map do | obs |
-      name = obs.name
-      encounters[obs.encounter_datetime.to_date] = {"FILM SIZE" => 0 , "EXAMINATION" => 0} if encounters[obs.encounter_datetime.to_date].blank?
-      encounters[obs.encounter_datetime.to_date][name]+= 1
+    encounters.each do | encounter |
+      name = encounter.name
+      encounter.observations.each do | obs |
+        concept_name = obs.to_s.split(":")[0].to_s.strip rescue nil
+        obs_value = obs.to_s.split(":")[1].to_s.strip rescue nil
+        next if concept_name.blank?
+        next if concept_name == 'REGISTARTION'
+        statastics[obs_value]+=1
+      end
     end
-    encounters
+    statastics
   end
 
 end

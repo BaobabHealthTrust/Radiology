@@ -9,8 +9,8 @@
 
 <form id="dates" action="/people/show?id=<%=@selected%>" method="post"> 
 
-  <%= date_select :start_date, nil %>
+   <input type="text" field_type="date" id="start_date" name="start_date" value="" helpText="Select start date" />
 
-  <%= date_select :end_date, nil %>
+   <input type="text" field_type="date" id="end_date" name="end_date" value="" helpText="Select end date" />
 
 </form>
