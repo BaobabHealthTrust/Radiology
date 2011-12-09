@@ -1,126 +1,43 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xml:lang="en" xmlns="http://www.w3.org/1999/xhtml" lang="en">
-  <head>
-    <!--meta http-equiv="content-type" content="text/html; charset=UTF-8">
-    <title>Patients Show</title>
-    <link href="../stylesheets/touch-fancy.css" media="screen"
-      rel="stylesheet" type="text/css" />
-    <link href="../stylesheets/graytabs.css" media="screen" rel="stylesheet"
-      type="text/css" />
-    <link href="../stylesheets/dashboard.css" media="screen"
-      rel="stylesheet" type="text/css" />
-    <script language="javascript" type="text/javascript"
-      src="../javascripts/dashboard.js"></script-->
-    <style type="text/css">
-      .personal-details-label {
-        font-weight: bold;
-      }
+<script type="text/javascript">
+  tt_cancel_destination = "/clinic";
+</script>
+<style type="text/css">
 
-      #personal-details {
-        font-size: 1em;
-        height: 195px;
-        max-width: 720px;
-        margin: 5px;
-        overflow: auto;
-      }
+  a.button.green {
+    width:220px;
+    -moz-user-select:none;
+    border:0 none;
+    color:white;
+    cursor:pointer;
+    display:block;
+    font-weight:bold;
+    padding:0 8px 0 0;
+    text-align:center;
+    text-decoration:none;
+    background:#00FF00 none repeat scroll 0 0;
+    font-size:1.4em;
+    height:57px;
+    line-height:57px;
+    min-width:48px;
+    margin-top:10px
+  }
 
-      #menu {
-        float: right;
-        height: 680px;
-        overflow: auto;
-        width: 253px;
-        border: thin solid #EEEEEE;
-        margin-right: 5px;
-        margin-top: 5px;
-      }
+</style>
 
-      .menu-button {
-        width: 245px;
-      }
-
-      #visit-summary {
-        background: none repeat scroll 0 0 white;
-        margin-top: 10px;
-        float: left;
-        height: 236px;
-        width: 276px;
-      }
-
-      #btnCancel , #btnNext {
-        margin-top: 10px;
-        min-width: 140px;
-      }
-
-      #patient-dashboard-applicationname span {
-        font-size:32px;
-      }
-    
-      .patientLabel {
-        width:40%;
-      }
-    </style>
-    <script language="javascript">
-      tstUsername = "<%=User.current_user.username%>";
-      tstCurrentDate = "<%=session[:datetime].to_date rescue Date.today %>";
-      tt_cancel_show = '/clinic';
-      tt_cancel_destination = '/clinic';
-      var plot;
-
-      
-      function disable(){
-        buttons = document.getElementsByClassName('blue')
-
-
-        <% if @examination.blank? %>
-          for (i = 0 ; i < buttons.length ; i++) {
-            if (!buttons[i].attributes[2].value.match(/investigation/))
-              buttons[i].style.display = 'none'
-              //buttons[i].disabled = true;
-          }
-        <% else %>
-          for (i = 0 ; i < buttons.length ; i++) {
-            if (buttons[i].attributes[2].value.match(/investigation/))
-              buttons[i].style.display = 'none'
-              //buttons[i].disabled = true;
-          }
-        <% end %>
-      }
-    </script>
-  </head>
-  <body id="container" onload = 'disable();'>
-    <div id="dashboard">
-      <div id="project_name"><span style="font-size: 0.7em">Radiology</span></div>        
-      <div id="patient_name"><%=@patient.name%></div>
-      <div id="patient_id"><%=@patient.national_id_with_dashes%></div> 
-
-      <div id="patient_card">
-        <div id="patient_gender" value="Female" style="font-size: 0.4em">Gender</div>
-        <div id="access_number" value="<%=@patient.person.age%>">Age</div>
-        <div id="access_number" value="<%=@referredfrom%>"> Referral From</div>
-        <div id="exam_number" value="<%= @examnum %>">Exam Number</div>
-        <div id="type_of_exam" value="<%=@examtype%>">Type of Exam</div>
-      </div>
-
-      <select id="tabs">
-        <option value = '/patients/visit_summary?id=<%=@patient.id%>&date=<%=@encounter_date%>'>Visit Summary</option>
-        <option value = '/investigation/previous_investigations/<%=@patient.id%>'>Previous Investigations</a></option>
-        <option value = '/film/previous_films/<%=@patient.id%>'>Film Sizes</option>
-        <option value = '/report/examination/<%=@patient.id%>'>Notes</option>
-      </select>
-      
-        
-      <select id="links">
-        <option value="/investigation/new/<%=@patient.id%>">Investigation</option>
-        <option value="/film/size?id=<%=@patient.id%>&date=<%=@encounter_date%>">Film Sizes</option>
-        <option value = '/patients/examination?id=<%=@patient.id%>&date=<%=@encounter_date%>'>Notes</option>
-        <!--option value = '/patients/radiology_visit_report?id=<%=@patient.id%>&date=<%=@encounter_date%>'>Visit report print</option-->
-      </select>
-    </div>
-
-    <!--div id="footer" class="dark">
-    <div id="buttons" class="buttons" style="top: 0px;">
-      <button id="finish" class="green"
-        onmousedown="window.location = 'application_dashboard.html'"><span>Finish</span></button>
-    </div!-->
-  </body>
-</html>
+<div style="margin:10px;">
+  <div id="details" style="float:left">
+    <%= render :partial => "details" %>
+    <%= render :partial => "current_encounters" %>
+  </div>
+  <div id="menu" style="float:right">
+    <a class="button green" href='/encounter_types?patient_id=<%= @patient.id -%>'>Encounters</a>
+    <!--
+    <a class="button green" href='/encounters/new/vitals?patient_id=<%= @patient.id -%>'>Weight/Height</a>
+    <a class="button green" href='/encounters/new/outpatient_diagnosis?patient_id=<%= @patient.id -%>'>Diagnosis</a>
+    -->
+    <a class="button green" href='/prescriptions/?patient_id=<%= @patient.id -%>'>Prescriptions</a>
+    <a class="button green" href='/encounters/new/appointment?patient_id=<%= @patient.id -%>'>Next Appointment</a>
+    <a class="button green" href='/patients/print_registration?patient_id=<%= @patient.id -%>'>Print Registration</a>
+    <a class="button green" href='/patients/print_visit?patient_id=<%= @patient.id -%>'>Print Visit</a>
+  </div>
+</div>  

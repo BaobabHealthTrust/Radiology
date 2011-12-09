@@ -26,14 +26,22 @@ class PatientIdentifier < ActiveRecord::Base
     return checkdigit
   end
 
+  def self.site_prefix
+    site_prefix = GlobalProperty.find_by_property("site_prefix").property_value rescue nil
+    return site_prefix
+  end
+
   def self.next_available_arv_number
-    current_arv_code = Location.current_arv_code
+    current_arv_code = self.site_prefix
     type = PatientIdentifierType.find_by_name('ARV Number').id
     current_arv_number_identifiers = PatientIdentifier.find(:all,:conditions => ["identifier_type = ? AND voided = 0",type])
+
     assigned_arv_ids = current_arv_number_identifiers.collect{|identifier|
-      $1.to_i if identifier.identifier.match(/#{current_arv_code} *(\d+)/)
+      $1.to_i if identifier.identifier.match(/#{current_arv_code}-ARV- *(\d+)/)
     }.compact unless current_arv_number_identifiers.nil?
+
     next_available_number = nil
+
     if assigned_arv_ids.empty?
       next_available_number = 1
     else
@@ -55,46 +63,39 @@ class PatientIdentifier < ActiveRecord::Base
     return patient_identifier
   end
 
-  def self.out_of_range_arv_numbers(arv_number_range, start_date , end_date)
-    arv_number_id             = PatientIdentifierType.find_by_name('ARV Number').patient_identifier_type_id
-    national_identifier_id    = PatientIdentifierType.find_by_name('National id').patient_identifier_type_id
-    arv_start_number          = arv_number_range.first
-    arv_end_number            = arv_number_range.last
+  def self.next_filing_number(type = 'Filing Number')
+    available_numbers = self.find(:all,
+                                  :conditions => ['identifier_type = ?',
+                                  PatientIdentifierType.find_by_name(type).id]).map{ | i | i.identifier }
+    
+    filing_number_prefix = GlobalProperty.find_by_property("filing.number.prefix").property_value rescue "FN101,FN102" 
+    prefix = filing_number_prefix.split(",")[0][0..3] if type.match(/filing/i)
+    prefix = filing_number_prefix.split(",")[1][0..3] if type.match(/Archived/i)
 
-    out_of_range_arv_numbers  = PatientIdentifier.find_by_sql(["SELECT patient_id, identifier, date_created FROM patient_identifier
-                                                                WHERE identifier_type = ? AND  identifier >= ?
-                                                                AND identifier <= ?
-                                                                AND (NOT EXISTS(SELECT * FROM patient_identifier
-                                                                    WHERE identifier_type = ? AND date_created >= ? AND date_created <= ?))",
-                                                                      arv_number_id,  arv_start_number,  arv_end_number,
-                                                                      arv_number_id, start_date, end_date])
-    out_of_range_arv_numbers_data = []
-    out_of_range_arv_numbers.each do |arv_num_data|
-      patient     = Person.find(arv_num_data[:patient_id].to_i)
-      national_id = PatientIdentifier.identifier(arv_num_data[:patient_id], national_identifier_id).identifier rescue ""
+    len_of_identifier = (filing_number_prefix.split(",")[0][-1..-1] + "00000").to_i if type.match(/filing/i)
+    len_of_identifier = (filing_number_prefix.split(",")[1][-1..-1] + "00000").to_i if type.match(/Archived/i)
+    possible_identifiers_range = GlobalProperty.find_by_property("filing.number.range").property_value.to_i rescue 300000
+    possible_identifiers = Array.new(possible_identifiers_range){|i|prefix + (len_of_identifier + i +1).to_s}
 
-      out_of_range_arv_numbers_data <<[arv_num_data[:patient_id], arv_num_data[:identifier], patient.name,
-                national_id,patient.gender,patient.age,patient.birthdate,arv_num_data[:date_created].strftime("%Y-%m-%d %H:%M:%S")]
-    end
-
-    out_of_range_arv_numbers_data
+    ((possible_identifiers)-(available_numbers.compact.uniq)).first
   end
 
-  def self.next_available_exam_number
-    prefix = 'R'
-    last_exam_num = Observation.find(:first, :order => "value_text DESC",
-                                     :conditions => ["concept_id = ?", 
-                                     ConceptName.find_by_name('EXAM NUMBER').concept_id]).value_text rescue []
-
-    index = 0  
-    last_exam_num.each_char do | c |         
-      next if c == prefix
-      break unless c == '0'
-      index+=1
-    end unless last_exam_num.blank?
-
-    last_exam_num = '0' if last_exam_num.blank?
-    prefix + (last_exam_num[index..-1].to_i + 1).to_s.rjust(8,'0')
+  def self.next_available_exam_number                                           
+    prefix = 'R'                                                                
+    last_exam_num = Observation.find(:first, :order => "value_text DESC",       
+                   :conditions => ["concept_id = ?",
+                   ConceptName.find_by_name('EXAM NUMBER').concept_id]
+                   ).value_text rescue []
+                                                                                
+    index = 0                                                                   
+    last_exam_num.each_char do | c |                                            
+      next if c == prefix                                                       
+      break unless c == '0'                                                     
+      index+=1                                                                  
+    end unless last_exam_num.blank?                                             
+                                                                                
+    last_exam_num = '0' if last_exam_num.blank?                                 
+    prefix + (last_exam_num[index..-1].to_i + 1).to_s.rjust(8,'0')              
   end
 
 end

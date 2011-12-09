@@ -1,0 +1,68 @@
+<html>
+  <head>
+    <title>Patient Dashboard</title>
+    <script type="text/javascript" language="javascript"
+    src="/touchscreentoolkit/lib/javascripts/touchScreenToolkit.js" defer  ></script>
+    <meta http-equiv='content-type' content='text/html;charset=UTF-8' />
+    <script language="javascript">
+      tstUsername = "";
+      tstCurrentDate = "<%= @date %>";
+      //tt_cancel_destination = '/clinic';
+      tt_cancel_show = '/clinic';
+    </script>
+    <style>
+      #tab5 {
+        background-color: white;
+        border: 0 none;
+        color: black;
+        font-weight: bold;
+      }
+    </style>
+  </head>
+  <body><div id='content'>
+      <div id='description' style='color:#777;position:absolute;margin-top:-70px;'></div><center>
+        <form id = 'dashboard' action='/clinic'>
+          <table cellpadding=10>
+            <tr>
+              <th colspan=2>Patient Dashboard</th>
+            </tr>
+            <h1 id='project_name'>
+               <span style="font-size: 55px;">Radiology</span>
+            </h1>
+            <span id='patient_name'><%= @patient_bean.name rescue "" %></span>
+            <span id='patient_id'><%= @patient_bean.national_id_with_dashes rescue "" %></span>
+            <span id='patient_residence'><%= @patient_bean.current_residence rescue "" %></span>
+            <span id='patient_age'><%= @patient_bean.age rescue "" %></span>
+            <span id='patient_gender'><%= @patient_bean.sex rescue "" %></span>
+
+            <div id="patient_card">
+              <% if (@patient_bean.pre_art_number rescue nil) != nil && (@patient_bean.pre_art_number) != " " %>
+                <span value="<%= @patient_bean.pre_art_number rescue "" %>">Exam Number</span>
+              <% end 
+                 session_date = session[:datetime].to_date rescue Date.today
+                 task = @task
+                 task_name = (task.encounter_type || 'NONE').upcase rescue 'NONE'
+              %>
+            </div>
+            <select id="tabs">
+              <option value='/patients/overview/<%= @patient_bean.patient_id %>'>Visit summary</option>
+              <option value='/investigation/previous_investigations/<%= @patient_bean.patient_id %>'>Previous Investigation</option>
+              <option value='/film/previous_films/<%= @patient_bean.patient_id %>'>Film sizes used</option>
+              <option value='/report/examination/<%= @patient_bean.patient_id -%>'>Notes made</option>
+            </select>
+            <select id="links">
+              <option value='/investigation/new/<%=@patient_bean.patient_id%>'>Investigation</option>
+              <option value='/film/size/<%=@patient_bean.patient_id%>'>Film Sizes</option>
+              <option value='/patients/examination/<%=@patient_bean.patient_id%>'>Notes</option>
+            </select>
+            <tr>
+              <td align='center'>
+                <input type='submit' value='Finish' />
+              </td>
+            </tr>
+          </table>
+        </form>
+      </center>
+    </div>
+  </body>
+</html>

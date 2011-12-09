@@ -8,7 +8,7 @@ class ProgramsController < ApplicationController
                                     :joins => "INNER JOIN location l ON l.location_id = patient_program.location_id
                                                INNER JOIN program p ON p.program_id = patient_program.program_id",
                                     :select => "p.name program_name ,l.name location_name,patient_program.date_completed date_completed",
-                                    :conditions =>["voided = 0 AND patient_id = ?",params[:patient_id]]
+                                    :conditions =>["voided = 0 AND patient_id = ? AND date_completed IS NULL",params[:patient_id]]
                                     ).map{|pat_program|
                                       [pat_program.program_name,pat_program.location_name] if pat_program.date_completed.blank?
                                     }
@@ -22,8 +22,10 @@ class ProgramsController < ApplicationController
     invalid_date = false
     initial_date = params[:initial_date].to_date
     active_programs.map{ | program |
-      next if program.date_completed.blank? and program.date_enrolled.blank?
-      invalid_date = (initial_date >= program.date_enrolled.to_date and initial_date < program.date_completed.to_date)
+		if !(program.date_completed.blank? and program.date_enrolled.blank?)
+			#raise "Initial date -> " + initial_date.to_s + " Date enrolled -> " + program.date_enrolled.to_date.to_s + " Date completed -> " + program.date_completed.to_date.to_s
+      		invalid_date = (initial_date >= program.date_enrolled.to_date and initial_date < program.date_completed.to_date)
+		end
     }
 
     if invalid_date
@@ -41,7 +43,7 @@ class ProgramsController < ApplicationController
       :start_date => params[:initial_date]) 
     if @patient_program.save && @patient_state.save
       redirect_to session[:return_to] and return unless session[:return_to].blank?
-      redirect_to :controller => :patients, :action => :programs, :patient_id => @patient.patient_id
+      redirect_to :controller => :patients, :action => :programs_dashboard, :patient_id => @patient.patient_id
     else 
       flash.now[:error] = @patient_program.errors.full_messages.join(". ")
       render :action => "new"
@@ -61,8 +63,18 @@ class ProgramsController < ApplicationController
   
   def locations
     #@locations = Location.most_common_program_locations(params[:q] || '')
-    @locations = Location.most_common_locations(params[:q] || '')
-    @names = @locations.map{|location| "<li value='#{location.location_id}'>#{location.name}</li>" }
+    if params[:transfer_type].blank? || params[:transfer_type].nil?
+        @locations = most_common_locations(params[:q] || '')
+    else
+        search = params[:q] || ''
+        location_tag_id = LocationTag.find_by_name("#{params[:transfer_type]}").id
+        location_ids = LocationTagMap.find(:all,:conditions => ["location_tag_id = (?)",location_tag_id]).map{|e|e.location_id}
+        @locations = Location.find(:all, :conditions=>["location.retired = 0 AND location_id IN (?) AND name LIKE ?", location_ids, "#{search}%"])
+    end
+    @names = @locations.map do | location | 
+      next if generic_locations.include?(location.name)
+      "<li value='#{location.location_id}'>#{location.name}</li>" 
+    end
     render :text => @names.join('')
   end
   
@@ -73,9 +85,14 @@ class ProgramsController < ApplicationController
   end
   
   def states
-    @states = ProgramWorkflowState.all(:conditions => ['program_workflow_id = ?', params[:workflow]], :include => :concept)
+    if params[:show_non_terminal_states_only].to_s == true.to_s
+       @states = ProgramWorkflowState.all(:conditions => ['program_workflow_id = ? AND terminal = 0', params[:workflow]], :include => :concept)
+    else
+       @states = ProgramWorkflowState.all(:conditions => ['program_workflow_id = ?', params[:workflow]], :include => :concept)
+    end
+    
     @names = @states.map{|state|
-      name = state.concept.fullname rescue nil
+      name = state.concept.concept_names.typed("SHORT").first.name rescue state.concept.fullname
       next if name.blank? 
       "<li value='#{state.id}'>#{name}</li>" unless name == params[:current_state]
     }
@@ -83,22 +100,30 @@ class ProgramsController < ApplicationController
   end
 
   def update
+    flash[:error] = nil
+
     if request.method == :post
       patient_program = PatientProgram.find(params[:patient_program_id])
       #we don't want to have more than one open states - so we have to close the current active on before opening/creating a new one
+
       current_active_state = patient_program.patient_states.last
       current_active_state.end_date = params[:current_date].to_date
-      current_active_state.save
+
+       # set current location via params if given
+      Location.current_location = Location.find(params[:location]) if params[:location]
 
       patient_state = patient_program.patient_states.build(
         :state => params[:current_state],
-        :start_date => params[:current_date]) 
+        :start_date => params[:current_date])
       if patient_state.save
+		    # Close and save current_active_state if a new state has been created
+		   current_active_state.save
+
         if patient_state.program_workflow_state.concept.fullname == 'PATIENT TRANSFERRED OUT' 
           encounter = Encounter.new(params[:encounter])
           encounter.encounter_datetime = session[:datetime] unless session[:datetime].blank?
           encounter.save
-          
+
           (params[:observations] || [] ).each do |observation|
             #for now i do this
             obs = {}
@@ -109,7 +134,7 @@ class ProgramsController < ApplicationController
             obs[:person_id] ||= encounter.patient_id  
             Observation.create(obs)
           end
-     
+
           observation = {} 
           observation[:concept_name] = 'TRANSFER OUT TO'
           observation[:encounter_id] = encounter.id
@@ -118,27 +143,81 @@ class ProgramsController < ApplicationController
           observation[:value_text] = Location.find(params[:transfer_out_location_id]).name rescue "UNKNOWN"
           Observation.create(observation)
         end  
-       
-        updated_state = patient_state.program_workflow_state.concept.fullname 
-        if updated_state == 'PATIENT TRANSFERRED OUT' or updated_state == 'PATIENT DIED'
-          #could not get the commented block of code to update - so I just kinda wrote a hack :(
-          # will improve during code clean up!
-          #unless patient_program.update_attributes({:date_completed => Time.now()})
-           # flash[:notice] = "OOps! Program completed date was not updated!."
-          #end
-          date_completed = session[:datetime].to_time rescue Time.now()
+
+        updated_state = patient_state.program_workflow_state.concept.fullname
+
+		#disabled redirection during import in the code below
+		# Changed the terminal state conditions from hardcoded ones to terminal indicator from the updated state object
+        if patient_state.program_workflow_state.terminal == 1
+          #the following code updates the person table to died yes if the state is Died/Death
+          if updated_state.match(/DIED/i)
+            person = patient_program.patient.person
+            person.dead = 1
+            unless params[:current_date].blank?
+              person.death_date = params[:current_date].to_date
+            end
+            person.save
+
+            #updates the state of all patient_programs to patient died and save the
+            #end_date of the last active state.
+            current_programs = PatientProgram.find(:all,:conditions => ["patient_id = ?",@patient.id])
+            current_programs.each do |program|
+              if patient_program.to_s != program.to_s
+                current_active_state = program.patient_states.last
+                current_active_state.end_date = params[:current_date].to_date
+
+                Location.current_location = Location.find(params[:location]) if params[:location]
+
+                patient_state = program.patient_states.build(
+                    :state => params[:current_state],
+                    :start_date => params[:current_date])
+                if patient_state.save
+		              current_active_state.save
+
+		          # date_completed = session[:datetime].to_time rescue Time.now()
+                date_completed = params[:current_date].to_date rescue Time.now()
+                PatientProgram.update_all "date_completed = '#{date_completed.strftime('%Y-%m-%d %H:%M:%S')}'",
+                                       "patient_program_id = #{program.patient_program_id}"
+                end
+             end
+            end
+          end
+
+          # date_completed = session[:datetime].to_time rescue Time.now()
+          date_completed = params[:current_date].to_date rescue Time.now()
           PatientProgram.update_all "date_completed = '#{date_completed.strftime('%Y-%m-%d %H:%M:%S')}'",
                                      "patient_program_id = #{patient_program.patient_program_id}"
+        else
+          person = patient_program.patient.person
+          person.dead = 0
+          person.save
+          date_completed = nil
+          PatientProgram.update_all "date_completed = NULL",
+                                     "patient_program_id = #{patient_program.patient_program_id}"
         end
-        redirect_to :controller => :patients, :action => :programs, :patient_id => params[:patient_id]
+        #for import
+         unless params[:location]
+            redirect_to :controller => :patients, :action => :programs_dashboard, :patient_id => params[:patient_id]
+         else
+            render :text => "import suceeded" and return
+         end
+        
       else
-        redirect_to :controller => :patients, :action => :programs, :patient_id => params[:patient_id]
+        #for import
+        unless params[:location]
+          redirect_to :controller => :patients, :action => :programs_dashboard, :patient_id => params[:patient_id],:error => "Unable to update state"
+        else
+            render :text => "import suceeded" and return
+        end
       end
     else
       patient_program = PatientProgram.find(params[:id])
       unless patient_program.date_completed.blank?
-        redirect_to :controller => :patients, :action => :programs, 
-          :patient_id => patient_program.patient.id, :error => "Patient have completed this program" and return
+        unless params[:location]
+            flash[:error] = "The patient has already completed this program!"
+       else
+          render :text => "import suceeded" and return
+       end   
       end
       @patient = patient_program.patient
       @patient_program_id = patient_program.patient_program_id
@@ -166,6 +245,29 @@ class ProgramsController < ApplicationController
         @invalid_date_ranges = closed_states.join(',')
       end
     end
-  end 
+  end
+
+  # Looks for the most commonly used element in the database and sorts the results based on the first part of the string
+  def most_common_program_locations(search)
+    return (Location.find_by_sql([
+      "SELECT DISTINCT location.name AS name, location.location_id AS location_id \
+       FROM location \
+       INNER JOIN patient_program ON patient_program.location_id = location.location_id AND patient_program.voided = 0 \
+       WHERE location.retired = 0 AND name LIKE ? \
+       GROUP BY patient_program.location_id \
+       ORDER BY INSTR(name, ?) ASC, COUNT(name) DESC, name ASC \
+       LIMIT 10",
+       "%#{search}%","#{search}"]) + [Location.current_health_center]).uniq
+  end
+
+  def most_common_locations(search)
+    return (Location.find_by_sql([
+      "SELECT DISTINCT location.name AS name, location.location_id AS location_id \
+       FROM location \
+       WHERE location.retired = 0 AND name LIKE ? \
+       ORDER BY name ASC \
+       LIMIT 10",
+       "%#{search}%"])).uniq
+  end
 
 end

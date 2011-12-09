@@ -11,20 +11,28 @@ class User < ActiveRecord::Base
   cattr_accessor :current_user
   attr_accessor :plain_password
 
+  belongs_to :person, :foreign_key => :person_id, :conditions => {:voided => 0}
   has_many :user_properties, :foreign_key => :user_id # no default scope
   has_many :user_roles, :foreign_key => :user_id, :dependent => :delete_all # no default scope
-  has_many :names, :class_name => 'PersonName', :foreign_key => :person_id, :dependent => :destroy, :order => 'person_name.preferred DESC', :conditions => {:voided =>  0}
+  #has_many :names, :class_name => 'PersonName', :foreign_key => :person_id, :dependent => :destroy, :order => 'person_name.preferred DESC', :conditions => {:voided =>  0}
+
+
+   has_one :activities_property,
+          :class_name => 'UserProperty',
+          :foreign_key => :user_id,
+          :conditions => ['property = ?', 'Activities'] 
+
 
   def first_name
-    self.names.first.given_name rescue ''
+    self.person.names.first.given_name rescue ''
   end
 
   def last_name
-    self.names.first.family_name rescue ''
+    self.person.names.first.family_name rescue ''
   end
 
   def name
-    name = self.names.first
+    name = self.person.names.first
     "#{name.given_name} #{name.family_name}"
   end
 
@@ -81,10 +89,21 @@ class User < ActiveRecord::Base
   def self.encrypt(password,salt)
     Digest::SHA1.hexdigest(password+salt)
   end
- 
-  # This goes away after 1.6 is here I think, but the users table in 1.5 has no
-  # auto-increment
-  def self.auto_increment
-    User.last.user_id + 1 rescue 0
+  
+  def activities
+    a = activities_property
+    return [] unless a
+    a.property_value.split(',')
   end
+
+  # Should we eventually check that they cannot assign an activity they don't
+  # have a corresponding privilege for?
+  def activities=(arr)
+    prop = activities_property || UserProperty.new
+    prop.property = 'Activities'
+    prop.property_value = arr.join(',')
+    prop.user_id = self.id
+    prop.save
+  end
+
 end

@@ -20,7 +20,7 @@ class FilmController < ApplicationController
                                                     'Good film' => nil,
                                                   } if @previous_films[obs.obs_datetime.to_date].blank? 
 
-      case  name
+      case name.upcase
         when 'SIZE'
           @previous_films[obs.obs_datetime.to_date]['Size'] = value
         when 'BAD'

@@ -10,7 +10,10 @@
     confirmYesNo("Void this item?", function() {
       hideConfirmation();
       $.post('/encounters/void/' + node.parent().attr('encounter'), {}, function(data, status) {
-        if (status == 'success') node.parent().remove();
+        if (status == 'success') {
+          document.getElementById('observations').innerHTML = '';
+          node.parent().remove();
+        }
       })
     }, function() { hideConfirmation(); });
   }
@@ -40,12 +43,12 @@
           <li class="data even">
             <div class="program">There are no current programs for this patient</div>
           </li>        
-        <% end %><!-->        
+        <% end %>      
         <% for prog in @programs do %>
           <li class="data <%= cycle('even', 'odd') %>" program="<%= prog.id %>">  
             <div class="patient_state"><%#=h prog.patient_states.last.to_s.humanize + " (#{prog.program.name})"%></div>
           </li>  
-        <% end %><-->
+        <% end %>
       </ul>
     </div>
     <div id="treatment" class="panel">

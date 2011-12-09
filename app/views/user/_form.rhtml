@@ -9,7 +9,6 @@
 
       <p><label for="user_confirm_password">Re-enter Password</label><br/>
       <%= password_field 'user_confirm', 'password', :xhelpText => 'Password',:textCase =>"lower",:validationRule =>"\\w{4}\\w*", :validationMessage =>"Password less than FOUR characters." %></p>
-      
   <%when "edit"%>
      <p><label for="person_name_given_name">First name</label><br/>
       <%= text_field 'person_name', 'given_name', :ajaxURL => '/person_names/given_names?search_string=', :value => @user_first_name ,:allowFreeText => true%></p>

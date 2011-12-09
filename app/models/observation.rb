@@ -11,6 +11,7 @@ class Observation < ActiveRecord::Base
   has_many :concept_names, :through => :concept
 
   named_scope :recent, lambda {|number| {:order => 'obs_datetime DESC,date_created DESC', :limit => number}}
+  named_scope :old, lambda {|number| {:order => 'obs_datetime ASC,date_created ASC', :limit => number}}
   named_scope :question, lambda {|concept|
     concept_id = concept.to_i
     concept_id = ConceptName.first(:conditions => {:name => concept}).concept_id rescue 0 if concept_id == 0
@@ -90,45 +91,59 @@ class Observation < ActiveRecord::Base
   end
 
   def to_s(tags=[])
+    formatted_name = self.concept_name.typed(tags).name rescue nil
+    formatted_name ||= self.concept_name.name rescue nil
+    formatted_name ||= self.concept.concept_names.typed(tags).first.name || self.concept.fullname rescue nil
+    formatted_name ||= self.concept.concept_names.first.name rescue 'Unknown concept name'
+    "#{formatted_name}:  #{self.answer_string(tags)}"
+  end
+
+  def name(tags=[])
     formatted_name = self.concept_name.tagged(tags).name rescue nil
     formatted_name ||= self.concept_name.name rescue nil
     formatted_name ||= self.concept.concept_names.tagged(tags).first.name rescue nil
     formatted_name ||= self.concept.concept_names.first.name rescue 'Unknown concept name'
-    "#{formatted_name}: #{self.answer_string(tags)}"
+    "#{self.answer_string(tags)}"
   end
 
   def answer_string(tags=[])
-    coded_answer_name = self.answer_concept.concept_names.tagged(tags).first.name rescue nil
+    coded_answer_name = self.answer_concept.concept_names.typed(tags).first.name rescue nil
     coded_answer_name ||= self.answer_concept.concept_names.first.name rescue nil
-    coded_name = "#{coded_answer_name}#{self.value_text}#{self.value_numeric}#{self.value_datetime.strftime("%d/%b/%Y") rescue nil}#{self.value_boolean && (self.value_boolean == true ? 'Yes' : 'No' rescue nil)}#{' ['+order.to_s+']' if order_id && tags.include?('order')}"
+    coded_name = "#{coded_answer_name} #{self.value_modifier}#{self.value_text} #{self.value_numeric}#{self.value_datetime.strftime("%d/%b/%Y") rescue nil}#{self.value_boolean && (self.value_boolean == true ? 'Yes' : 'No' rescue nil)}#{' ['+order.to_s+']' if order_id && tags.include?('order')}"
     #the following code is a hack
     #we need to find a better way because value_coded can also be a location - not only a concept
     return coded_name unless coded_name.blank?
-    ConceptName.find_by_concept_id(self.value_coded).name rescue ''
+    Concept.find_by_concept_id(self.value_coded).concept_names.typed("SHORT").first.name || ConceptName.find_by_concept_id(self.value_coded).name rescue ''
   end
 
-  def self.patients_with_multiple_start_reasons(start_date , end_date)
-    art_eligibility_id      = ConceptName.find_by_name('REASON FOR ART ELIGIBILITY').concept_id
-    arv_number_id           = PatientIdentifierType.find_by_name('ARV Number').patient_identifier_type_id
-    national_identifier_id  = PatientIdentifierType.find_by_name('National id').patient_identifier_type_id
+  def self.new_accession_number
+    last_accn_number = Observation.find(:last, :conditions => ["accession_number IS NOT NULL" ], :order => "accession_number + 0").accession_number.to_s rescue "00" #the rescue is for the initial accession number start up
+    last_accn_number_with_no_chk_dgt = last_accn_number.chop.to_i
+    new_accn_number_with_no_chk_dgt = last_accn_number_with_no_chk_dgt + 1
+    chk_dgt = PatientIdentifier.calculate_checkdigit(new_accn_number_with_no_chk_dgt)
+    new_accn_number = "#{new_accn_number_with_no_chk_dgt}#{chk_dgt}"
+    return new_accn_number.to_i
+  end
 
-    patients = self.find_by_sql(["SELECT person_id, concept_id, date_created, value_coded_name_id FROM obs
-                                           WHERE (SELECT COUNT(*) FROM obs observation
-                                                  WHERE observation.concept_id = ?
-                                                    AND observation.person_id = obs.person_id) >= 1
-                                                    AND date_created >= ? AND date_created <= ?
-                                                    AND obs.concept_id = ?", art_eligibility_id, start_date , end_date, art_eligibility_id])
-    patients_data = []
+  def to_s_location(tags=[])
+    formatted_name = self.concept_name.tagged(tags).name rescue nil
+    formatted_name ||= self.concept_name.name rescue nil
+    formatted_name ||= self.concept.concept_names.tagged(tags).first.name rescue nil
+    formatted_name ||= self.concept.concept_names.first.name rescue 'Unknown concept name'
+    "#{formatted_name}:  #{Location.find(self.answer_string(tags)).name}"
+  end
 
-    patients.each do |reason|
-      arv_number   = PatientIdentifier.identifier(reason[:person_id], arv_number_id).identifier           rescue []
-      national_id  = PatientIdentifier.identifier(reason[:person_id], national_identifier_id).identifier  rescue []
-      start_reason = ConceptName.find(reason[:value_coded_name_id]).name
-
-      patients_data << [reason[:person_id].to_s, arv_number, national_id,
-                 reason[:date_created].strftime("%Y-%m-%d %H:%M:%S") , start_reason]
-    end
-
-    patients_data
+  def to_s_location_name(tags=[])
+    formatted_name = self.concept_name.tagged(tags).name rescue nil
+    formatted_name ||= self.concept_name.name rescue nil
+    formatted_name ||= self.concept.concept_names.tagged(tags).first.name rescue nil
+    formatted_name ||= self.concept.concept_names.first.name rescue 'Unknown concept name'
+    "#{Location.find(self.answer_string(tags)).name}"
+  end
+  
+  def to_s_formatted
+    text = "#{self.concept.fullname rescue 'Unknown concept name'}"
+    text += ": #{self.answer_string}" if(self.answer_string.downcase != "yes" && self.answer_string.downcase != "unknown")
+    text
   end
 end

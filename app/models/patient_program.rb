@@ -9,6 +9,12 @@ class PatientProgram < ActiveRecord::Base
 
   named_scope :current, :conditions => ['date_enrolled < NOW() AND (date_completed IS NULL OR date_completed > NOW())']
   named_scope :local, lambda{|| {:conditions => ['location_id IN (?)',  Location.current_health_center.children.map{|l|l.id} + [Location.current_health_center.id] ]}}
+
+  named_scope :in_programs, lambda{|names| names.blank? ? {} : {:include => :program, :conditions => ['program.name IN (?)', Array(names)]}}
+  named_scope :not_completed, lambda{|tags| tags.blank? ? {} : {:conditions => ['date_completed IS NULL']}}
+
+  named_scope :in_uncompleted_programs, lambda{|names| names.blank? ? {} : {:include => :program, :conditions => ['program.name IN (?) AND date_completed IS NULL', Array(names)]}}
+
   validates_presence_of :date_enrolled, :program_id
 
   def validate
@@ -33,14 +39,16 @@ class PatientProgram < ActiveRecord::Base
   end
 
   def to_s
-    "#{self.program.concept.fullname rescue nil} (at #{location.name rescue nil})"
+    "#{self.program.concept.concept_names.typed("SHORT").first.name rescue program.concept.concept_names.first.name} (at #{location.name rescue nil})"
   end
   
   def transition(params)
     ActiveRecord::Base.transaction do
       # Find the state by name
-      selected_state = self.program.program_workflows.map(&:program_workflow_states).flatten.select{|pws| pws.concept.fullname == params[:state]}.first rescue nil
-      state = self.patient_states.last
+      # Used upcase below as we were having problems matching the concept fullname with the state
+      # I hope this will sort the problem and doesnt break anything
+      selected_state = self.program.program_workflows.map(&:program_workflow_states).flatten.select{|pws| pws.concept.fullname.upcase() == params[:state].upcase()}.first rescue nil
+      state = self.patient_states.last rescue []
       if (state && selected_state == state.program_workflow_state)
         # do nothing as we are already there
       else
@@ -75,11 +83,9 @@ class PatientProgram < ActiveRecord::Base
     obs.first.value_coded rescue nil
   end
 
+  # Actually returns +Concept+s of suitable +Regimen+s for the given +weight+
   def regimens(weight=nil)
-    Regimen.program(program_id).criteria(weight).all(
-      :select => 'concept_id', 
-      :group => 'concept_id, program_id',
-      :include => :concept).map(&:concept)
+    self.program.regimens(weight)
   end
 
   def closed?

@@ -14,12 +14,12 @@ class InvestigationController < ApplicationController
       value = obs_to = obs.to_s.split(':')[1].strip
       next if name == 'WORKSTATION LOCATION'
       @previous_investigations[obs.obs_datetime.to_date] = {
-                                                            'Investigation type' => nil,
-                                                            'Xray type' => nil,
-                                                            'Referred from' => nil,
-                                                            'Payment method' => nil,
-                                                            } if @previous_investigations[obs.obs_datetime.to_date].blank? 
-      case  name
+                              'Investigation type' => nil,
+                              'Xray type' => nil,
+                              'Referred from' => nil,
+                              'Payment method' => nil,
+                              } if @previous_investigations[obs.obs_datetime.to_date].blank? 
+      case name.upcase
         when 'INVESTIGATION TYPE'
           @previous_investigations[obs.obs_datetime.to_date]['Investigation type'] = value
         when 'XRAY'

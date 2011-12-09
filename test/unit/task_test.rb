@@ -8,7 +8,7 @@ class TaskTest < ActiveSupport::TestCase
       @patient = patient(:evan)
       @task = Factory(:task)
       @default = @task.url.gsub(/\{patient\}/, '1')
-      GlobalProperty.create(:property => 'current_health_center_id', :property_value => location(:neno_district_hospital).id)
+      GlobalProperty.create(:property => 'current_health_center_id', :property_value => location(:location_00002).id)
     end
   
     should "be able to create a task" do
@@ -16,12 +16,13 @@ class TaskTest < ActiveSupport::TestCase
     end  
     
     should "find the next task" do
-      assert_equal @default, Task.next_task(Location.current_location, @patient).url
+      assert_equal 'Task', PatientService.next_task(@patient).class.to_s
+      assert_equal @default, PatientService.next_task(@patient)#.url
     end
     
     should "skip the relationship task if the patient does not have the specified relationship type" do
       @relationship = Factory(:task, :url => '/relationship', :has_relationship_type_id => 1, :sort_weight => 0)
-      assert_equal @default, Task.next_task(Location.current_location, @patient).url
+      assert_equal @default, PatientService.next_task(@patient)#.url
     end
         
     should "not skip the relationship task if the patient does have the specified relationship type" do
@@ -30,12 +31,12 @@ class TaskTest < ActiveSupport::TestCase
         :person_b => @patient.patient_id,
         :relationship => 1)      
       @relationship = Factory(:task, :url => '/relationship', :has_relationship_type_id => 1, :sort_weight => 0)
-      assert_equal @relationship.url, Task.next_task(Location.current_location, @patient).url
+      assert_equal @relationship.url, PatientService.next_task(@patient)#.url
     end
 
     should "skip the program task if the patient does not have the specified program type and state at this location" do
       @program = Factory(:task, :url => '/program', :has_program_id => 1, :has_program_workflow_state_id => 1, :sort_weight => 0)
-      assert_equal @default, Task.next_task(Location.current_location, @patient).url
+      assert_equal @default, PatientService.next_task(@patient)#.url
     end
     
     should "not skip the program task if the patient does have the specified program type and state at this location" do
@@ -49,23 +50,23 @@ class TaskTest < ActiveSupport::TestCase
       @patient_program.save!
       @patient_state.save!
       @program = Factory(:task, :url => '/program', :has_program_id => 1, :has_program_workflow_state_id => 1, :sort_weight => 0)
-      assert_equal @program.url, Task.next_task(Location.current_location, @patient).url
+      assert_equal @program.url, PatientService.next_task(@patient)#.url
     end
     
     should "skip the identifier task if the patient does not have the specified identifier type" do
       @ident = Factory(:task, :url => '/ident', :has_identifier_type_id => 1, :sort_weight => 0)
-      assert_equal @default, Task.next_task(Location.current_location, @patient).url
+      assert_equal @default, PatientService.next_task(@patient)#.url
     end
     
     should "not skip the identifier task if the patient does have the specified identifier type" do
       @patient.patient_identifiers.create(:identifier => 'Boss', :identifier_type => 1, :location_id => Location.current_health_center.location_id)
       @ident = Factory(:task, :url => '/ident', :has_identifier_type_id => 1, :sort_weight => 0)
-      assert_equal @ident.url, Task.next_task(Location.current_location, @patient).url
+      assert_equal @ident.url, PatientService.next_task(@patient)#.url
     end
         
     should "skip the order task if the patient does not have the specified order type" do
       @order = Factory(:task, :url => '/order', :has_order_type_id => 1, :sort_weight => 0)
-      assert_equal @default, Task.next_task(Location.current_location, @patient).url
+      assert_equal @default, PatientService.next_task(@patient)#.url
     end
     
     should "not skip the order task if the patient does have the specified order type" do
@@ -77,12 +78,12 @@ class TaskTest < ActiveSupport::TestCase
         :start_date => Date.today,
         :auto_expire_date => Time.now+3.days)        
       @order = Factory(:task, :url => '/order', :has_order_type_id => 1, :sort_weight => 0)
-      assert_equal @order.url, Task.next_task(Location.current_location, @patient).url
+      assert_equal @order.url, PatientService.next_task(@patient)#.url
     end
 
     should "skip the obs task if the patient does not have the specified obs with the specified value" do
       @obs = Factory(:task, :url => '/obs', :has_obs_concept_id => 1, :has_obs_value_text => 'GIDDYUP', :sort_weight => 0)
-      assert_equal @default, Task.next_task(Location.current_location, @patient).url
+      assert_equal @default, PatientService.next_task(@patient)#.url
     end
     
     should "not skip the obs task if the patient does have the specified obs with the specified value" do
@@ -93,14 +94,14 @@ class TaskTest < ActiveSupport::TestCase
         :person_id => 1,
         :obs_datetime => Time.now)        
       @obs = Factory(:task, :url => '/obs', :has_obs_concept_id => 1, :has_obs_value_text => 'GIDDYUP', :sort_weight => 0)
-      assert_equal @obs.url, Task.next_task(Location.current_location, @patient).url
+      assert_equal @obs.url, PatientService.next_task(@patient)#.url
     end
 
     context "which skip if the patient has the specified value" do
 
       should "not skip the relationship task if the patient has the specified relationship type" do
         @relationship = Factory(:task, :url => '/relationship', :has_relationship_type_id => 1, :sort_weight => 0, :skip_if_has => 1)
-        assert_equal @relationship.url, Task.next_task(Location.current_location, @patient).url
+        assert_equal @relationship.url, PatientService.next_task(@patient)#.url
       end
           
       should "skip the relationship task if the patient does have the specified relationship type" do
@@ -109,12 +110,12 @@ class TaskTest < ActiveSupport::TestCase
           :person_b => @patient.patient_id,
           :relationship => 1)      
         @relationship = Factory(:task, :url => '/relationship', :has_relationship_type_id => 1, :sort_weight => 0, :skip_if_has => 1)
-        assert_equal @default, Task.next_task(Location.current_location, @patient).url
+        assert_equal @default, PatientService.next_task(@patient)#.url
       end
 
       should "not skip the program task if the patient does not have the specified program type and state at this location" do
         @program = Factory(:task, :url => '/program', :has_program_id => 1, :has_program_workflow_state_id => 1, :sort_weight => 0, :skip_if_has => 1)
-        assert_equal @program.url, Task.next_task(Location.current_location, @patient).url
+        assert_equal @program.url, PatientService.next_task(@patient)#.url
       end
       
       should "skip the program task if the patient does have the specified program type and state at this location" do
@@ -128,23 +129,23 @@ class TaskTest < ActiveSupport::TestCase
         @patient_program.save!
         @patient_state.save!
         @program = Factory(:task, :url => '/program', :has_program_id => 1, :has_program_workflow_state_id => 1, :sort_weight => 0, :skip_if_has => 1)
-        assert_equal @default, Task.next_task(Location.current_location, @patient).url
+        assert_equal @default, PatientService.next_task(@patient)#.url
       end
     
       should "not skip the identifier task if the patient does not have the specified identifier type" do
         @ident = Factory(:task, :url => '/ident', :has_identifier_type_id => 1, :sort_weight => 0, :skip_if_has => 1)
-        assert_equal @ident.url, Task.next_task(Location.current_location, @patient).url
+        assert_equal @ident.url, PatientService.next_task(@patient)#.url
       end
       
       should "skip the identifier task if the patient does have the specified identifier type" do
         @patient.patient_identifiers.create(:identifier => 'Boss', :identifier_type => 1, :location_id => Location.current_health_center.location_id)
         @ident = Factory(:task, :url => '/ident', :has_identifier_type_id => 1, :sort_weight => 0, :skip_if_has => 1)
-        assert_equal @default, Task.next_task(Location.current_location, @patient).url
+        assert_equal @default, PatientService.next_task(@patient)#.url
       end
 
       should "not skip the order task if the patient does not have the specified order type" do
         @order = Factory(:task, :url => '/order', :has_order_type_id => 1, :sort_weight => 0, :skip_if_has => 1)
-        assert_equal @order.url, Task.next_task(Location.current_location, @patient).url
+        assert_equal @order.url, PatientService.next_task(@patient)#.url
       end
       
       should "skip the order task if the patient does have the specified order type" do
@@ -156,12 +157,12 @@ class TaskTest < ActiveSupport::TestCase
           :start_date => Date.today,
           :auto_expire_date => Time.now+3.days)        
         @order = Factory(:task, :url => '/order', :has_order_type_id => 1, :sort_weight => 0, :skip_if_has => 1)
-        assert_equal @default, Task.next_task(Location.current_location, @patient).url
+        assert_equal @default, PatientService.next_task(@patient)#.url
       end
   
       should "not skip the obs task if the patient does not have the specified obs with the specified value" do
         @obs = Factory(:task, :url => '/obs', :has_obs_concept_id => 1, :has_obs_value_text => 'GIDDYUP', :sort_weight => 0, :skip_if_has => 1)
-        assert_equal @obs.url, Task.next_task(Location.current_location, @patient).url
+        assert_equal @obs.url, PatientService.next_task(@patient)#.url
       end
       
       should "skip the obs task if the patient does have the specified obs with the specified value" do
@@ -172,7 +173,7 @@ class TaskTest < ActiveSupport::TestCase
           :person_id => 1,
           :obs_datetime => Time.now)        
         @obs = Factory(:task, :url => '/obs', :has_obs_concept_id => 1, :has_obs_value_text => 'GIDDYUP', :sort_weight => 0, :skip_if_has => 1)
-        assert_equal @default, Task.next_task(Location.current_location, @patient).url
+        assert_equal @default, PatientService.next_task(@patient)#.url
       end
 
     end

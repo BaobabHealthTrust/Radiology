@@ -6,7 +6,7 @@ class Factory
   def self.creator
     return @@creator.user_id if defined?(@@creator)
     @@creator = User.new(:username => 'default', :plain_password => 'password')
-    @@creator.user_id = User.auto_increment
+    @@creator.user_id = User
     @@creator.save!      
     @@creator.user_id
   end

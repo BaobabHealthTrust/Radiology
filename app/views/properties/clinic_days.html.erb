@@ -1,5 +1,5 @@
 <script>
-   var tt_cancel_destination = "/clinic/properties"
+   var tt_cancel_destination = "/clinic"; // /properties"
 </script>
 <style>
   table , div {
@@ -54,7 +54,7 @@
 #accept {}
 </style>
 
-<body onload = 'setSelectedDays();addAttribute();'>
+<body onload = 'addAttribute();setSelectedDays();'>
 <h1><%=Location.current_health_center.name %><br />clinic week day(s):&nbsp;<span id='age_group'>All ages</span></h1>
 <div class = 'user_info'>
 <table class = 'userdata'>
@@ -110,15 +110,16 @@
       }
     }
     if (peads_selected_days != ''){
+      switchView();
       peads_clinic_weekdays = []
       peads_selected_days = peads_selected_days.split(',');
       for(i = 0 ; i < peads_selected_days.length ; i++){
-        if(selected_days == ''){
-          selectDay(peads_selected_days[i].toLowerCase());
-        }
-        peads_clinic_weekdays.push(peads_selected_days[i].toLowerCase());
+        selectDay(peads_selected_days[i].toLowerCase());
       }
     }
+
+    if ((selected_days != '') && (peads_selected_days != ''))
+      switchView();
   }
 
   function selectDay(weekday) {
@@ -156,7 +157,7 @@
       finish_button.innerHTML = "<span>Done</span>"
       tt_cancel_destination = null;
     }else{
-      tt_cancel_destination = "/clinic/properties"
+      tt_cancel_destination = "/clinic" // /properties/"
       finish_button = document.getElementById('finishButton');
       finish_button.innerHTML = "<span>Finish</span>"
       finish_button.setAttribute('onmousedown',tt_cancel_destination);
@@ -181,9 +182,12 @@
           }
         }
       }
-      if(clinic_weekdays_count == clinic_weekdays.length && clinic_weekdays_count == selected_days.length){
+      if(clinic_weekdays_count == clinic_weekdays.length && clinic_weekdays_count == selected_days.length && wkdays_change){
         wkdays_change = false
-        //clinic_weekdays = []
+      }
+    } else {
+      if (clinic_weekdays.length == 0 && wkdays_change) {
+          wkdays_change = false
       }
     }
 
@@ -196,17 +200,21 @@
           }
         }
       }
-      if((peads_clinic_weekdays_count == peads_clinic_weekdays.length && peads_clinic_weekdays_count == peads_selected_days.length) == true){
+
+      if((peads_clinic_weekdays_count == peads_clinic_weekdays.length) && (peads_clinic_weekdays_count == peads_selected_days.length)){
         peads_wkdays_change = false
-        //peads_clinic_weekdays = []
+      }
+    } else {
+      if (peads_clinic_weekdays.length == 0 && peads_wkdays_change) {
+          peads_wkdays_change = false
       }
     }
 
     if(peads_wkdays_change == false && wkdays_change == false){
-      document.location = "/clinic/properties/"
+      document.location = "/clinic" // /properties/"
       return
     }
- 
+
     submitForm = document.createElement("FORM");
     submitForm.setAttribute("type","hidden");
     submitForm.method = "POST";

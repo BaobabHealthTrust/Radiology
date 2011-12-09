@@ -3,13 +3,13 @@
   var tt_cancel_destination = "/clinic"
 
   function searchByOther(){
-    document.location = '/people/find_by_exam_number'
+    document.location = '/people/find_by_arv_number'
   }
 
   function addButton() {
     keyboard = document.getElementsByClassName('abcKeyboard')[0]
     keyboard = keyboard.getElementsByClassName('buttonLine')[0]
-    keyboard.innerHTML+= "<button id='back' class='keyboardButton' onmousedown='searchByOther();'><span>Exam number</span></button>"
+    keyboard.innerHTML+= "<button id='back' class='keyboardButton' onmousedown='searchByOther();'><span>ARV number</span></button>"
   }
 </script>
 

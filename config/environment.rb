@@ -1,6 +1,6 @@
 # Specifies gem version of Rails to use when vendor/rails is not present
 RAILS_GEM_VERSION = '2.3.5' unless defined? RAILS_GEM_VERSION
-RADIOLOGY_VERSION = '11.04 beta'
+BART_VERSION = '2.0 beta'
 
 # Bootstrap the Rails environment, frameworks, and default configuration
 require File.join(File.dirname(__FILE__), 'boot')
@@ -32,6 +32,12 @@ ActiveSupport::Inflector.inflections do |inflect|
   inflect.irregular 'obs', 'obs'
   inflect.irregular 'concept_class', 'concept_class'
 end  
+
+health_data = YAML.load(File.open(File.join(RAILS_ROOT, "config/database.yml"), "r"))['migration']
+Lab.establish_connection(health_data)
+BartOneEncounter.establish_connection(health_data) # added for migration
+BartOneObservation.establish_connection(health_data) # added for migration
+BartOneDrugOrder.establish_connection(health_data) # added for migration
 
 class Mime::Type
   delegate :split, :to => :to_s

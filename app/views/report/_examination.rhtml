@@ -1,6 +1,9 @@
 <style>
-  .td_blue {
-    background-color:lightblue;
+  .td_lightgrey {
+    background-color:lightgrey;
+    font-size: larger;
+    font-style: inherit;
+    font-weight: bold;
   }
 
 #summary {
@@ -14,19 +17,21 @@ th {
 }
 </style>
 <table id='summary'>
-<!--caption style="text-align:left;"><%=session[:datetime].to_date.strftime('%A %B %d %Y') rescue Date.today.strftime('%A %m %B %Y')%></caption-->
+<%=session[:datetime].to_date.strftime('%A %B %d %Y') rescue Date.today.strftime('%A %m %B %Y')%>
 <tr>
-  <th>Encounter date</th>
+  <th>Notes made - ordered by date (ascending)</th>
 </tr>
 <%
-color = 'white'
+color = 'lightgrey'
 @examinations.map do | date , values |
   #next if name == 'WORKSTATION LOCATION'
-  if color == 'blue' then color = 'white' else color = 'blue' end
+  #if color == 'lightgrey' then color = 'white' else color = 'lightgrey' end
 %>
   <tr>
     <td class="td_<%=color%>"><%= date %></td>
-    <td class="td_<%=color%>"><%= values || '&nbsp;'%></td>
+  </tr>
+  <tr>
+    <td><%= values || '&nbsp;'%></td>
   </tr>
 <%end%>
 </table>
