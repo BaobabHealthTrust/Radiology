@@ -331,7 +331,7 @@ ORDER BY clinic ASC"])
               statastics[film_size][:good] += good_film 
             when 'SIZE'
               film_size = obs_value.join(' ').strip
-              statastics[film_size] = {:bad => 0,:good => 0} 
+              statastics[film_size] = {:bad => 0,:good => 0} if statastics[film_size].blank? 
           end
         end
       end
