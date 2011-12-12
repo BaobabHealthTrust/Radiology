@@ -281,7 +281,10 @@ class PeopleController < ApplicationController
                        :conditions =>["value_text = ? AND voided = 0",exam_number])
       if ob.blank?                                                              
         redirect_to :action => 'find_by_exam_number' and return                 
-      else                                                                      
+      else                  
+        unless ob.obs_datetime.to_date == Date.today 
+          session[:datetime] = ob.obs_datetime.to_date 
+        end                                                 
         redirect_to :controller => 'patients', :action => 'show' ,              
         :patient_id => ob.person_id,:encounter_date => ob.obs_datetime.to_date and return
       end                                                                       
