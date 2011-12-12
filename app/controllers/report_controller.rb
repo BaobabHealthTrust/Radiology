@@ -506,5 +506,19 @@ class ReportController < ApplicationController
     end                                                                         
     render :partial => 'examination' and return                                 
   end
-  
+
+  def show 
+    @start_date = (params[:start_date]).to_date
+    @end_date = (params[:end_date]).to_date
+    case params[:id]
+      when 'film_used'
+        @xray = 'FILM SIZE'
+        @encounters = Report.film_used(@start_date,@end_date) 
+      when 'investigations'
+        @xray = 'EXAMINATION'
+        @encounters = Report.investigations(@start_date,@end_date) 
+    end
+    render :layout => 'menu'
+  end
+   
 end

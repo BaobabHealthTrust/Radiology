@@ -1,0 +1,124 @@
+<html>
+<head>
+<%#= stylesheet_link_tag "cohort" %>
+<style>
+  #head {
+    padding-left:10px;
+  }
+
+  #head p {
+    font-weight:bold;
+  }
+
+  table {
+    border-style: none;
+    width: 100%;
+  }
+
+  th {
+    border-style:none;
+    border-width:1px;
+  }
+
+  td {
+    text-align:center;
+    vertical-align:top;
+    height:15px;
+  }
+
+  div.scrollTableContainer {
+    border-style:solid;
+  }
+
+  .survival-analysis th, .survival-analysis td {
+    text-align:left;
+  }
+</style>
+
+<script>
+  var tt_cancel_destination = "/clinic"
+</script>
+</head>
+
+<body>
+
+<div id = 'head'>
+<h1><%= Location.current_health_center.name %></h1>
+<%if @xray == 'EXAMINATION'%>
+<p><%= @encounters.first[0].split(',')[0] %></p>
+<%else%>
+<p><%= @xray %></p>
+<%end%>
+<p>Statastics by study:<br />
+From <%=@start_date.to_date.strftime('%A %d %B %Y')%>&nbsp;
+To <%=@end_date.to_date.strftime('%A %d %B %Y')%></p>
+</div>
+
+<div class='scrollTableContainer'>
+<table class='dataTable' cellspacing='0'>
+<thead>
+<%if @xray == 'EXAMINATION'%>
+<tr>
+  <th>&nbsp;</th>
+  <th style = "text-align:left;padding-left:0px;">&nbsp;</th>
+  <th style = "text-align:left;padding-left:0px;">INVESTIGATION</th>
+  <th style = "text-align:center;padding-left:10px;">COUNT</th>
+  <th>&nbsp;</th>
+</tr>
+<%else%>
+<tr>                                                                            
+  <th>&nbsp;</th>                                                               
+  <th style = "text-align:left;padding-left:0px;">FILM SIZE</th>                
+  <th style = "text-align:left;padding-left:0px;">GOOD FILM</th>                
+  <th style = "text-align:center;padding-left:10px;">BAD FILM</th>              
+  <th>&nbsp;</th>                                                               
+</tr>  
+<%end%>
+
+</thead>
+<tbody>
+<% color = 'white'
+@encounters.map do | xtype , count | 
+  if @xray == 'EXAMINATION'
+    type = xtype.split(',')[0]
+    investigation = xtype.sub("#{type},",'')
+  else
+    good_film = count[:good]
+    bad_film = count[:bad]
+  end
+  if color == 'white'
+    color = 'lightgrey'
+  else
+    color = 'white'
+  end
+
+if @xray == 'EXAMINATION'%>
+<tr style="background-color: <%=color%>;">
+  <td style ="border-width:0px;height:15px;">&nbsp;</td>
+  <td style ="border-width:0px;text-align:left;height:15px;"><%='&nbsp;'%></td>
+  <td style ="border-width:0px;text-align:left;height:15px;"><%=investigation%></td>
+  <td style ="border-width:0px;height:15px;"><%=count%></td>
+  <td style ="border-width:0px;height:15px;">&nbsp;</td>
+</tr>
+
+<%else%>
+
+<tr style="background-color: <%=color%>;">
+  <td style ="border-width:0px;height:15px;">&nbsp;</td>
+  <td style ="border-width:0px;text-align:left;height:15px;"><%= xtype %></td>
+  <td style ="border-width:0px;text-align:left;height:15px;"><%=good_film%></td>
+  <td style ="border-width:0px;height:15px;"><%=bad_film%></td>
+  <td style ="border-width:0px;height:15px;">&nbsp;</td>
+</tr>
+
+<%end%>
+
+
+<%end%>
+
+
+</tbody>
+</table>
+</div>
+</body>
+</html>

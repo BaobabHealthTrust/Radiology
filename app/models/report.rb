@@ -274,4 +274,71 @@ ORDER BY clinic ASC"])
     results
   end
 
+  def self.investigations(start_date,end_date)
+    encounter_type = EncounterType.find(:first,:conditions =>["name = ?",'EXAMINATION']).id
+    return if encounter_type.blank?
+    statastics = Hash.new(0)
+    encounters = Encounter.find(:all,
+      :conditions =>["DATE(encounter_datetime) >= ? AND DATE(encounter_datetime) <= ?
+      AND encounter_type = ?",start_date,end_date,encounter_type])
+
+    encounters.each do | encounter |
+      name = encounter.name
+      investigation_type = self.investigation_type(encounter.id)
+      encounter.observations.each do | obs |
+        concept_name = obs.to_s.split(":")[0].to_s.strip rescue nil
+        obs_value = [obs.to_s.split(":")[1].to_s.strip] rescue nil
+        obs_value << [obs.to_s.split(":")[2].to_s.strip] rescue nil
+        next if concept_name.blank?
+        next unless concept_name.upcase == 'XRAY'
+        statastics["#{investigation_type},#{obs_value.join(' ')}".strip]+=1
+      end
+    end
+    statastics
+  end
+
+  def self.investigation_type(encounter_id)
+    investigation_type = ConceptName.find_by_name('INVESTIGATION TYPE').concept_id
+    Observation.find(:first,:conditions =>["encounter_id = ? AND concept_id = ?",
+                      encounter_id , investigation_type]).to_s.split(':')[1].strip rescue nil
+  end
+
+  
+  def self.film_used(start_date,end_date)
+    encounter_type = EncounterType.find(:first,:conditions =>["name = ?",'FILM SIZE']).id
+    return if encounter_type.blank?
+    statastics = Hash.new(0)
+    encounters = Encounter.find(:all,
+      :conditions =>["DATE(encounter_datetime) >= ? AND DATE(encounter_datetime) <= ?
+      AND encounter_type = ?",start_date,end_date,encounter_type])
+
+    encounters.each do | encounter |
+      next unless encounter.name.upcase == 'FILM SIZE'
+      film_size = nil
+      bad_film = 0
+      good_film = 0
+      ['SIZE','GOOD','BAD'].each do | concept_name |
+        encounter.observations.each do | obs |
+          next unless concept_name == obs.to_s.split(":")[0].to_s.upcase.strip rescue nil
+          obs_value = [obs.to_s.split(":")[1].to_s.strip] rescue nil
+          obs_value << [obs.to_s.split(":")[2].to_s.strip] rescue nil
+          case concept_name.upcase 
+            when 'BAD'
+              bad_film += obs_value.join(' ').match(/[0-9]/)[0].to_i rescue 0 
+              statastics[film_size][:bad] += bad_film 
+            when 'GOOD'
+              good_film += obs_value.join(' ').match(/[0-9]/)[0].to_i rescue 0
+              statastics[film_size][:good] += good_film 
+            when 'SIZE'
+              film_size = obs_value.join(' ').strip
+              statastics[film_size] = {:bad => 0,:good => 0} 
+          end
+        end
+      end
+    end
+
+    statastics
+
+  end
+
 end
