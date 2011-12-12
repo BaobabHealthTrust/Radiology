@@ -57,7 +57,7 @@ on the rest of the stations %>
 
 <%# Hide Find by ARV Number button on non-HIV workstations %>
               <% if @location =~ /HIV/ %>
-                <option value="/people/find_by_arv_number" ttSize="265px">Find By ARV Number</option>
+                <option value="/people/find_by_exam_number" ttSize="265px">Find By Exam Number</option>
               <% end %>
               <% if development_environment? %>
                 <option value='/location?from=clinic' ttSize="100px">Swap Desk</option>

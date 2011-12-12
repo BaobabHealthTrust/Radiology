@@ -265,7 +265,29 @@ class PeopleController < ApplicationController
         :identifier => "#{PatientIdentifier.site_prefix} #{params[:arv_number]}" and return
     end
   end
-  
+ 
+  def find_by_exam_number                                                       
+    if request.post?                                                            
+      index = 0 ; last_exam_num = params[:exam_number]                          
+      last_exam_num.each_char do | c |                                          
+        next if c == 'R'                                                        
+        break unless c == '0'                                                   
+        index+=1                                                                
+      end unless last_exam_num.blank?                                           
+                                                                                
+      exam_number = 'R' + (last_exam_num[index..-1].to_s.rjust(8,'0'))          
+                                                                                
+      ob = Observation.find(:first,                                             
+                       :conditions =>["value_text = ? AND voided = 0",exam_number])
+      if ob.blank?                                                              
+        redirect_to :action => 'find_by_exam_number' and return                 
+      else                                                                      
+        redirect_to :controller => 'patients', :action => 'show' ,              
+        :patient_id => ob.person_id,:encounter_date => ob.obs_datetime.to_date and return
+      end                                                                       
+    end                                                                         
+  end
+ 
   # List traditional authority containing the string given in params[:value]
   def traditional_authority
     district_id = District.find_by_name("#{params[:filter_value]}").id

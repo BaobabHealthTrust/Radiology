@@ -18,6 +18,12 @@ class PatientsController < ApplicationController
       @programs = restriction.filter_programs(@programs)
     end
 
+    @show_investigation = Encounter.find(:first,:order => "encounter_datetime DESC",
+                    :conditions =>["encounter_type = ? AND patient_id = ?
+                    AND DATE(encounter_datetime) = ?",
+                    EncounterType.find_by_name("EXAMINATION").id,@patient.id,
+                    session_date]) == nil
+    
     @date = (session[:datetime].to_date rescue Date.today).strftime("%Y-%m-%d")
 
      @location = Location.find(session[:location_id]).name rescue ""
