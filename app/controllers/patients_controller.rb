@@ -7,6 +7,7 @@ class PatientsController < ApplicationController
 
 		@patient_bean = PatientService.get_patient(@patient.person)
 		@encounters = @patient.encounters.find_by_date(session_date)
+=begin
 		@diabetes_number = DiabetesService.diabetes_number(@patient)
     @prescriptions = @patient.orders.unfinished.prescriptions.all
     @programs = @patient.patient_programs.all
@@ -17,25 +18,25 @@ class PatientsController < ApplicationController
       @prescriptions = restriction.filter_orders(@prescriptions)
       @programs = restriction.filter_programs(@programs)
     end
-
+=end
     @show_investigation = Encounter.find(:first,:order => "encounter_datetime DESC",
                     :conditions =>["encounter_type = ? AND patient_id = ?
                     AND DATE(encounter_datetime) = ?",
                     EncounterType.find_by_name("EXAMINATION").id,@patient.id,
                     session_date]) == nil
     
-    @date = (session[:datetime].to_date rescue Date.today).strftime("%Y-%m-%d")
+    @date = session_date.strftime("%Y-%m-%d")
 
-     @location = Location.find(session[:location_id]).name rescue ""
-     if @location.downcase == "outpatient" || params[:source]== 'opd'
-        render :template => 'dashboards/opdtreatment_dashboard', :layout => false
-     else
-        @task = main_next_task(Location.current_location,@patient,session_date)
-        @hiv_status = PatientService.patient_hiv_status(@patient)
-        @reason_for_art_eligibility = PatientService.reason_for_art_eligibility(@patient)
-        @arv_number = PatientService.get_patient_identifier(@patient, 'ARV Number')
-        render :template => 'patients/index', :layout => false
-     end
+    @location = Location.find(session[:location_id]).name rescue ""
+    if @location.downcase == "outpatient" || params[:source]== 'opd'
+      render :template => 'dashboards/opdtreatment_dashboard', :layout => false
+    else
+      @task = main_next_task(Location.current_location,@patient,session_date)
+      @hiv_status = PatientService.patient_hiv_status(@patient)
+      @reason_for_art_eligibility = PatientService.reason_for_art_eligibility(@patient)
+      @arv_number = PatientService.get_patient_identifier(@patient, 'ARV Number')
+      render :template => 'patients/index', :layout => false
+    end
   end
 
   def opdcard
