@@ -70,29 +70,11 @@
     buttonsdiv.innerHTML+="<button onmousedown='cancel();' id='cancelhButton' class='button red left'><span>Cancel</span></button>";
     conntinue = document.getElementById('finishButton')
     conntinue.innerHTML = '<span>Continue</span>'
-    conntinue.setAttribute('onmousedown','continueToNext();')
+    conntinue.setAttribute('onmousedown','go();')
 
     <%if Location.current_location.name.match(/HIV|ART/i) and not Location.current_location.name.match(/Reception/i)%>
       weightGraph();
     <%end%>
-  }
-
-  function continueToNext(){
-    <%if @patient_bean.archived_filing_number.blank? %>
-      go();
-    <%else%>
-      messageBar = document.getElementById("messageBar");
-      messageBar.style.display = 'block';
-    <%end%>
-  }
-
-  function setNewFilingNumber() { 
-    document.location = "/patients/set_new_filing_number/<%=@person.id%>"
-  }
-
-  function hideMessage() { 
-    messageBar = document.getElementById("messageBar");
-    messageBar.style.display = 'none';
   }
 
   function go() {
@@ -150,52 +132,6 @@
     jQuery.plot(jQuery("#charts"), get_data(null, null), plot_options);
   }
 
-  function submitPage(patient_id,concept_name) {
-     submitForm = document.getElementById("confirm");
-    
-     newElement = document.createElement("input");                             
-     newElement.setAttribute("name","encounter[encounter_type_name]");                 
-     newElement.setAttribute("type","hidden");                                 
-     newElement.value = "EXAMINATION";      
-     submitForm.appendChild(newElement);
-
-     newElement = document.createElement("input");                             
-     newElement.setAttribute("name","encounter[patient_id]");                 
-     newElement.setAttribute("type","hidden");                                 
-     newElement.value = "<%=@person.id%>";      
-     submitForm.appendChild(newElement);
-
-     newElement = document.createElement("input");                             
-     newElement.setAttribute("name","encounter[provider_id]");                 
-     newElement.setAttribute("type","hidden");                                 
-     newElement.value = "<%=User.current_user.id%>";      
-     submitForm.appendChild(newElement);
-
-     newElement = document.createElement("input");                             
-     newElement.setAttribute("name","observations[][concept_name]");                 
-     newElement.setAttribute("type","hidden");                                 
-     newElement.value = concept_name;      
-     submitForm.appendChild(newElement);
-
-     newElement = document.createElement("input");                             
-     newElement.setAttribute("name","observations[][patient_id]");                 
-     newElement.setAttribute("type","hidden");                                 
-     newElement.value = "<%=@person.id%>";      
-     submitForm.appendChild(newElement);
-
-     newElement = document.createElement("input");                             
-     newElement.setAttribute("name","observations[][value_coded_or_text]");                 
-     newElement.setAttribute("type","hidden");                                 
-     newElement.value = "NO";      
-     submitForm.appendChild(newElement);
-
-     submitForm.action = "/encounters/create"
-     submitForm.submit(); 
-  }
-
-  function gotoUpdateHIVstatus() {
-    window.location = "/encounters/new/update_hiv_status?patient_id=<%=@person.id%>"
-  }
 </script>
 
 <body onload = "setTimeout('changeAttributes()',500);">
@@ -237,10 +173,4 @@
   </div>
 <% end %>
 
-<div id="messageBar" class="messageBar">
-  Patient files in archive cabinets <br /> Move to active cabinets?
-  <br /><br />
-  <button onmousedown="hideMessage();go();"><span>No</span></button>&nbsp;
-  <button onmousedown="hideMessage();setNewFilingNumber();"><span>Yes</span></button>
-</div>
 </body>
