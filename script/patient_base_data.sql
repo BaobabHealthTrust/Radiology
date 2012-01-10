@@ -10,11 +10,11 @@ SELECT DATE(Birth_Date), 0, Sex, NULL, 1, Site_ID, NULL, Pat_ID, NULL, DATE(Date
 /*UPDATE openmrs_b2.person SET gender = LEFT(RTRIM(LTRIM(gender)), 1);*/
 
 INSERT INTO openmrs_bart2.patient (patient_id, creator, voided, voided_by, void_reason, date_voided, date_created)
-SELECT person_id, creator, voided, voided_by, void_reason, date_voided, date_created FROM openmrs_bart2.person where openmrs_bart2.person.person_id > 1;
+SELECT person_id, creator, 0, voided_by, '', date_voided, date_created FROM openmrs_bart2.person where openmrs_bart2.person.person_id > 1;
 
 /* Update patient person addresses */
 INSERT INTO openmrs_bart2.person_address (person_id, city_village, creator, voided, voided_by, void_reason, date_voided, date_created, uuid)
-SELECT p.person_id,LTRIM(RTRIM(RIGHT(mpr.address, LENGTH(mpr.address) - INSTR(mpr.address,'/')))) AS city_village,p.creator,p.voided, p.voided_by,'' AS void_reason, p.date_voided, p.date_created, (SELECT UUID()) AS uuid
+SELECT p.person_id,LTRIM(RTRIM(RIGHT(mpr.address, LENGTH(mpr.address) - INSTR(mpr.address,'/')))) AS city_village,p.creator,0, p.voided_by,'' AS void_reason, p.date_voided, p.date_created, (SELECT UUID()) AS uuid
 FROM openmrs_bart2.person p 
  	INNER JOIN healthdata.MasterPatientRecord mpr
 	ON mpr.Pat_ID = p.void_reason 
