@@ -22,7 +22,7 @@ FROM openmrs_bart2.person p
 
 /* Update patient identifiers and attributes 'skipping them for now'*/
 
-INSERT INTO openmrs_b2.patient_identifier (patient_id, identifier_type, preferred, location_id, identifier, creator, voided, voided_by, void_reason, date_voided, date_created, uuid)
+INSERT INTO openmrs_bart2.patient_identifier (patient_id, identifier_type, preferred, location_id, identifier, creator, voided, voided_by, void_reason, date_voided, date_created, uuid)
 SELECT 	DISTINCT
 	p.person_id,
 	3 AS identifier_type,
@@ -34,7 +34,7 @@ SELECT 	DISTINCT
 		ELSE 1
 	END AS location_id,
 	rs.Patient_Identifier AS identifier,
-	1 AS creator, 0 AS voided, 0 AS voided_by, '' as void_reason, NULL AS date_voided, p.date_created
+	1 AS creator, 0 AS voided, 0 AS voided_by, '' as void_reason, NULL AS date_voided, p.date_created, (SELECT UUID()) AS uuid 
 FROM healthdata.RadiologyStudy rs
 	INNER JOIN healthdata.MasterPatientRecord mpr
 		ON CASE LEFT(rs.Patient_Identifier, 1)
@@ -47,7 +47,7 @@ FROM healthdata.RadiologyStudy rs
 
 /*Radiology Study Number*/
 
-INSERT INTO openmrs_b2.patient_identifier (patient_id, identifier_type, preferred, location_id, identifier, creator, voided, voided_by, void_reason, date_voided, date_created, uuid)
+INSERT INTO openmrs_bart2.patient_identifier (patient_id, identifier_type, preferred, location_id, identifier, creator, voided, voided_by, void_reason, date_voided, date_created, uuid)
 SELECT 	DISTINCT
 	p.person_id,
 	30 AS identifier_type,
@@ -59,7 +59,7 @@ SELECT 	DISTINCT
 		ELSE 1
 	END AS location_id,
 	rs.Study_Number AS identifier,
-	1 AS creator, 0 AS voided, 0 AS voided_by, '' as void_reason, NULL AS date_voided, p.date_created
+	1 AS creator, 0 AS voided, 0 AS voided_by, '' as void_reason, NULL AS date_voided, p.date_created, (SELECT UUID()) AS uuid 
 FROM healthdata.RadiologyStudy rs
 	INNER JOIN healthdata.MasterPatientRecord mpr
 		ON CASE LEFT(rs.Patient_Identifier, 1)
