@@ -74,12 +74,22 @@ class PeopleController < ApplicationController
         # This is sloppy - creating something as the result of a GET
         found_person_data = PatientService.find_remote_person_by_identifier(params[:identifier])
         found_person = PatientService.create_from_form(found_person_data['person']) unless found_person_data.nil?
-      end
+      end 
       if found_person
         if params[:relation]
           redirect_to search_complete_url(found_person.id, params[:relation]) and return
         else
           redirect_to :action => 'confirm', :found_person_id => found_person.id, :relation => params[:relation] and return
+        end
+      else
+        local_results = PatientService.search_by_exam_number(params[:identifier])
+        found_person = local_results.first
+        session_date = local_results.last.to_date rescue nil
+        if session_date and found_person
+          session[:datetime] = session_date
+        end
+        if found_person
+          redirect_to search_complete_url(found_person.id, params[:relation]) and return
         end
       end
     end
