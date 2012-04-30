@@ -67,20 +67,22 @@ class PeopleController < ApplicationController
 
       if local_results.length > 1
         @people = PatientService.person_search(params)
-      elsif local_results.length == 1
+      else local_results.length == 1
         found_person = local_results.first
-      else
+      #else
         # TODO - figure out how to write a test for this
         # This is sloppy - creating something as the result of a GET
-        found_person_data = PatientService.find_remote_person_by_identifier(params[:identifier])
-        found_person = PatientService.create_from_form(found_person_data['person']) unless found_person_data.nil?
+        # found_person_data = PatientService.find_remote_person_by_identifier(params[:identifier])
+        # found_person = PatientService.create_from_form(found_person_data['person']) unless found_person_data.nil?
       end 
+
       if found_person
         if params[:relation]
           redirect_to search_complete_url(found_person.id, params[:relation]) and return
         else
           redirect_to :action => 'confirm', :found_person_id => found_person.id, :relation => params[:relation] and return
         end
+
       else
         local_results = PatientService.search_by_exam_number(params[:identifier])
         found_person = local_results.first
@@ -108,6 +110,7 @@ class PeopleController < ApplicationController
     if request.post?
       redirect_to search_complete_url(params[:found_person_id], params[:relation]) and return
     end
+begin
     @found_person_id = params[:found_person_id] 
     @relation = params[:relation]
     @person = Person.find(@found_person_id) rescue nil
@@ -115,6 +118,7 @@ class PeopleController < ApplicationController
     @arv_number = PatientService.get_patient_identifier(@person, 'ARV Number')
 	  @patient_bean = PatientService.get_patient(@person)
     render :layout => 'menu'
+end
   end
 
   def tranfer_patient_in
@@ -214,8 +218,10 @@ class PeopleController < ApplicationController
       unless (params[:relation].blank?)
         redirect_to search_complete_url(person.id, params[:relation]) and return
       else
-
+ #Disable use of filing number and tb session because
+ #they are not needed in radiology
        tb_session = false
+       use_filing_number = false
        if User.current_user.activities.include?('Manage Lab Orders') or User.current_user.activities.include?('Manage Lab Results') or
         User.current_user.activities.include?('Manage Sputum Submissions') or User.current_user.activities.include?('Manage TB Clinic Visits') or
          User.current_user.activities.include?('Manage TB Reception Visits') or User.current_user.activities.include?('Manage TB Registration Visits') or
@@ -287,19 +293,19 @@ class PeopleController < ApplicationController
                                                                                 
       exam_number = 'R' + (last_exam_num[index..-1].to_s.rjust(8,'0'))          
                                                                                 
-      ob = Observation.find(:first,                                             
-                       :conditions =>["value_text = ? AND voided = 0",exam_number])
+      ob = Observation.find(:first,:conditions =>["value_text = ? AND voided = 0",exam_number])
+
       if ob.blank?                                                              
         redirect_to :action => 'find_by_exam_number' and return                 
       else                  
         unless ob.obs_datetime.to_date == Date.today 
           session[:datetime] = ob.obs_datetime.to_date 
         end                                                 
-        redirect_to :controller => 'patients', :action => 'show' ,              
-        :patient_id => ob.person_id,:encounter_date => ob.obs_datetime.to_date and return
-      end                                                                       
+ redirect_to :controller => 'patients', :action => 'show',:patient_id => ob.person_id,:encounter_date => ob.obs_datetime.to_date and return
+      end  
+                                                                     
     end                                                                         
-  end
+ end
  
   # List traditional authority containing the string given in params[:value]
   def traditional_authority

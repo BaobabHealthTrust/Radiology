@@ -281,7 +281,7 @@ class EncountersController < ApplicationController
       observation[:encounter_id] = encounter.id                                 
       observation[:obs_datetime] = encounter.encounter_datetime || Time.now()   
       observation[:person_id] = encounter.patient_id                            
-      observation[:concept_name] = "EXAM NUMBER"                                
+      observation[:concept_name] = "EXAMINATION NUMBER"                                
       observation[:value_text] = next_exam_number                               
       Observation.create(observation)                                           
     end  

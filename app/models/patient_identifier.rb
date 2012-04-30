@@ -84,7 +84,7 @@ class PatientIdentifier < ActiveRecord::Base
     prefix = 'R'                                                                
     last_exam_num = Observation.find(:first, :order => "value_text DESC",       
                    :conditions => ["concept_id = ?",
-                   ConceptName.find_by_name('EXAM NUMBER').concept_id]
+                    ConceptName.find_by_name('EXAMINATION NUMBER').concept_id]
                    ).value_text rescue []
                                                                                 
     index = 0                                                                   
@@ -97,5 +97,4 @@ class PatientIdentifier < ActiveRecord::Base
     last_exam_num = '0' if last_exam_num.blank?                                 
     prefix + (last_exam_num[index..-1].to_i + 1).to_s.rjust(8,'0')              
   end
-
 end

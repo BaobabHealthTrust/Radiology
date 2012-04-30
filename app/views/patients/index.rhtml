@@ -51,12 +51,14 @@
               <option value='/report/examination/<%= @patient_bean.patient_id -%>'>Notes made</option>
             </select>
             <select id="links">
+            
               <% if @show_investigation %>
                 <option value='/investigation/new/<%=@patient_bean.patient_id%>'>Investigation</option>
               <% else %>
                 <option value='/film/size/<%=@patient_bean.patient_id%>'>Film Sizes</option>
                 <option value='/patients/examination/<%=@patient_bean.patient_id%>'>Notes</option>
-              <% end %>
+              <% end  %>
+
             </select>
             <tr>
               <td align='center'>

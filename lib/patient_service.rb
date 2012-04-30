@@ -736,7 +736,7 @@ EOF
     patient.arv_number = get_patient_identifier(person.patient, 'ARV Number')
     patient.address = person.addresses.first.city_village
     patient.national_id = get_patient_identifier(person.patient, 'National id')    
-	  patient.national_id_with_dashes = get_national_id_with_dashes(person.patient)
+    patient.national_id_with_dashes = get_national_id_with_dashes(person.patient)
     patient.name = person.names.first.given_name + ' ' + person.names.first.family_name rescue nil
     patient.sex = sex(person)
     patient.age = age(person)
@@ -998,10 +998,10 @@ EOF
   end
   
   def self.search_by_identifier(identifier)
-    people = PatientIdentifier.find_all_by_identifier(identifier).map{|id| 
-      id.patient.person
-    } unless identifier.blank? rescue nil
+    people = PatientIdentifier.find_all_by_identifier(identifier).map{|id| id.patient.person  } unless identifier.blank? rescue nil
+
     return people unless people.blank?
+
     create_from_dde_server = CoreService.get_global_property_value('create.from.dde.server').to_s == "true" rescue false
     if create_from_dde_server 
       dde_server = GlobalProperty.find_by_property("dde_server_ip").property_value rescue ""
@@ -1045,6 +1045,7 @@ EOF
       return [self.create_from_form(passed["person"])]
     end
     return people
+
   end
   
   def self.set_birthdate_by_age(person, age, today = Date.today)

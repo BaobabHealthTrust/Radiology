@@ -69,7 +69,6 @@ class ClinicController < ApplicationController
   def administration
     @reports =  [
                   ['/clinic/users','User accounts/settings'],
-                  ['/clinic/management','Drug Management'], 
                   ['/clinic/location_management','Location Management']
                 ]
     @landing_dashboard = 'clinic_administration'
@@ -138,9 +137,9 @@ class ClinicController < ApplicationController
                   ['/clinic/users_tab','User Accounts/Settings'],
                   ['/clinic/location_management_tab','Location Management']
                 ]
-    if User.current_user.admin?
-      @reports << ['/clinic/management_tab','Drug Management']
-    end
+    #if User.current_user.admin?
+    # @reports << ['/clinic/management_tab','Drug Management']
+    #end
     @landing_dashboard = 'clinic_administration'
     render :layout => false
   end

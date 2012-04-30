@@ -19,23 +19,26 @@ class PatientsController < ApplicationController
       @programs = restriction.filter_programs(@programs)
     end
 =end
-    @show_investigation = Encounter.find(:first,:order => "encounter_datetime DESC",
-                    :conditions =>["encounter_type = ? AND patient_id = ?
-                    AND DATE(encounter_datetime) = ?",
-                    EncounterType.find_by_name("EXAMINATION").id,@patient.id,
-                    session_date]) == nil
-    
+    @show_investigation = Encounter.find(:first,:order => "encounter_datetime DESC",:conditions =>["encounter_type = ? AND patient_id = ? AND DATE(encounter_datetime) = ?",EncounterType.find_by_name("EXAMINATION").id,@patient.id,session_date]) == nil
+
+   
     @date = session_date.strftime("%Y-%m-%d")
 
     @location = Location.find(session[:location_id]).name rescue ""
+   
     if @location.downcase == "outpatient" || params[:source]== 'opd'
       render :template => 'dashboards/opdtreatment_dashboard', :layout => false
     else
+=begin
       @task = main_next_task(Location.current_location,@patient,session_date)
       @hiv_status = PatientService.patient_hiv_status(@patient)
+      
       @reason_for_art_eligibility = PatientService.reason_for_art_eligibility(@patient)
+      
       @arv_number = PatientService.get_patient_identifier(@patient, 'ARV Number')
+=end
       render :template => 'patients/index', :layout => false
+      
     end
   end
 
@@ -545,6 +548,7 @@ class PatientsController < ApplicationController
     render :template => 'patients/index', :layout => false
   end
 
+
   def overview
     @patient = Patient.find(params[:id])
     @encounter_date = session[:datetime].to_date rescue Date.today      
@@ -553,6 +557,8 @@ class PatientsController < ApplicationController
                                  encounter_types.collect{|e|e.id},@patient.id,@encounter_date])
     render :template => 'dashboards/overview_tab', :layout => false
   end
+
+
 
   def visit_history
     session[:mastercard_ids] = []
