@@ -10,7 +10,7 @@ module AuthenticatedSystem
     # Future calls avoid the database because nil is not equal to false.
     def current_user
       @current_user ||= (login_from_session || login_from_basic_auth) unless @current_user == false
-      User.current_user = @current_user unless @current_user == false
+      current_user = @current_user unless @current_user == false
       @current_user
     end
 
