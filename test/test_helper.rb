@@ -48,7 +48,7 @@ class ActiveSupport::TestCase
   fixtures :users, :location
 
   setup do    
-    User.current_user = User.find_by_username('registration')
+    current_user = User.find_by_username('registration')
     Location.current_location = Location.find_by_name('Neno District Hospital - Registration')
   end
 
@@ -92,7 +92,7 @@ class ActiveSupport::TestCase
     start_date ||= Time.now
     end_date ||= Time.now + 3.days
     
-    encounter = PatientService.current_treatment_encounter(patient, Date.today, User.current_user.person_id)
+    encounter = PatientService.current_treatment_encounter(patient, Date.today, current_user.person_id)
     DrugOrder.write_order(encounter, patient, obs, drug, start_date, end_date, dose, frequency, prn = 0)
   end
   
