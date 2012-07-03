@@ -81,10 +81,10 @@
               <option value='/regimens/new?patient_id=<%= @patient.id -%>'>Regimen</option>
               <option value='/prescriptions/auto?patient_id=<%= @patient.id -%>'>Prescribe</option>
               <option value='/dispensations/new?patient_id=<%= @patient.id -%>'>Dispense</option>
-              <%if User.current_user.activities.include?('Manage Lab Orders') or User.current_user.activities.include?('Manage Lab Results') or
-       User.current_user.activities.include?('Manage Sputum Submissions') or User.current_user.activities.include?('Manage TB Clinic Visits') or
-       User.current_user.activities.include?('Manage TB Reception Visits') or User.current_user.activities.include?('Manage TB Registration Visits') or
-       User.current_user.activities.include?('Manage HIV Status Visits') %>
+              <%if current_user.activities.include?('Manage Lab Orders') or current_user.activities.include?('Manage Lab Results') or
+       current_user.activities.include?('Manage Sputum Submissions') or current_user.activities.include?('Manage TB Clinic Visits') or
+       current_user.activities.include?('Manage TB Reception Visits') or current_user.activities.include?('Manage TB Registration Visits') or
+       current_user.activities.include?('Manage HIV Status Visits') %>
                 <option value='/patients/tb_treatment_card?patient_id=<%= @patient.id -%>'>TB Treatment Card</option>
               <%end%>
             </select>

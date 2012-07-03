@@ -209,7 +209,7 @@
 
   %>
 
-  <% if User.current_user.user_roles.map{|r|r.role}.include?('Nurse') and reception.match(/PATIENT PRESENT FOR CONSULTATION: YES/i) %>
+  <% if current_user.user_roles.map{|r|r.role}.include?('Nurse') and reception.match(/PATIENT PRESENT FOR CONSULTATION: YES/i) %>
     <%= touch_yes_no_unknown_tag "REFER TO ART CLINICIAN", @patient, nil,
       {:id => "refer_to_clinician",
       :helpText => "Refer to clinician?" } %>

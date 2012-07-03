@@ -117,7 +117,7 @@ end -%>
           <label for="person">Select the guardian from the following</label>
         <% end %>
       <% end -%>
-      <select name="person" id="person" dualView="true" dualViewOptions="people">
+      <select name="person[id]" id="person" dualView="true" dualViewOptions="people">
         <% if params[:identifier] %>
           <option value="0" onmousedown="changeNextButtonText('New Patient')">Create a new person with the identifier <%=h params[:identifier] -%></option>
         <% else %>
