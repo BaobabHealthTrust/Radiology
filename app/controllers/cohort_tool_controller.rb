@@ -1,4 +1,4 @@
-class CohortToolController < ApplicationController
+class CohortToolController < GenericCohortToolController
 
   def select
     @cohort_quarters  = [""]

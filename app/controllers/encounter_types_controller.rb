@@ -1,7 +1,7 @@
-class EncounterTypesController < ApplicationController
+class EncounterTypesController < GenericEncounterTypesController
 
   def index
-        user_roles = UserRole.find(:all,:conditions =>["user_id = ?", User.current_user.id]).collect{|r|r.role}
+        user_roles = UserRole.find(:all,:conditions =>["user_id = ?", current_user.id]).collect{|r|r.role}
         role_privileges = RolePrivilege.find(:all,:conditions => ["role IN (?)", user_roles])
 
         privileges = role_privileges.each.map{ |role_privilege_pair| role_privilege_pair["privilege"].humanize }
