@@ -10,6 +10,7 @@ development:
  filing.number.prefix: FN101,FN102
  auto_set_appointment: true
  show.patient.confirmation: true
+ statistics.show_encounter_types: EXAMINATION
 
 test: &TEST
  create_from_remote: no
