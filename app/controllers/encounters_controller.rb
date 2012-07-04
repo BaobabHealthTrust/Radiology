@@ -1,124 +1,6 @@
 class EncountersController < GenericEncountersController
   def create(params=params, session=session)
-    #raise params.to_yaml
-	
-    if params['encounter']['encounter_type_name'] == 'TB_INITIAL'
-      (params[:observations] || []).each do |observation|
-        if observation['concept_name'].upcase == 'TRANSFER IN' and observation['value_coded_or_text'] == "YES"
-          params[:observations] << {"concept_name" => "TB STATUS","value_coded_or_text" => "Confirmed TB on treatment"}
-        end
-      end
-    end
-
-    if params['encounter']['encounter_type_name'] == 'ART_INITIAL'
-      if params[:observations][0]['concept_name'].upcase == 'EVER RECEIVED ART' and params[:observations][0]['value_coded_or_text'].upcase == 'NO'
-        observations = []
-        (params[:observations] || []).each do |observation|
-          next if observation['concept_name'].upcase == 'HAS TRANSFER LETTER'
-          next if observation['concept_name'].upcase == 'HAS THE PATIENT TAKEN ART IN THE LAST TWO WEEKS'
-          next if observation['concept_name'].upcase == 'HAS THE PATIENT TAKEN ART IN THE LAST TWO MONTHS'
-          next if observation['concept_name'].upcase == 'ART NUMBER AT PREVIOUS LOCATION'
-          next if observation['concept_name'].upcase == 'DATE ART LAST TAKEN'
-          next if observation['concept_name'].upcase == 'LAST ART DRUGS TAKEN'
-          next if observation['concept_name'].upcase == 'TRANSFER IN'
-          next if observation['concept_name'].upcase == 'HAS THE PATIENT TAKEN ART IN THE LAST TWO WEEKS'
-          next if observation['concept_name'].upcase == 'HAS THE PATIENT TAKEN ART IN THE LAST TWO MONTHS'
-          observations << observation
-        end
-      elsif params[:observations][4]['concept_name'].upcase == 'DATE ART LAST TAKEN' and params[:observations][4]['value_datetime'] != 'Unknown'
-        observations = []
-        (params[:observations] || []).each do |observation|
-          next if observation['concept_name'].upcase == 'HAS THE PATIENT TAKEN ART IN THE LAST TWO WEEKS'
-          next if observation['concept_name'].upcase == 'HAS THE PATIENT TAKEN ART IN THE LAST TWO MONTHS'
-          observations << observation
-        end
-      end
-
-      params[:observations] = observations unless observations.blank?
-
-      observations = []
-      (params[:observations] || []).each do |observation|
-        if observation['concept_name'].upcase == 'LOCATION OF ART INITIATION' or observation['concept_name'].upcase == 'CONFIRMATORY HIV TEST LOCATION'
-          observation['value_numeric'] = observation['value_coded_or_text'] rescue nil
-          observation['value_text'] = Location.find(observation['value_coded_or_text']).name.to_s rescue ""
-          observation['value_coded_or_text'] = ""
-        end
-        observations << observation
-      end
-
-      params[:observations] = observations unless observations.blank?
-    end
-
-    if params['encounter']['encounter_type_name'].upcase == 'HIV STAGING'
-      observations = []
-      (params[:observations] || []).each do |observation|
-        if observation['concept_name'].upcase == 'CD4 COUNT'
-          observation['value_modifier'] = observation['value_numeric'].match(/<|>/)[0] rescue nil
-          observation['value_numeric'] = observation['value_numeric'].match(/[0-9](.*)/i)[0] rescue nil
-        end
-        if observation['concept_name'].upcase == 'CD4 COUNT LOCATION' or observation['concept_name'].upcase == 'LYMPHOCYTE COUNT LOCATION'
-          observation['value_numeric'] = observation['value_coded_or_text'] rescue nil
-          observation['value_text'] = Location.find(observation['value_coded_or_text']).name.to_s rescue ""
-          observation['value_coded_or_text'] = ""
-        end
-
-        observations << observation
-      end
-      
-      params[:observations] = observations unless observations.blank?
-    end
-
-    if params['encounter']['encounter_type_name'].upcase == 'ART ADHERENCE'
-      observations = []
-      (params[:observations] || []).each do |observation|
-        if observation['concept_name'].upcase == 'WHAT WAS THE PATIENTS ADHERENCE FOR THIS DRUG ORDER'
-          observation['value_numeric'] = observation['value_text'] rescue nil
-          observation['value_text'] =  ""
-        end
-        observations << observation
-      end
-      params[:observations] = observations unless observations.blank?
-    end
-
-   if params['encounter']['encounter_type_name'].upcase == 'REFER PATIENT OUT?'
-      observations = []
-      (params[:observations] || []).each do |observation|
-        if observation['concept_name'].upcase == 'REFERRAL CLINIC IF REFERRED'
-          observation['value_numeric'] = observation['value_coded_or_text'] rescue nil
-          observation['value_text'] = Location.find(observation['value_coded_or_text']).name.to_s rescue ""
-          observation['value_coded_or_text'] = ""
-        end
-
-        observations << observation
-      end
-
-      params[:observations] = observations unless observations.blank?
-    end
-
-    @patient = Patient.find(params[:encounter][:patient_id]) rescue nil
-    if params[:location]
-      if @patient.nil?
-        @patient = Patient.find_with_voided(params[:encounter][:patient_id])
-      end
-
-      Person.migrated_datetime = params['encounter']['date_created']
-      Person.migrated_creator  = params['encounter']['creator'] rescue nil
-
-      # set current location via params if given
-      Location.current_location = Location.find(params[:location])
-    end
     
-    if params['encounter']['encounter_type_name'].to_s.upcase == "APPOINTMENT" && !params[:report_url].nil? && !params[:report_url].match(/report/).nil?
-        concept_id = ConceptName.find_by_name("RETURN VISIT DATE").concept_id
-        encounter_id_s = Observation.find_by_sql("SELECT encounter_id
-                       FROM obs
-                       WHERE concept_id = #{concept_id} AND person_id = #{@patient.id}
-                            AND DATE(value_datetime) = DATE('#{params[:old_appointment]}') AND voided = 0
-                       ").map{|obs| obs.encounter_id}.each do |encounter_id|
-                                    Encounter.find(encounter_id).void
-                       end   
-    end
-
     # Encounter handling
     encounter = Encounter.new(params[:encounter])
     unless params[:location]
@@ -136,165 +18,80 @@ class EncountersController < GenericEncountersController
     end rescue nil
 
     encounter.save    
-
+    
+    if encounter.name == 'EXAMINATION'
+      next_exam_number = PatientIdentifier.next_available_exam_number           
+      examination_observation = {}  
+      examination_observation[:value_text] = next_exam_number
+      examination_observation[:encounter_id] = encounter.id
+      examination_observation[:obs_datetime] = encounter.encounter_datetime || Time.now()
+      examination_observation[:person_id]= encounter.patient_id
+      examination_observation[:concept_name]= "EXAMINATION NUMBER" 
+      #raise observation.to_yaml
+      Observation.create(examination_observation)
+    end
+     
     # Observation handling
     (params[:observations] || []).each do |observation|
 
       # Check to see if any values are part of this observation
       # This keeps us from saving empty observations
-      values = ['coded_or_text', 'coded_or_text_multiple', 'group_id', 'boolean', 'coded', 'drug', 'datetime', 'numeric', 'modifier', 'text'].map{|value_name|
+      values = ['coded_or_text','value_coded_or_text_multiple', 'group_id', 'boolean', 'coded', 'drug', 'datetime', 'numeric', 'modifier', 'text'].map{|value_name|
         observation["value_#{value_name}"] unless observation["value_#{value_name}"].blank? rescue nil
       }.compact
-
+      
+      values = observation.delete(:value_coded_or_text_multiple)
+   
       next if values.length == 0
-      observation[:value_text] = observation[:value_text].join(", ") if observation[:value_text].present? && observation[:value_text].is_a?(Array)
-      observation.delete(:value_text) unless observation[:value_coded_or_text].blank?
-      observation[:encounter_id] = encounter.id
-      observation[:obs_datetime] = encounter.encounter_datetime || Time.now()
-      observation[:person_id] ||= encounter.patient_id
-      observation[:concept_name].upcase ||= "DIAGNOSIS" if encounter.type.name.upcase == "OUTPATIENT DIAGNOSIS"
-      
-      # Handle multiple select
-
-      if observation[:value_coded_or_text_multiple] && observation[:value_coded_or_text_multiple].is_a?(String)
-        observation[:value_coded_or_text_multiple] = observation[:value_coded_or_text_multiple].split(';')
-      end
-      
-      if observation[:value_coded_or_text_multiple] && observation[:value_coded_or_text_multiple].is_a?(Array)
-        observation[:value_coded_or_text_multiple].compact!
-        observation[:value_coded_or_text_multiple].reject!{|value| value.blank?}
-      end  
-      
-      # convert values from 'mmol/litre' to 'mg/declitre'
-      if(observation[:measurement_unit])
-        observation[:value_numeric] = observation[:value_numeric].to_f * 18 if ( observation[:measurement_unit] == "mmol/l")
-        observation.delete(:measurement_unit)
-      end
-
-      if(observation[:parent_concept_name])
-        concept_id = Concept.find_by_name(observation[:parent_concept_name]).id rescue nil
-        observation[:obs_group_id] = Observation.find(:first, :conditions=> ['concept_id = ? AND encounter_id = ?',concept_id, encounter.id]).id rescue ""
-        observation.delete(:parent_concept_name)
-      end
-      
-      extracted_value_numerics = observation[:value_numeric]
-      extracted_value_coded_or_text = observation[:value_coded_or_text]
-
-      if observation[:value_coded_or_text_multiple] && observation[:value_coded_or_text_multiple].is_a?(Array) && !observation[:value_coded_or_text_multiple].blank?
-        
-        values = observation.delete(:value_coded_or_text_multiple)
-        values.each do |value| 
-            observation[:value_coded_or_text] = value
-            if observation[:concept_name].humanize == "Tests ordered"
-                observation[:accession_number] = Observation.new_accession_number 
-            end
-            Observation.create(observation) 
+   
+            if observation[:concept_name].upcase == "INVESTIGATION TYPE"
+                  investigation_type_observation = {}  
+                  investigation_type_observation[:value_text] = observation[:value_coded_or_text]
+                  investigation_type_observation[:encounter_id] = encounter.id
+                  investigation_type_observation[:obs_datetime] = encounter.encounter_datetime || Time.now()
+                  investigation_type_observation[:person_id] = encounter.patient_id
+                  investigation_type_observation[:concept_name] = observation[:concept_name].upcase
+                  Observation.create(investigation_type_observation)            
+            elsif observation[:concept_name].upcase == "XRAY"
+                  xray_observation = {}  
+                  xray_observation[:value_text] = observation[:value_coded_or_text]
+                  xray_observation[:encounter_id] = encounter.id
+                  xray_observation[:obs_datetime] = encounter.encounter_datetime || Time.now()
+                  xray_observation[:person_id] = encounter.patient_id
+                  xray_observation[:concept_name] = observation[:concept_name].upcase
+                  Observation.create(xray_observation)  
+            elsif observation[:concept_name].upcase == "REFERRED BY"
+                  referred_by_observation = {}  
+                  referred_by_observation[:value_text] = observation[:value_coded_or_text]
+                  referred_by_observation[:encounter_id] = encounter.id
+                  referred_by_observation[:obs_datetime] = encounter.encounter_datetime || Time.now()
+                  referred_by_observation[:person_id] = encounter.patient_id
+                  referred_by_observation[:concept_name] = observation[:concept_name].upcase
+                  Observation.create(referred_by_observation) 
+            elsif observation[:concept_name].upcase == "PAY CATEGORY"
+                  pay_category_observation = {}  
+                  pay_category_observation[:value_text] = observation[:value_coded_or_text]
+                  pay_category_observation[:encounter_id] = encounter.id
+                  pay_category_observation[:obs_datetime] = encounter.encounter_datetime || Time.now()
+                  pay_category_observation[:person_id] = encounter.patient_id
+                  pay_category_observation[:concept_name] = observation[:concept_name].upcase
+                  Observation.create(pay_category_observation)
+            end 
         end
-      elsif extracted_value_numerics.class == Array
-            
-        extracted_value_numerics.each do |value_numeric|
-          observation[:value_numeric] = value_numeric
-          Observation.create(observation)
-        end
-        
-      else      
-        observation.delete(:value_coded_or_text_multiple)
-
-        Observation.create(observation)
+  
+    @patient = Patient.find(params[:encounter][:patient_id]) rescue nil
+    if params[:location]
+      if @patient.nil?
+        @patient = Patient.find_with_voided(params[:encounter][:patient_id])
       end
+
+      Person.migrated_datetime = params['encounter']['date_created']
+      Person.migrated_creator  = params['encounter']['creator'] rescue nil
+
+      # set current location via params if given
+      Location.current_location = Location.find(params[:location])
     end
-
-    # Program handling
-    date_enrolled = params[:programs][0]['date_enrolled'].to_time rescue nil
-    date_enrolled = session[:datetime] || Time.now() if date_enrolled.blank?
-    (params[:programs] || []).each do |program|
-      # Look up the program if the program id is set      
-      @patient_program = PatientProgram.find(program[:patient_program_id]) unless program[:patient_program_id].blank?
-      # If it wasn't set, we need to create it
-      unless (@patient_program)
-        @patient_program = @patient.patient_programs.create(
-          :program_id => program[:program_id],
-          :date_enrolled => date_enrolled)          
-      end
-      # Lots of states bub
-      unless program[:states].blank?
-        #adding program_state start date
-        program[:states][0]['start_date'] = date_enrolled
-      end
-      (program[:states] || []).each {|state| @patient_program.transition(state) }
-    end
-
-    # Identifier handling
-    arv_number_identifier_type = PatientIdentifierType.find_by_name('ARV Number').id
-    (params[:identifiers] || []).each do |identifier|
-      # Look up the identifier if the patient_identfier_id is set      
-      @patient_identifier = PatientIdentifier.find(identifier[:patient_identifier_id]) unless identifier[:patient_identifier_id].blank?
-      # Create or update
-      type = identifier[:identifier_type].to_i rescue nil
-      unless (arv_number_identifier_type != type) and @patient_identifier
-        arv_number = identifier[:identifier].strip
-        if arv_number.match(/(.*)[A-Z]/i).blank?
-          if params['encounter']['encounter_type_name'] == 'TB REGISTRATION'
-            identifier[:identifier] = "#{PatientIdentifier.site_prefix}-TB-#{arv_number}"
-          else
-            identifier[:identifier] = "#{PatientIdentifier.site_prefix}-ARV-#{arv_number}"
-          end
-        end
-      end
-
-      if @patient_identifier
-        @patient_identifier.update_attributes(identifier)      
-      else
-        @patient_identifier = @patient.patient_identifiers.create(identifier)
-      end
-    end
-
-    # person attribute handling
-    (params[:person] || []).each do | type , attribute |
-      # Look up the attribute if the person_attribute_id is set  
-
-      #person_attribute_id = person_attribute[:person_attribute_id].to_i rescue nil    
-      @person_attribute = nil #PersonAttribute.find(person_attribute_id) unless person_attribute_id.blank?
-      # Create or update
-
-      if not @person_attribute.blank?
-        @patient_identifier.update_attributes(person_attribute)      
-      else
-        case type
-          when 'agrees_to_be_visited_for_TB_therapy'
-            @person_attribute = @patient.person.person_attributes.create(
-            :person_attribute_type_id => PersonAttributeType.find_by_name("Agrees to be visited at home for TB therapy").person_attribute_type_id,
-            :value => attribute)
-          when 'agrees_phone_text_for_TB_therapy'
-            @person_attribute = @patient.person.person_attributes.create(
-            :person_attribute_type_id => PersonAttributeType.find_by_name("Agrees to phone text for TB therapy").person_attribute_type_id,
-            :value => attribute)
-        end
-      end
-    end
-
-    #handling Xray encounters - creating patient's xray identifiers if needed   
-    #if Location.current_location.name.match(/X-RAY|XRAY/i) and encounter.name == 'EXAMINATION'
-    if encounter.name == 'EXAMINATION'
-      next_exam_number = PatientIdentifier.next_available_exam_number           
-      observation = {}                                                          
-      observation[:encounter_id] = encounter.id                                 
-      observation[:obs_datetime] = encounter.encounter_datetime || Time.now()   
-      observation[:person_id] = encounter.patient_id                            
-      observation[:concept_name] = "EXAMINATION NUMBER"                                
-      observation[:value_text] = next_exam_number                               
-      Observation.create(observation)                                           
-    end  
-
-
-    # if params['encounter']['encounter_type_name'] == "APPOINTMENT"
-    #  redirect_to "/patients/treatment_dashboard/#{@patient.id}" and return
-    # else
-      # Go to the dashboard if this is a non-encounter
-      # redirect_to "/patients/show/#{@patient.id}" unless params[:encounter]
-      # redirect_to next_task(@patient)
-    # end
-
+    
     # Go to the next task in the workflow (or dashboard)
     # only redirect to next task if location parameter has not been provided
     unless params[:location]
