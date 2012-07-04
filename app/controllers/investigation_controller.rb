@@ -25,7 +25,7 @@ class InvestigationController < ApplicationController
         when 'XRAY'
           @previous_investigations[obs.obs_datetime.to_date]['Xray type'] = value
         when 'REFERRED BY'
-          @previous_investigations[obs.obs_datetime.to_date]['Referred from'] = value
+          @previous_investigations[obs.obs_datetime.to_date]['Referred from'] = Location.find(value).name
         when 'PAY CATEGORY'
           @previous_investigations[obs.obs_datetime.to_date]['Payment method'] = value
       end                                                      
