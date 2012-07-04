@@ -32,9 +32,13 @@ color = 'white'
   %>                                                                            
   <tr>                                                                          
     <!--td class="td_<%=color%>"><%= e.name %></td -->                           
-    <td class="td_<%=color%>"><%= ob.to_s.split(':')[0] || '&nbsp;'%></td>      
-    <td class="td_<%=color%>"><%= ob.to_s.split(':')[1] || '&nbsp;'%></td>      
-    <td class="td_<%=color%>"><%= ob.obs_datetime.strftime('%H:%M:%S') || '&nbsp;'%></td>
+    <td class="td_<%=color%>"><%= ob.to_s.split(':')[0] || '&nbsp;'%></td> 
+    <%if ob.to_s.split(':')[0] == "Referred by" %>     
+    <td class="td_<%=color%>"><%= Location.find(ob.to_s.split(':')[1]).name || '&nbsp;'%></td> 
+    <% else %>
+    <td class="td_<%=color%>"><%= ob.to_s.split(':')[1] || '&nbsp;'%>
+    <%end%>
+    <td class="td_<%=color%>"><%= ob.obs_datetime.strftime('%H:%M:%S') || '&nbsp;'%></td>  
   </tr>                                                                         
   <%end%>                                                                       
 <%end%>                                                                         
