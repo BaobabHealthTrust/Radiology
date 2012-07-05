@@ -2,35 +2,24 @@ class InvestigationController < ApplicationController
   def new
     @patient = Patient.find(params[:id])
   end
-
+ 
+  def get_previous_encounters(patient_id)
+     session_date = (session[:datetime].to_date rescue Date.today.to_date)
+     session_date = session_date.to_s + ' 23:59:59'
+    previous_encounters = Encounter.find(:all,
+              :conditions => ["encounter.voided = ? and patient_id = ? and encounter.encounter_datetime <= ?", 0, patient_id, session_date],
+              :include => [:observations],:order => "encounter.encounter_datetime DESC"
+            )
+    return previous_encounters
+  end
+  
   def previous_investigations
-   encounter_type = EncounterType.find_by_name('EXAMINATION').id
-   @previous_investigations = Hash.new()
-   Observation.find(:all,
-    :joins => "INNER JOIN encounter e USING(encounter_id)",
-    :conditions =>["patient_id = ? AND encounter_type = ?",
-    params[:id],encounter_type]).map do | obs |
-      name = obs_to = obs.to_s.split(':')[0].strip
-      value = obs_to = obs.to_s.split(':')[1].strip
-      next if name == 'WORKSTATION LOCATION'
-      @previous_investigations[obs.obs_datetime.to_date] = {
-                              'Investigation type' => nil,
-                              'Xray type' => nil,
-                              'Referred from' => nil,
-                              'Payment method' => nil,
-                              } if @previous_investigations[obs.obs_datetime.to_date].blank? 
-      case name.upcase
-        when 'INVESTIGATION TYPE'
-          @previous_investigations[obs.obs_datetime.to_date]['Investigation type'] = value
-        when 'XRAY'
-          @previous_investigations[obs.obs_datetime.to_date]['Xray type'] = value
-        when 'REFERRED BY'
-          @previous_investigations[obs.obs_datetime.to_date]['Referred from'] = Location.find(value).name
-        when 'PAY CATEGORY'
-          @previous_investigations[obs.obs_datetime.to_date]['Payment method'] = value
-      end                                                      
-    end
+    @previous_investigations  = get_previous_encounters(params[:id])
+    @encounter_dates = @previous_investigations.map{|encounter| encounter.encounter_datetime.to_date}.uniq.first(6) rescue []
+    @past_encounter_dates = @encounter_dates
+     
     render :partial => 'previous_investigations' and return
   end
-
 end
+
+
