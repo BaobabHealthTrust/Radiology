@@ -30,7 +30,9 @@ class EncountersController < GenericEncountersController
       #raise observation.to_yaml
       Observation.create(examination_observation)
     end
-     
+    
+     concepts_array = ["INVESTIGATION TYPE","XRAY","REFERRED BY","PAY CATEGORY","SIZE","BAD","GOOD","NOTES"]
+   
     # Observation handling
     (params[:observations] || []).each do |observation|
 
@@ -42,42 +44,24 @@ class EncountersController < GenericEncountersController
       
       values = observation.delete(:value_coded_or_text_multiple)
    
-      next if values.length == 0
-   
-            if observation[:concept_name].upcase == "INVESTIGATION TYPE"
-                  investigation_type_observation = {}  
-                  investigation_type_observation[:value_text] = observation[:value_coded_or_text]
-                  investigation_type_observation[:encounter_id] = encounter.id
-                  investigation_type_observation[:obs_datetime] = encounter.encounter_datetime || Time.now()
-                  investigation_type_observation[:person_id] = encounter.patient_id
-                  investigation_type_observation[:concept_name] = observation[:concept_name].upcase
-                  Observation.create(investigation_type_observation)            
-            elsif observation[:concept_name].upcase == "XRAY"
-                  xray_observation = {}  
-                  xray_observation[:value_text] = observation[:value_coded_or_text]
-                  xray_observation[:encounter_id] = encounter.id
-                  xray_observation[:obs_datetime] = encounter.encounter_datetime || Time.now()
-                  xray_observation[:person_id] = encounter.patient_id
-                  xray_observation[:concept_name] = observation[:concept_name].upcase
-                  Observation.create(xray_observation)  
-            elsif observation[:concept_name].upcase == "REFERRED BY"
-                  referred_by_observation = {}  
-                  referred_by_observation[:value_text] = observation[:value_coded_or_text]
-                  referred_by_observation[:encounter_id] = encounter.id
-                  referred_by_observation[:obs_datetime] = encounter.encounter_datetime || Time.now()
-                  referred_by_observation[:person_id] = encounter.patient_id
-                  referred_by_observation[:concept_name] = observation[:concept_name].upcase
-                  Observation.create(referred_by_observation) 
-            elsif observation[:concept_name].upcase == "PAY CATEGORY"
-                  pay_category_observation = {}  
-                  pay_category_observation[:value_text] = observation[:value_coded_or_text]
-                  pay_category_observation[:encounter_id] = encounter.id
-                  pay_category_observation[:obs_datetime] = encounter.encounter_datetime || Time.now()
-                  pay_category_observation[:person_id] = encounter.patient_id
-                  pay_category_observation[:concept_name] = observation[:concept_name].upcase
-                  Observation.create(pay_category_observation)
-            end 
+      next if values.length == 0      
+      
+      concepts_array.each do |concept|
+        if concept == observation[:concept_name].upcase
+          new_observation = {} 
+          if concept == "NOTES"
+            new_observation[:value_text] = observation[:value_text]
+          else
+            new_observation[:value_text] = observation[:value_coded_or_text]
+          end
+          new_observation[:encounter_id] = encounter.id
+          new_observation[:obs_datetime] = encounter.encounter_datetime || Time.now()
+          new_observation[:person_id] = encounter.patient_id
+          new_observation[:concept_name] = observation[:concept_name].upcase
+          Observation.create(new_observation)
         end
+      end
+  end
   
     @patient = Patient.find(params[:encounter][:patient_id]) rescue nil
     if params[:location]
