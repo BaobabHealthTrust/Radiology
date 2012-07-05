@@ -1,39 +1,60 @@
-<style>
-  .td_blue {
-    background-color:lightblue;
+
+<%= javascript_include_tag "touchscreen" %>
+<%= stylesheet_link_tag fancy_or_high_contrast_touch %>
+
+<style type="text/css">
+  .visit-summary-header{
+    text-align: left;
+    font-size:  1em;
+    color:      #FFFFFF;
+    background: #808080;}
+    
+  .visit-summary{
+    text-align: left;
+    font-size:  2em;
   }
-
-#summary {
-  width:100%;
-  border-style:solid;
-  border-width:1px;
-}
-
-th {
-  text-align:left;
-}
+  .no-visit-summary{
+    text-align: left;
+    font-size:  10em;
+  }
 </style>
-<table id='summary'>
-<!--caption style="text-align:left;"><%=session[:datetime].to_date.strftime('%A %B %d %Y') rescue Date.today.strftime('%A %m %B %Y')%></caption-->
-<tr>
-  <th>Encounter date</th>
-  <th>Investigation type</th>
-  <th>Xray type</th>
-  <th>Referred from</th>
-  <th>Payment method</th>
-</tr>
-<%
-color = 'white'
-@previous_investigations.map do | date , values |
-  #next if name == 'WORKSTATION LOCATION'
-  if color == 'blue' then color = 'white' else color = 'blue' end
-%>
-  <tr>
-    <td class="td_<%=color%>"><%= date %></td>
-    <td class="td_<%=color%>"><%= values['Investigation type'] || '&nbsp;'%></td>
-    <td class="td_<%=color%>"><%= values['Xray type'] || '&nbsp;'%></td>
-    <td class="td_<%=color%>"><%= values['Referred from'] || '&nbsp;'%></td>
-    <td class="td_<%=color%>"><%= values['Payment method'] || '&nbsp;'%></td>
-  </tr>
-<%end%>
-</table>
+
+<base target="_parent">
+    <div id="previous-visits" style=" width: 100%; height: 320px; overflow: auto;">
+        <table width="100%">
+          
+          <% @past_encounter_dates.each do |encounter_date|
+            header = true
+            previous_encounter = ""
+            i = 0
+            for encounter in @previous_investigations do
+              i += 1
+
+              if (encounter.encounter_datetime.to_date == encounter_date.to_date) %>
+                <% if encounter.name == previous_encounter 
+                  header = false
+                   end
+                -%>
+                <%if header == true %>
+                  <%header_title = ( encounter_date.strftime("%d-%b-%Y").to_s + " - ").humanize.titleize %>
+                  <tr> <th class="visit-summary-header" colspan="2" style="height:2px;"><%=h(header_title)%></th> </tr>
+                <%end -%>
+                <% previous_encounter = encounter.name %>
+                <% header = false%>
+                <tr>
+                  <td class="visit-summary">
+                    <b><%= ( encounter.name.to_s + ": " ).humanize.titleize.upcase rescue nil %></b><br /> <%= encounter.to_s  rescue nil %> <br />
+                  </td>
+                  <td>
+                  </td>
+                </tr>
+              <%end
+            end
+          end -%>
+        <% if @past_encounter_dates.blank? %>
+          <div class="no-visit-summary"><b>There are no prevoius visits for this patient</b></div>
+      <% end %>
+        </table>
+      </div>
+      
+</base>
