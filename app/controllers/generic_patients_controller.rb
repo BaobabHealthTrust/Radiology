@@ -600,13 +600,15 @@ class GenericPatientsController < ApplicationController
     end
 
     render :template => 'dashboards/overview_tab', :layout => false
+    
   end
 
   def visit_history
     session[:mastercard_ids] = []
+    session[:mastercard_ids] = []
     session_date = session[:datetime].to_date rescue Date.today
-	start_date = session_date.strftime('%Y-%m-%d 00:00:00')
-	end_date = session_date.strftime('%Y-%m-%d 23:59:59')
+	  start_date = session_date.strftime('%Y-%m-%d 00:00:00')
+	  end_date = session_date.strftime('%Y-%m-%d 23:59:59')
     @encounters = Encounter.find(:all, 	:conditions => [" patient_id = ? AND encounter_datetime >= ? AND encounter_datetime <= ?", @patient.id, start_date, end_date]) 
     
     @creator_name = {}
