@@ -391,7 +391,8 @@ class EncountersController < GenericEncountersController
 			if ConceptName.find_by_concept_id(obs.concept_id).name.match(/location/)
 				obs.value_numeric = ""
 				observations << obs.to_s
-			elsif ConceptName.find_by_concept_id(obs.concept_id).name.match(/Referred by/)
+			elsif ConceptName.find_by_concept_id(obs.concept_id).name.match(/Referred by/) ||
+            ConceptName.find_by_concept_id(obs.concept_id).name.match(/Name of referring site/)
 				obs.value_text = Location.find_by_location_id(obs.value_text.to_i).name
 				observations << obs.to_s
       else
