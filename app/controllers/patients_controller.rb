@@ -22,11 +22,11 @@ class PatientsController < GenericPatientsController
   
   def overview
     @patient = Patient.find(params[:id])
-    @encounter_date = session[:datetime].to_date rescue Date.today      
+    @encounter_date = session[:datetime].to_date rescue Date.today
     encounter_types = EncounterType.find(:all,:conditions =>["name IN (?)",['EXAMINATION','FILM SIZE']])
     @encounters = Encounter.find(:all,:conditions =>["encounter_type IN (?) AND patient_id = ? AND DATE(encounter_datetime)=?",
                                  encounter_types.collect{|e|e.id},@patient.id,@encounter_date])
-    render :template => 'dashboards/overview_tab', :layout => false
+    render :template => 'dashboards/overview_tab', :layout => false  
   end
   
   def examination                                                               

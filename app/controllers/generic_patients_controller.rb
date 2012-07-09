@@ -605,7 +605,6 @@ class GenericPatientsController < ApplicationController
 
   def visit_history
     session[:mastercard_ids] = []
-    session[:mastercard_ids] = []
     session_date = session[:datetime].to_date rescue Date.today
 	  start_date = session_date.strftime('%Y-%m-%d 00:00:00')
 	  end_date = session_date.strftime('%Y-%m-%d 23:59:59')
