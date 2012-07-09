@@ -381,5 +381,27 @@ class EncountersController < GenericEncountersController
 		end
 		
 	end	
+  
+  def observations
+		# We could eventually include more here, maybe using a scope with includes
+		@encounter = Encounter.find(params[:id], :include => [:observations])
+    #raise @encounter.to_s
+    observations = []
+		@encounter.observations.map do |obs|
+			if ConceptName.find_by_concept_id(obs.concept_id).name.match(/location/)
+				obs.value_numeric = ""
+				observations << obs.to_s
+			elsif ConceptName.find_by_concept_id(obs.concept_id).name.match(/Referred by/)
+				obs.value_text = Location.find_by_location_id(obs.value_text.to_i).name
+				observations << obs.to_s
+      else
+				observations << obs.to_s
+		  end
+    end
+
+		render :layout => false
+	end
+
+  
 	
 end
