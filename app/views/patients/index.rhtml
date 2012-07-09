@@ -45,10 +45,10 @@
               %>
             </div>
             <select id="tabs">
-              <option value='/patients/overview/<%= @patient_bean.patient_id %>'>Visit summary</option>
-              <option value='/investigation/previous_investigations/<%= @patient_bean.patient_id %>'>Previous Investigation</option>
-              <option value='/film/previous_films/<%= @patient_bean.patient_id %>'>Film sizes used</option>
-              <option value='/report/examination/<%= @patient_bean.patient_id -%>'>Notes made</option>
+              <option value='/patients/visit_history/<%= @patient_bean.patient_id %>'>Current Visit</option>
+              <option value='/investigation/previous_investigations/<%= @patient_bean.patient_id %>'>Past Visits</option>
+              <!--option value='/film/previous_films/<%= @patient_bean.patient_id %>'>Film sizes used</option>
+              <option value='/report/examination/<%= @patient_bean.patient_id -%>'>Notes made</option-->
             </select>
             <select id="links">
             
