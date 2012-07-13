@@ -106,7 +106,7 @@ class UserControllerTest < ActionController::TestCase
    should "login a valid user" do
      logged_in_as :mikmck, :registration do
        post :login
-       session[:user_id]=nil
+       current_user.user_id=nil
        assert_response :success
      end
    end
