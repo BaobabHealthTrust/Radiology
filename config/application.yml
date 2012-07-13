@@ -1,20 +1,20 @@
 production:
  create_from_remote: no
- use.user.selected.activities: yes
+ use.user.selected.activities: no
  filing.number.prefix: FN101,FN102
- auto_set_appointment: true
+ auto_set_appointment: false
 
 development:
  create_from_remote: no
- use.user.selected.activities: yes
+ use.user.selected.activities: no
  filing.number.prefix: FN101,FN102
- auto_set_appointment: true
- show.patient.confirmation: true
+ auto_set_appointment: false
+ show.patient.confirmation: yes
  statistics.show_encounter_types: EXAMINATION
 
 test: &TEST
  create_from_remote: no
- use.user.selected.activities: yes
+ use.user.selected.activities: no
 
 cucumber:
   <<: *TEST
