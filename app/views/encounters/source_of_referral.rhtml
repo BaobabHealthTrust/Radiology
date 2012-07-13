@@ -98,7 +98,7 @@ end -%>
       <%= hidden_field_tag "encounter[encounter_type_name]", "SOURCE OF REFERRAL" %>
       <%= hidden_field_tag "encounter[patient_id]", @patient.id %>
       <%= hidden_field_tag "encounter[encounter_datetime]", DateTime.now() %>
-      <%= hidden_field_tag "encounter[provider_id]", session[:user_id] %>
+      <%= hidden_field_tag "encounter[provider_id]", current_user.user_id %>
 
 
       <%#= touch_select_tag "Referred by", @patient, concept_set_options('Source of referral'),%>

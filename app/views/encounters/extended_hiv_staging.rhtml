@@ -460,7 +460,7 @@ if not reason_for_art.blank? and not art_reasons.upcase == 'UNKNOWN'%>
 		<%= hidden_field_tag "encounter[encounter_type_name]", "HIV STAGING" %>
 		<%= hidden_field_tag "encounter[patient_id]", @patient.id %>
 		<%= hidden_field_tag "encounter[encounter_datetime]", DateTime.now() %>
-		<%= hidden_field_tag "encounter[provider_id]", session[:user_id] %>
+		<%= hidden_field_tag "encounter[provider_id]", current_user.user_id %>
 		
 		<% if @patient_bean.age_in_months < 12 and @confirmatory_hiv_test_type == 'HIV rapid test' %>
 

@@ -11,7 +11,11 @@
 <%= hidden_field_tag "encounter[encounter_type_name]", "EXAMINATION" %>
 <%= hidden_field_tag "encounter[patient_id]", @patient.id %>
 <%= hidden_field_tag "encounter[encounter_datetime]", DateTime.now() %>
-<%= hidden_field_tag "encounter[provider_id]", session[:user_id] %>
+<%= hidden_field_tag "encounter[provider_id]", current_user.user_id %>
+
+<%= touch_hidden_tag "EXAMINATION NUMBER", @patient,"#{@next_exam_number}",
+					{	:id => "examination_number",
+						:tt_pageStyleClass => "NoControls"} %>
 
 <%= touch_select_tag "INVESTIGATION TYPE", @patient, options ,
 {:id => "investigation_type",

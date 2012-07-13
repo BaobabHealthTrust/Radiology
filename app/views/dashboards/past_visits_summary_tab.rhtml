@@ -7,7 +7,7 @@
     font-size:  1em;
     color:      #FFFFFF;
     background: #808080;
-  
+    
   .visit-summary{
     text-align: left;
     font-size:  2em;
@@ -26,13 +26,7 @@
             header = true
             previous_encounter = ""
             i = 0
-            for encounter in @previous_encounters.reverse do 
-		    for obs in encounter.observations do
-		        if obs.concept_id == 3512 #Referred by or Name of referring site concept_id
-		            obs.value_text = Location.find_by_location_id(obs.value_text.to_i).name
-		        end
-		    end 
-            
+            for encounter in @previous_visits do
               i += 1
 
               if (encounter.encounter_datetime.to_date == encounter_date.to_date) %>
@@ -57,7 +51,7 @@
             end
           }%>
         <% if @past_encounter_dates.blank? %>
-          <div class="no-visit-summary"><b>There are no previous visits for this patient</b></div>
+          <div class="no-visit-summary"><b>There are no prevoius visits for this patient</b></div>
       <% end %>
         </table>
       </div>

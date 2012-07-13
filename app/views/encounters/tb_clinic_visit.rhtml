@@ -88,7 +88,7 @@
 	<%= hidden_field_tag "encounter[encounter_type_name]", "TB CLINIC VISIT" %>
 	<%= hidden_field_tag "encounter[patient_id]", @patient.id %>
 	<%= hidden_field_tag "encounter[encounter_datetime]", DateTime.now() %>
-	<%= hidden_field_tag "encounter[provider_id]", session[:user_id] %>
+	<%= hidden_field_tag "encounter[provider_id]", current_user.user_id %>
 
 
 	<%= touch_yes_no_unknown_tag "SYMPTOMATIC", @patient, nil,

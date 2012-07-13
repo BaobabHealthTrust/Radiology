@@ -142,7 +142,7 @@
 	<%= hidden_field_tag "encounter[encounter_type_name]", "LAB ORDERS" %>
 	<%= hidden_field_tag "encounter[patient_id]", @patient.id %>
 	<%= hidden_field_tag "encounter[encounter_datetime]", DateTime.now() %>
-	<%= hidden_field_tag "encounter[provider_id]", session[:user_id] %>
+	<%= hidden_field_tag "encounter[provider_id]", current_user.user_id %>
 
 	<%# select_tag "main_tests", options_for_select(@select_options['lab_orders'].sort.collect{|k,v| k}.unshift(" ")), %>
 
