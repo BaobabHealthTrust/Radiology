@@ -8,6 +8,7 @@ class GenericSessionsController < ApplicationController
 
 	def create
 		user = User.authenticate(params[:login], params[:password])
+
 		sign_in(:user, user) if user
 		authenticate_user! if user
 

@@ -39,6 +39,7 @@ class GenericPatientsController < ApplicationController
 				@reason_for_art_eligibility = nil				
 			end
 			@arv_number = PatientService.get_patient_identifier(@patient, 'ARV Number')
+      
 			render :template => 'patients/index', :layout => false
 		end
 	end

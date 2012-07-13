@@ -22,7 +22,7 @@ class GenericEncountersController < ApplicationController
         end
       end
     end
-
+    
     if params['encounter']['encounter_type_name'] == 'HIV_CLINIC_REGISTRATION'
 
       has_tranfer_letter = false
@@ -160,7 +160,7 @@ class GenericEncountersController < ApplicationController
         create_obs(encounter , params)
       end
 
-      unless observations.blank? 
+      unless observations.blank?
         encounter = Encounter.new()
         encounter.encounter_type = EncounterType.find_by_name("HIV STAGING").id
         encounter.patient_id = params['encounter']['patient_id']
@@ -330,10 +330,9 @@ class GenericEncountersController < ApplicationController
       user_person_id = User.find_by_user_id(encounter[:provider_id]).person_id
     end
     encounter.provider_id = user_person_id
-
-    encounter.save    
-
-
+    
+    encounter.save   
+  
     #create observations for the just created encounter
     create_obs(encounter , params)   
 
@@ -1263,7 +1262,10 @@ class GenericEncountersController < ApplicationController
 			observation[:obs_datetime] = encounter.encounter_datetime || Time.now()
 			observation[:person_id] ||= encounter.patient_id
 			observation[:concept_name].upcase ||= "DIAGNOSIS" if encounter.type.name.upcase == "OUTPATIENT DIAGNOSIS"
+      
+    
 
+        
 			# Handle multiple select
 
 			if observation[:value_coded_or_text_multiple] && observation[:value_coded_or_text_multiple].is_a?(String)

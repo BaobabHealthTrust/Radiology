@@ -1,25 +1,27 @@
 class InvestigationController < ApplicationController
   def new
     @patient = Patient.find(params[:id])
+    @next_exam_number = next_available_exam_number
   end
  
-  def get_previous_encounters(patient_id)
-     session_date = (session[:datetime].to_date rescue Date.today.to_date) - 1.days
-     session_date = session_date.to_s + ' 23:59:59'
-    previous_encounters = Encounter.find(:all,
-              :conditions => ["encounter.voided = ? and patient_id = ? and encounter.encounter_datetime <= ?", 0, patient_id, session_date],
-              :include => [:observations],:order => "encounter.encounter_datetime DESC"
-            )
-    return previous_encounters
+  def next_available_exam_number                                           
+    prefix = 'R'                                                                
+    last_exam_num = Observation.find(:first, :order => "value_text DESC",       
+                   :conditions => ["concept_id = ?",
+                    ConceptName.find_by_name('EXAMINATION NUMBER').concept_id]
+                   ).value_text rescue []
+                                                                                
+    index = 0                                                                   
+    last_exam_num.each_char do | c |                                            
+      next if c == prefix                                                       
+      break unless c == '0'                                                     
+      index+=1                                                                  
+    end unless last_exam_num.blank?                                             
+                                                                                
+    last_exam_num = '0' if last_exam_num.blank?                                 
+    prefix + (last_exam_num[index..-1].to_i + 1).to_s.rjust(8,'0')              
   end
-  
-  def previous_investigations
-    @previous_encounters  = get_previous_encounters(params[:id])
-    @encounter_dates = @previous_encounters.map{|encounter| encounter.encounter_datetime.to_date}.uniq.first(6) rescue []
-    @past_encounter_dates = @encounter_dates
-     
-    render :template => 'dashboards/past_visits_summary_tab', :layout => false
-  end
+ 
 end
 
 

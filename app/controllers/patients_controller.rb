@@ -1,37 +1,38 @@
 class PatientsController < GenericPatientsController
+ 
+  def personal
+    @links = []
+    patient = Patient.find(params[:id])
+    
+    if use_user_selected_activities
+      @links << ["Change User Activities","/user/activities/#{current_user.id}?patient_id=#{patient.id}"]
+    end
+    @links << ["National ID (Print)","/patients/dashboard_print_national_id/#{patient.id}"]
+    @links << ["Investigation (Print)","/patients/dashboard_print_visit/#{patient.id}"]
+    
+    render :template => 'dashboards/personal_tab', :layout => false
+  end
+  
+  def patient_visit_label(patient, date = Date.today)
+      label = ZebraPrinter::StandardLabel.new
+      label.font_size = 3
+      label.font_horizontal_multiplier = 1
+      label.font_vertical_multiplier = 1
+      label.left_margin = 50
+      encs = patient.encounters.find(:all,:conditions =>["DATE(encounter_datetime) = ?",date])
+      return nil if encs.blank?
 
-  def show
-    session[:mastercard_ids] = []
-    session_date = session[:datetime].to_date rescue Date.today
-
-		@patient_bean = PatientService.get_patient(@patient.person)
-		@encounters = @patient.encounters.find_by_date(session_date)
-
-    @show_investigation = Encounter.find(:first,:order => "encounter_datetime DESC",:conditions =>["encounter_type = ? AND patient_id = ? AND DATE(encounter_datetime) = ?",EncounterType.find_by_name("EXAMINATION").id,@patient.id,session_date]) == nil
-
-    @date = session_date.strftime("%Y-%m-%d")
-
-    @location = Location.find(session[:location_id]).name rescue ""
-   
-    if @location.downcase == "outpatient" || params[:source]== 'opd'
-      render :template => 'dashboards/opdtreatment_dashboard', :layout => false
-    else
-      render :template => 'patients/index', :layout => false  
+      label.draw_multi_text("Investigation: #{encs.first.encounter_datetime.strftime("%d/%b/%Y %H:%M")}", :font_reverse => true)
+      encs.each {|encounter|
+        encounter.to_s.split("<b>").each do |string|
+          concept_name = string.split("</b>:")[0].strip rescue nil
+          obs_value = string.split("</b>:")[1].strip rescue nil
+          next if string.match(/Workstation location/i)
+          next if obs_value.blank?
+          label.draw_multi_text("#{encounter.name.humanize} - #{concept_name}: #{obs_value}", :font_reverse => false)
+        end
+      }
+      label.print(1)
     end
   end
   
-  def overview
-    @patient = Patient.find(params[:id])
-    @encounter_date = session[:datetime].to_date rescue Date.today
-    encounter_types = EncounterType.find(:all,:conditions =>["name IN (?)",['EXAMINATION','FILM SIZE']])
-    @encounters = Encounter.find(:all,:conditions =>["encounter_type IN (?) AND patient_id = ? AND DATE(encounter_datetime)=?",
-                                 encounter_types.collect{|e|e.id},@patient.id,@encounter_date])
-    render :template => 'dashboards/overview_tab', :layout => false  
-  end
-  
-  def examination                                                               
-    @patient = Patient.find(params[:id])                                        
-    @encounter_date = session[:datetime].to_date rescue Date.today                                
-  end  
-   
-end

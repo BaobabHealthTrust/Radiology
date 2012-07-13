@@ -124,7 +124,7 @@ class GenericPeopleController < ApplicationController
     @transferred_out = @current_hiv_program_state.upcase == "PATIENT TRANSFERRED OUT"? true : nil
     defaulter = Patient.find_by_sql("SELECT current_defaulter(#{@person.patient.patient_id}, '#{session_date}') 
                                      AS defaulter 
-                                     FROM patient_program LIMIT 1")[0].defaulter
+                                     FROM patient_program LIMIT 1")[0].defaulter rescue 0
     @defaulted = defaulter == 0 ? nil : true     
     @task = main_next_task(Location.current_location, @person.patient, session_date.to_date)
 		@arv_number = PatientService.get_patient_identifier(@person, 'ARV Number')
