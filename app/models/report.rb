@@ -318,7 +318,7 @@ ORDER BY clinic ASC"])
         obs_value = [obs.to_s.split(":")[1].to_s.strip] rescue nil
         obs_value << [obs.to_s.split(":")[2].to_s.strip] rescue nil
         next if concept_name.blank?
-        next unless concept_name.upcase == 'XRAY'
+        next unless concept_name.upcase == 'XRAY' || concept_name.upcase == 'US'
         statastics["#{investigation_type},#{obs_value.join(' ')}".strip]+=1
       end
     end
