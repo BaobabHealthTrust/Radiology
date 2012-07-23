@@ -44,7 +44,15 @@
 <%= touch_select_tag "XRAY", @patient, options ,
 {:id => "xray_type",
 :helpText => "Xray type",
+:condition => '$("investigation_type").value == "Xray"',
 :tt_pageStyleClass => "NoKeyboard NoInput small" } %>
+
+<%= touch_select_tag "ULTRASOUND", @patient, options ,
+{:id => "ultrasound_type",
+:helpText => "Ultrasound type",
+:condition => '$("investigation_type").value == "Ultrasound"',
+:tt_pageStyleClass => "NoKeyboard NoInput small" } %>
+
 
 <%
    lower_limb = "<option value=''></option>"
@@ -81,9 +89,9 @@
 %>
 <script>
   function captionChange(){
-    selected_text = document.getElementById('xray_type').value;
-    document.getElementsByClassName('helpTextClass')[0].innerHTML+= " " + selected_text;
-    /*limb_type = document.getElementById('limb_type');
+    /*selected_text = document.getElementById('xray_type').value;
+     document.getElementsByClassName('helpTextClass')[0].innerHTML+= " " + selected_text;
+     limb_type = document.getElementById('limb_type');
     if(selected_text == 'Lower limb'){
       limb_type.innerHTML = lower_limb 
     } else { limb_type.innerHTML = upper_limb }
