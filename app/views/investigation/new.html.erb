@@ -2,7 +2,7 @@
   var tt_cancel_destination = "/patients/show/<%= @patient.patient_id -%>";
 </script>
 
-<% form_tag "/encounters/create", :method => :post do 
+<% form_tag "/orders/create", :method => :post do
    options = "<option value=''></option>"
    options+="<option value='Xray'>Xray</option>"
    options+="<option value='Ultrasound'>Ultrasound</option>"
@@ -13,46 +13,20 @@
 <%= hidden_field_tag "encounter[encounter_datetime]", DateTime.now() %>
 <%= hidden_field_tag "encounter[provider_id]", current_user.user_id %>
 
-<%= touch_hidden_tag "EXAMINATION NUMBER", @patient,"#{@next_exam_number}",
-					{:id => "examination_number",
-					 :tt_pageStyleClass => "NoControls"} %>
+<%= hidden_field_tag  :examination_number, @next_exam_number %>
+
+<% @options = ['Xray','Ultrasound'] %>
+<%=  select_tag :investigation_type, options_for_select(@options),
+     {:helpText => "Investigation type"} %>
 
 
-<%= touch_select_tag "INVESTIGATION TYPE", @patient, options ,
-{:id => "investigation_type",
-:helpText => "Investigation type",
-:tt_pageStyleClass => "NoKeyboard NoInput small" } %>
+
+<% @options = ['Skull','Facial bones','C-spine','T-spine','L-spine','Upper limb','Lower limb','Chest','Abdomen',
+               'Pelvis','Contrast GI study','Contrast UT study','HSG','Other'] %>
 
 
-<% options = "<option value=''></option>"
-   options+="<option value='Skull'>Skull</option>"
-   options+="<option value='Facial bones'>Facial bones</option>"
-   options+="<option value='C-spine'>C-spine</option>"
-   options+="<option value='T-spine'>T-spine</option>"
-   options+="<option value='L-spine'>L-spine</option>"
-   options+="<option value='Upper limb'>Upper limb</option>"
-   options+="<option value='Lower limb'>Lower limb</option>"
-   options+="<option value='Chest'>Chest</option>"
-   options+="<option value='Abdomen'>Abdomen</option>"
-   options+="<option value='Pelvis'>Pelvis</option>"
-   options+="<option value='Contrast GI study'>Contrast GI study</option>"
-   options+="<option value='Contrast UT study'>Contrast UT study</option>"
-   options+="<option value='HSG'>HSG</option>"
-   options+="<option value='Other'>Other</option>"
-%>
-
-<%= touch_select_tag "XRAY", @patient, options ,
-{:id => "xray_type",
-:helpText => "Xray type",
-:condition => '$("investigation_type").value == "Xray"',
-:tt_pageStyleClass => "NoKeyboard NoInput small" } %>
-
-<%= touch_select_tag "ULTRASOUND", @patient, options ,
-{:id => "ultrasound_type",
-:helpText => "Ultrasound type",
-:condition => '$("investigation_type").value == "Ultrasound"',
-:tt_pageStyleClass => "NoKeyboard NoInput small" } %>
-
+<%=  select_tag :investigation_type_value, options_for_select(@options),
+     {:helpText => "Investigation type value"} %>
 
 <%
    lower_limb = "<option value=''></option>"
@@ -102,13 +76,13 @@
 <%= touch_select_tag "LIMB TYPE", @patient, lower_limb ,
 {:id => "lower_limb",
 :helpText => "Which part of Lower limb",
-:condition => '$("xray_type").value =="Lower limb"',
+:condition => '$("investigation_type_value").value =="Lower limb"',
 :tt_pageStyleClass => "NoKeyboard NoInput small" } %>
 
 <%= touch_select_tag "LIMB TYPE", @patient, upper_limb ,
 {:id => "upper_limb",
 :helpText => "Which part of Upper limb",
-:condition => '$("xray_type").value =="Upper limb"',
+:condition => '$("investigation_type_value").value =="Upper limb"',
 :tt_pageStyleClass => "NoKeyboard NoInput small" } %>
 
 <%= touch_location_tag "REFERRED BY", @patient, nil,
@@ -124,7 +98,11 @@
 <%= touch_select_tag "PAY CATEGORY", @patient, options ,
 {:id => "pay_category",
 :helpText => "Payment method",
-:tt_pageStyleClass => "NoKeyboard NoInput small" } %>
+:tt_pageStyleClass => "No Keyboard NoInput small" } %>
+
+<%= text_field_tag('receipt_number', '', :helpText=> "Receipt number" ,:condition => '$("pay_category").value == "Paying"') %>
+
+<%= text_field_tag('pay_amount', '', :helpText=> "Payment amount",:condition => '$("pay_category").value == "Paying"') %>
 
 <%end%>
 
