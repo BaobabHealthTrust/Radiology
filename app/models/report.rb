@@ -309,7 +309,7 @@ ORDER BY clinic ASC"])
     encounters = Encounter.find(:all,
       :conditions =>["DATE(encounter_datetime) >= ? AND DATE(encounter_datetime) <= ?
       AND encounter_type = ?",start_date,end_date,encounter_type])
-
+  
     encounters.each do | encounter |
       name = encounter.name
       investigation_type = self.investigation_type(encounter.id)
@@ -318,7 +318,7 @@ ORDER BY clinic ASC"])
         obs_value = [obs.to_s.split(":")[1].to_s.strip] rescue nil
         obs_value << [obs.to_s.split(":")[2].to_s.strip] rescue nil
         next if concept_name.blank?
-        next unless concept_name.upcase == 'XRAY' || concept_name.upcase == 'US'
+        next unless concept_name.upcase == 'XRAY' || concept_name.upcase == 'ULTRASOUND'
         statastics["#{investigation_type},#{obs_value.join(' ')}".strip]+=1
       end
     end
@@ -333,19 +333,18 @@ ORDER BY clinic ASC"])
 
   
   def self.film_used(start_date,end_date)
-    encounter_type = EncounterType.find(:first,:conditions =>["name = ?",'FILM SIZE']).id
+    encounter_type = EncounterType.find(:first,:conditions =>["name = ?",'FILM']).id
     return if encounter_type.blank?
     statastics = Hash.new(0)
     encounters = Encounter.find(:all,
       :conditions =>["DATE(encounter_datetime) >= ? AND DATE(encounter_datetime) <= ?
       AND encounter_type = ?",start_date,end_date,encounter_type])
-
     encounters.each do | encounter |
-      next unless encounter.name.upcase == 'FILM SIZE'
+      next unless encounter.name.upcase == 'FILM'
       film_size = nil
       bad_film = 0
       good_film = 0
-      ['SIZE','GOOD','BAD'].each do | concept_name |
+      ['FILM SIZE','GOOD','BAD'].each do | concept_name |
         encounter.observations.each do | obs |
           next unless concept_name == obs.to_s.split(":")[0].to_s.upcase.strip rescue nil
           obs_value = [obs.to_s.split(":")[1].to_s.strip] rescue nil
@@ -357,7 +356,7 @@ ORDER BY clinic ASC"])
             when 'GOOD'
               good_film += obs_value.join(' ').match(/[0-9]/)[0].to_i rescue 0
               statastics[film_size][:good] += good_film 
-            when 'SIZE'
+            when 'FILM SIZE'
               film_size = obs_value.join(' ').strip
               statastics[film_size] = {:bad => 0,:good => 0} unless statastics[film_size].blank? 
           end

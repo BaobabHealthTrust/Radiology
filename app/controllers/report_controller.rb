@@ -27,7 +27,7 @@ class ReportController < GenericReportController
         @encounters = Report.film_used(@start_date,@end_date) 
       when 'investigations'
         @xray = 'EXAMINATION'
-        @encounters = Report.investigations(@start_date,@end_date) 
+        @encounters = Report.investigations(@start_date,@end_date)
     end
     render :layout => 'menu'
   end

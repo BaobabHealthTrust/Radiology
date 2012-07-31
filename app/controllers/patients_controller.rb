@@ -34,5 +34,13 @@ class PatientsController < GenericPatientsController
       }
       label.print(1)
     end
+
+  def examination
+    exam_number = params[:examination_number]
+    @order = Order.find(:first,:conditions => ["accession_number = ? AND voided = 0",exam_number])
+    @patient = Patient.find(@order.patient_id)
+    @encounter_date = params[:encounter_date]
   end
+
+end
   

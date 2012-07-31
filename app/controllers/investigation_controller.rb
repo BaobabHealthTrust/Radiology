@@ -6,10 +6,9 @@ class InvestigationController < ApplicationController
  
   def next_available_exam_number                                           
     prefix = 'R'                                                                
-    last_exam_num = Observation.find(:first, :order => "value_text DESC",       
-                   :conditions => ["concept_id = ?",
-                    ConceptName.find_by_name('EXAMINATION NUMBER').concept_id]
-                   ).value_text rescue []
+    last_exam_num = Order.find(:first, :order => "accession_number DESC",
+                   :conditions => ["voided = 0"]
+                   ).accession_number rescue []
                                                                                 
     index = 0                                                                   
     last_exam_num.each_char do | c |                                            

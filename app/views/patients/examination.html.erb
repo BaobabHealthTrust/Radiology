@@ -1,13 +1,14 @@
 <script>
   dat = "<%=@encounter_date.to_date rescue Date.today %>"
-  tt_cancel_destination = '/patients/show?encounter_date=' + dat + '&patient_id=' + '<%=@patient.id%>'
+  tt_cancel_destination = '/patients/show?encounter_date=' + dat + '&patient_id=' + '<%=@patient.id%>'+ '&examination_number=' + '<%= params['examination_number']%>'
 </script>
 
-<form action='/encounters/create' method='post'>
-  <%= hidden_field_tag "encounter[encounter_type_name]", "OBSERVATIONS" %>
+<form action='/orders/create' method='post'>
+  <%= hidden_field_tag "encounter[encounter_type_name]", "NOTE" %>
   <%= hidden_field_tag "encounter[patient_id]", @patient.id %>
   <%= hidden_field_tag "encounter[encounter_datetime]", @encounter_date.to_date.to_s + Time.now.strftime(' %H:%M:%S').to_time rescue DateTime.now() %>
   <%= hidden_field_tag "encounter[provider_id]", current_user.user_id %>
+  <%= hidden_field_tag "examination_number", params['examination_number'] %>
 
   <%= touch_text_area_tag("NOTES", @patient, nil,
     {:optional => false,:helpText => "Examination notes"}, time = DateTime.now()) %>

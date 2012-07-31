@@ -27,34 +27,39 @@ class OrdersController < ApplicationController
     end
 
     encounter_type_name = params[:encounter][:encounter_type_name]
-
     @encounter = current_encounter(encounter_type_name,@patient, session_date, user_person_id)
-
+    examination_number = params['examination_number']
     if params['investigation_type']
       order_type_name = params['investigation_type']
       concept = ConceptName.find_by_name(params['investigation_type_value'])
-      examination_number = params['examination_number']
-
-      @order = current_order(examination_number,order_type_name,@patient,concept,@encounter.encounter_id)
+      @order = current_order(examination_number,@patient,order_type_name,concept,@encounter.encounter_id)
     else
-      @order = current_order(examination_number)
+      @order = current_order(examination_number,@patient)
     end
-   
-
+    
     @order_id = @order.order_id
 
-
     params['observations'].each do |ob|
-      next if ob['value_coded'].blank? && ob['value_coded_or_text'].blank?
-      obs = Observation.new(
+      if ob['value_coded'].blank? && ob['value_coded_or_text'].blank?
+        obs = Observation.new(
           :concept_name => ob['concept_name'],
           :order_id => @order_id,
-          :value_coded =>ob['value_coded'],
-          :value_text =>ob['value_coded_or_text'],
+          :value_text =>ob['value_text'],
           :person_id => @patient.person.person_id,
           :encounter_id => @encounter.id,
           :obs_datetime => session_date || Time.now())
       obs.save
+      else
+        obs = Observation.new(
+            :concept_name => ob['concept_name'],
+            :order_id => @order_id,
+            :value_coded =>ob['value_coded'],
+            :value_text =>ob['value_coded_or_text'],
+            :person_id => @patient.person.person_id,
+            :encounter_id => @encounter.id,
+            :obs_datetime => session_date || Time.now())
+        obs.save
+      end
     end
 
     redirect_to :controller => :patients ,:action => :show ,:id => @patient.patient_id
@@ -69,7 +74,7 @@ class OrdersController < ApplicationController
   end
 
   
-  def current_order(examination_number,order_type_name = nil, patient = nil,concept = nil,encounter_id = nil ,provider = current_user.person_id)
+  def current_order(examination_number,patient,order_type_name = nil, concept = nil,encounter_id = nil ,provider = current_user.person_id)
 
     type = OrderType.find_by_name(order_type_name)
     order = patient.orders.find_by_accession_number(examination_number)

@@ -1,10 +1,10 @@
 <script>
   dat = "<%=@encounter_date.to_date rescue Date.today %>"
-  tt_cancel_destination = '/patients/show?encounter_date=' + dat + '&patient_id=' + '<%=@patient.id%>'
+  tt_cancel_destination = '/patients/show?encounter_date=' + dat + '&patient_id=' + '<%=@patient.id%>'+ '&examination_number=' + '<%= params['examination_number']%>'
 </script>
 
 
-<% form_tag "/encounters/create", :method => :post do 
+<% form_tag "/orders/create", :method => :post do
   options = "<option value=''></option>"
   options += "<option value='35x43'>35x43</option>"
   options += "<option value='35x35'>35x35</option>"
@@ -14,13 +14,14 @@
   options += "<option value='13x18'>13x18</option>"
 %>
 
-<%= hidden_field_tag "encounter[encounter_type_name]", "FILM SIZE" %>
+<%= hidden_field_tag "encounter[encounter_type_name]", "FILM" %>
 <%= hidden_field_tag "encounter[patient_id]", @patient.id %>
  <%= hidden_field_tag "encounter[encounter_datetime]", @encounter_date.to_date.to_s + Time.now.strftime(' %H:%M:%S').to_time rescue DateTime.now() %>
 <%= hidden_field_tag "encounter[provider_id]", current_user.user_id %>
+<%= hidden_field_tag "examination_number", @order.accession_number %>
 
 
-<%= touch_select_tag "SIZE", @patient, options ,
+<%= touch_select_tag "FILM SIZE", @patient, options ,
 {:id => "film_size",
 :helpText => "Film size",
 :tt_pageStyleClass => "NoKeyboard NoInput small" } %>
@@ -35,7 +36,7 @@
   options += "<option value='5 films'>5 Films</option>"
 %>
 
-<%= touch_select_tag "BAD", @patient, options ,
+<%= touch_select_tag "BAD FILM", @patient, options ,
 {:id => "bad_film",
 :helpText => "Bad film(s) used",
 :tt_pageStyleClass => "NoKeyboard NoInput small" } %>
@@ -51,7 +52,7 @@
   options += "<option value='5 films'>5 Films</option>"
 %>
 
-<%= touch_select_tag "GOOD", @patient, options ,
+<%= touch_select_tag "GOOD FILM", @patient, options ,
 {:id => "good_film",
 :helpText => "Good film(s) used",
 :tt_pageStyleClass => "NoKeyboard NoInput small" } %>

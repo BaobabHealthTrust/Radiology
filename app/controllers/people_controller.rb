@@ -134,15 +134,15 @@ class PeopleController < GenericPeopleController
                                                                                 
       exam_number = 'R' + (last_exam_num[index..-1].to_s.rjust(8,'0'))          
                                                                                 
-      ob = Observation.find(:first,:conditions =>["value_text = ? AND voided = 0",exam_number])
+      order = Order.find(:first,:conditions =>["accession_number = ? AND voided = 0",exam_number])
 
-      if ob.blank?                                                              
+      if order.blank?
         redirect_to :action => 'find_by_exam_number' and return                 
       else                  
-        unless ob.obs_datetime.to_date == Date.today 
-          session[:datetime] = ob.obs_datetime.to_date 
-        end                                                 
- redirect_to :controller => 'patients', :action => 'show',:patient_id => ob.person_id,:encounter_date => ob.obs_datetime.to_date and return
+        unless order.date_created.to_date == Date.today
+          session[:datetime] = order.date_created.to_date
+        end
+ redirect_to :controller => 'patients', :action => 'show',:patient_id => order.patient_id,:encounter_date => order.date_created.to_date,:examination_number => order.accession_number and return
       end                                                                      
     end                                                                         
   end
