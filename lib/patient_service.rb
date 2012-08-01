@@ -1375,17 +1375,20 @@ EOF
     sex =  patient_bean.sex.match(/F/i) ? "(F)" : "(M)"                         
     address = patient.person.address.strip[0..24].humanize rescue ""            
     name_of_referring_site = self.name_of_referring_site(order_id)
-    session_date = order.encounter.encounter_datetime.strftime('%d-%m-%Y')
+    session_date = order.encounter.encounter_datetime.strftime('%d-%b-%Y')
+    study_type = order.concept.fullname
+    type = order.order_type.name
 
     label = ZebraPrinter::StandardLabel.new                                     
-    label.font_size = 2                                                         
+    label.font_size = 1                                                 
     label.font_horizontal_multiplier = 2                                        
     label.font_vertical_multiplier = 2                                          
     label.left_margin = 50                                                      
-    label.draw_barcode(50,180,0,1,5,15,120,false,"#{order.accession_number}") 
+    label.draw_barcode(50,180,0,1,5,15,90,false,"#{order.accession_number}") 
     label.draw_multi_text("#{patient_bean.name.titleize}")                      
-    label.draw_multi_text("#{patient_bean.national_id_with_dashes} #{patient_bean.birth_date}#{sex}")
-    label.draw_multi_text("#{session_date}, #{name_of_referring_site}")                            
+    label.draw_multi_text("#{patient_bean.national_id_with_dashes} #{sex} #{patient_bean.birth_date}")
+    label.draw_multi_text("#{type} - #{study_type}")                            
+    label.draw_multi_text("#{session_date}, #{order.accession_number} (#{name_of_referring_site})")                            
     label.print(1)                                                              
   end
  
