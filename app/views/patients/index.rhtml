@@ -46,7 +46,11 @@
             </div>
             <% exam_number = params["examination_number"] rescue nil %>
             <select id="tabs">
+              <%  if exam_number.nil? %>
+              <option value='/patients/visit_history?patient_id=<%= @patient.id  %>'>Current Visit</option>
+              <%  else %>
               <option value='/patients/visit_history?patient_id=<%= @patient.id  %>&examination_number=<%= exam_number %>'>Current Visit</option>
+              <%  end %>
               <option value='/patients/past_visits_summary?patient_id=<%= @patient.id %>'>Past Visits</option>
               <!--option value='/patients/personal/<%= @patient_bean.patient_id -%>'>Printouts/Other</option-->
             </select>
@@ -57,8 +61,10 @@
               <%  else %>
                 <option value='/film/size?examination_number=<%= exam_number %>'>Film Sizes</option>
                 <option value='/patients/examination?examination_number=<%= exam_number %>'>Notes</option>
+                <option value='/patients/print_investigation?patient_id=<%=@patient_bean.patient_id
+                    %>&examination_number=<%= exam_number %>&encounter_date=<%= (params["encounter_date"] rescue "")
+                    %>'>Print Investigation</option>
               <%  end %>
-              <option value='/patients/print_investigation?patient_id=<%=@patient_bean.patient_id%>'>Print Investigation</option>
               <option value='/patients/dashboard_print_national_id/<%=@patient_bean.patient_id%>'>Print Registration</option>
             </select>
             <tr>

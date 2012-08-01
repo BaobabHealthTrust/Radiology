@@ -19,17 +19,23 @@
   }
 </style>
 
-<iframe id="main" src="/patients/investigations_printable/?patient_id=<%= @patient.id %><%= (params[:ret] ? "&ret=" + params[:ret] :
+<iframe id="main" src="/patients/investigations_printable/?patient_id=<%= @patient.id %>&examination_number=<%=
+          params["examination_number"] %>&encounter_date=<%= (params["encounter_date"] rescue "")
+                    %><%= (params[:ret] ? "&ret=" + params[:ret] :
     "") %>"></iframe>
 <div id="nav">
-  <button class="green" onclick="window.location = '/patients/show/<%=  @patient.id %>'"
+  <button class="green" onclick="window.location = '/patients/show?patient_id=<%=  @patient.id %>&examination_number=<%=
+          params["examination_number"] %>&encounter_date=<%= (params["encounter_date"] rescue "")
+                    %>'"
           style="float: right; margin: 10px;">
     <span>
       Finish
     </span>
   </button>
   <button class="blue" onclick="if(__$('popupBox')){__$('popupBox').innerHTML = '<p>Printing. Please wait...</p>'}; 
-    showStatus(); window.location = '/patients/print_note?patient_id=<%= @patient.id %>&user_id=<%=
+    showStatus(); window.location = '/patients/print_note?patient_id=<%= @patient.id %>&examination_number=<%=
+          params["examination_number"] %>&encounter_date=<%= (params["encounter_date"] rescue "")
+                    %>&user_id=<%=
         session[:user_id] %><%= (params[:ret] ? "&ret=" + params[:ret] : "") %>'"
           style="float: right; margin: 10px;">
     <span>

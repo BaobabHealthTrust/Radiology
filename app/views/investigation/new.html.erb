@@ -136,8 +136,8 @@
 
 <%= touch_select_tag "PAYING", @patient, options ,
 {:id => "paying",
-:helpText => "Paying(Yes/No)",
-:tt_pageStyleClass => "No Keyboard NoInput small" } %>
+:helpText => "Paying",
+:tt_pageStyleClass => "NoKeyboard NoInput small" } %>
 
 <%= touch_text_field_tag 'RECEIPT NUMBER',@patient , '',
  {:id => "receipt_number",:helpText=> "Receipt number" ,:condition => '$("paying").value == "Yes"'} %>
