@@ -14,26 +14,26 @@ class PatientsController < GenericPatientsController
   end
   
   def patient_visit_label(patient, date = Date.today)
-      label = ZebraPrinter::StandardLabel.new
-      label.font_size = 3
-      label.font_horizontal_multiplier = 1
-      label.font_vertical_multiplier = 1
-      label.left_margin = 50
-      encs = patient.encounters.find(:all,:conditions =>["DATE(encounter_datetime) = ?",date])
-      return nil if encs.blank?
+    label = ZebraPrinter::StandardLabel.new
+    label.font_size = 3
+    label.font_horizontal_multiplier = 1
+    label.font_vertical_multiplier = 1
+    label.left_margin = 50
+    encs = patient.encounters.find(:all,:conditions =>["DATE(encounter_datetime) = ?",date])
+    return nil if encs.blank?
 
-      label.draw_multi_text("Investigation: #{encs.first.encounter_datetime.strftime("%d/%b/%Y %H:%M")}", :font_reverse => true)
-      encs.each {|encounter|
-        encounter.to_s.split("<b>").each do |string|
-          concept_name = string.split("</b>:")[0].strip rescue nil
-          obs_value = string.split("</b>:")[1].strip rescue nil
-          next if string.match(/Workstation location/i)
-          next if obs_value.blank?
-          label.draw_multi_text("#{encounter.name.humanize} - #{concept_name}: #{obs_value}", :font_reverse => false)
-        end
-      }
-      label.print(1)
-    end
+    label.draw_multi_text("Investigation: #{encs.first.encounter_datetime.strftime("%d/%b/%Y %H:%M")}", :font_reverse => true)
+    encs.each {|encounter|
+      encounter.to_s.split("<b>").each do |string|
+        concept_name = string.split("</b>:")[0].strip rescue nil
+        obs_value = string.split("</b>:")[1].strip rescue nil
+        next if string.match(/Workstation location/i)
+        next if obs_value.blank?
+        label.draw_multi_text("#{encounter.name.humanize} - #{concept_name}: #{obs_value}", :font_reverse => false)
+      end
+    }
+    label.print(1)
+  end
 
   def examination
     exam_number = params[:examination_number]
@@ -102,7 +102,9 @@ class PatientsController < GenericPatientsController
 
         Kernel.system "wkhtmltopdf -s A4 http://" +
           request.env["HTTP_HOST"] + "\"/patients/investigations_printable?patient_id=" +
-          @patient.id.to_s + (params[:ret] ? "&ret=" + params[:ret] : "") + "&user_id=" + @user +
+          @patient.id.to_s + "&examination_number=#{ params["examination_number"] }&" +
+          "encounter_date=#{ (params["encounter_date"] rescue "")}" +
+          (params[:ret] ? "&ret=" + params[:ret] : "") + "&user_id=" + @user +
           "\" /tmp/output-" + session[:user_id].to_s + ".pdf \n"
       }
 
@@ -119,7 +121,8 @@ class PatientsController < GenericPatientsController
 
     end
 
-    redirect_to "/patients/show/#{@patient.id}"+
+    redirect_to "/patients/show?patient_id=#{@patient.id}&examination_number=#{ params["examination_number"] }&" +
+          "encounter_date=#{ (params["encounter_date"] rescue "")}"+
       (params[:ret] ? "&ret=" + params[:ret] : "") and return
   end
 
