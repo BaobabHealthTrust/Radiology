@@ -1,0 +1,202 @@
+<html>
+  <head>
+    <title></title>
+    <style type="text/css">
+      .bold {
+        font-weight: bold;
+        font-size: 0.9em;
+      }
+      .cell {
+        width: 25%;
+      }
+    </style>
+  </head>
+  <body>
+    <table width="90%" cellpadding="0" cellspacing="0" style="margin-left: 5%;">
+      <tr>
+        <th colspan="4">
+          <img src="/images/emblem.gif" alt="emblem" />
+        </th>
+      </tr>
+      <tr>
+        <th colspan="4" style="font-size: 1.3em; padding: 10px;">
+          <%= @facility %>
+        </th>
+      </tr>
+      <tr>
+        <td class="cell">
+          &nbsp;
+        </td>
+        <td class="cell">
+          &nbsp;
+        </td>
+        <td class="bold" colspan="2">
+          DEPARTMENT OF RADIOLOGY
+        </td>
+      </tr>
+      <tr>
+        <td class="cell">
+          &nbsp;
+        </td>
+        <td class="cell">
+          &nbsp;
+        </td>
+        <td class="bold" colspan="2">
+          Head: <%= @hod %>
+        </td>
+      </tr>
+      <tr>
+        <td class="cell">
+          &nbsp;
+        </td>
+        <td class="cell">
+          &nbsp;
+        </td>
+        <td colspan="2">
+          <%= @addressl1 %>
+        </td>
+      </tr>
+      <tr>
+        <td class="bold" colspan="2">
+          Radiology Report
+        </td>
+        <td colspan="2">
+          <%= @addressl2 %>
+        </td>
+      </tr>
+      <tr>
+        <td class="cell">
+          Patient:
+        </td>
+        <td class="cell">
+          &nbsp;
+        </td>
+        <td colspan="2">
+          <%= @tel %>
+        </td>
+      </tr>
+      <tr>
+        <td class="cell">
+          Age:
+        </td>
+        <td class="cell">
+          &nbsp;
+        </td>
+        <td colspan="2">
+          <%= @fax %>
+        </td>
+      </tr>
+      <tr>
+        <td class="cell">
+          Sex:
+        </td>
+        <td class="cell">
+          &nbsp;
+        </td>
+        <td colspan="2">
+          &nbsp;
+        </td>
+      </tr>
+      <tr>
+        <td class="cell">
+          Patient #:
+        </td>
+        <td class="cell">
+          &nbsp;
+        </td>
+        <td colspan="2">
+          &nbsp;
+        </td>
+      </tr>
+      <tr>
+        <td class="cell">
+          Exam #:
+        </td>
+        <td class="cell">
+          &nbsp;
+        </td>
+        <td>
+          Date Reported:
+        </td>
+        <td class="cell">
+          <%= (!@reportdate.nil? ? @reportdate : Date.today).to_date.strftime("%d-%b-%Y") %>
+        </td>
+      </tr>
+      <tr>
+        <td colspan="5" style="border-bottom: #000 solid 1px">
+          &nbsp;
+        </td>
+      </tr>
+      <tr>
+        <td colspan="5">
+          &nbsp;
+        </td>
+      </tr>
+      <tr>
+        <td colspan="2">
+          <%= @test_type %> - <%= @test_part %>, <%= @test_date %>
+        </td>
+        <td colspan="3">
+          &nbsp;
+        </td>
+      </tr>
+      <tr>
+        <th colspan="5">
+          Report Of <%= @full_test_name %>-<%= @test_part %>
+        </th>
+      </tr>
+      <tr>
+        <td colspan="2" style="padding: 10px; font-weight: bold; padding-left: 0px;">
+          Findings:
+        </td>
+        <td colspan="3">
+          &nbsp;
+        </td>
+      </tr>
+      <tr>
+        <td>
+          &nbsp;
+        </td>
+        <td colspan="4">
+          <%= @findings %>
+        </td>
+      </tr>
+      <tr>
+        <td colspan="2" style="padding: 10px; font-weight: bold; padding-left: 0px;">
+          Comment:
+        </td>
+        <td colspan="3">
+          &nbsp;
+        </td>
+      </tr>
+      <tr>
+        <td>
+          &nbsp;
+        </td>
+        <td colspan="4">
+          <%= @comment %>
+        </td>
+      </tr>
+      <tr>
+        <td colspan="5" style="padding: 10px; padding-left: 0px;">
+          <%= @provider %>
+        </td>
+      </tr>
+      <tr>
+        <td colspan="5" style="padding: 10px; padding-left: 0px;">
+          <%= @provider_title %>
+        </td>
+      </tr>
+      <tr>
+        <td colspan="5" style="border-bottom: #000 solid 1px">
+          &nbsp;
+        </td>
+      </tr>
+      <tr>
+        <th colspan="5" style="font-size: 0.7em;">
+          <%= @footer %>
+        </th>
+      </tr>
+    </table>
+  </body>
+</html>
