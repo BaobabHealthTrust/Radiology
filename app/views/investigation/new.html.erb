@@ -145,7 +145,7 @@
  {:id => "receipt_number",:helpText=> "Receipt number" ,:condition => '$("paying").value == "Yes"'} %>
 
 <%= touch_text_field_tag 'PAYMENT AMOUNT',@patient , '',
- {:id => "payment_amount",:helpText=> "Payment mount" ,:condition => '$("paying").value == "Yes"'} %>
+ {:id => "payment_amount",:helpText=> "Payment amount" ,:condition => '$("paying").value == "Yes"'} %>
 
 <label for='summary'>Summary</label>                                        
 <%= text_field_tag :summary, nil, { :tt_onLoad => "summary();", 
