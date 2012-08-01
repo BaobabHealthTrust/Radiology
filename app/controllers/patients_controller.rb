@@ -42,5 +42,39 @@ class PatientsController < GenericPatientsController
     @encounter_date = params[:encounter_date]
   end
 
+  def visit_history
+    session[:mastercard_ids] = []
+    session_date = session[:datetime].to_date rescue Date.today
+	  start_date = session_date.strftime('%Y-%m-%d 00:00:00')
+	  end_date = session_date.strftime('%Y-%m-%d 23:59:59')
+    if params[:examination_number]
+      @encounters = Encounter.find(:all,:joins => :orders,:conditions => ["accession_number = ? ",params[:examination_number]])
+    else
+      @encounters = Encounter.find(:all, 	:conditions => [" patient_id = ? AND encounter_datetime >= ? AND encounter_datetime <= ?", @patient.id, start_date, end_date])
+    end
+    
+
+    @creator_name = {}
+    @encounters.each do |encounter|
+    	id = encounter.creator
+			user_name = User.find(id).person.names.first
+			@creator_name[id] = '(' + user_name.given_name.first + '. ' + user_name.family_name + ')'
+    end
+
+    @prescriptions = @patient.orders.unfinished.prescriptions.all
+    @programs = @patient.patient_programs.all
+    @alerts = alerts(@patient, session_date) rescue nil
+    # This code is pretty hacky at the moment
+    @restricted = ProgramLocationRestriction.all(:conditions => {:location_id => Location.current_health_center.id })
+    @restricted.each do |restriction|
+      @encounters = restriction.filter_encounters(@encounters)
+      @prescriptions = restriction.filter_orders(@prescriptions)
+      @programs = restriction.filter_programs(@programs)
+    end
+
+    render :template => 'dashboards/visit_history_tab', :layout => false
+  end
+
+
 end
   
