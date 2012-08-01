@@ -1,5 +1,46 @@
+<style>
+
+.tt_controls_summary #clearButton { display: none; }
+
+.tt_controls_summary .inputFrameClass { height: 448px; }
+
+#tt_page_summary .inputFrameClass { height: 448px; }
+
+.selected_conditions {
+  font-size: 25px;
+  padding-left: 5px;
+  font-weight: bold;
+}
+</style>
+
+<% 
+    patient = PatientService.get_patient(Person.find(@patient.id))
+    session_date = session[:datetime].to_date.strftime('%d/%m/%Y') rescue Date.today.strftime('%d/%m/%Y')
+%>
+
 <script>
   var tt_cancel_destination = "/patients/show/<%= @patient.patient_id -%>";
+  var referred_by = null;
+  function summary() {
+    var line2 = "<%=patient.national_id%> ";
+    line2 += "(<%=patient.sex.first%>)";
+    line2 += " <%=patient.birth_date%>";
+    
+    var line3 = $("investigation_type").value;
+    var line3 = line3 + " - " + $("investigation_type_value").value
+    var referred_from =  referred_by;
+
+    var line4 = "<%= session_date %>, " + referred_from;
+    $('inputFrame'+tstCurrentPage).innerHTML += '<div class="selected_conditions"><br />' + "<%=patient.name%>" + '</div>' ;
+    $('inputFrame'+tstCurrentPage).innerHTML += '<div class="selected_conditions"><br />' + line2 + '</div>' ;
+    $('inputFrame'+tstCurrentPage).innerHTML += '<div class="selected_conditions"><br />' + line3 + '</div>' ;
+    $('inputFrame'+tstCurrentPage).innerHTML += '<div class="selected_conditions"><br />' + line4 + '</div>' ;
+
+  }
+
+  function setReferredBy() { 
+    referred_by = $('touchscreenInput'+tstCurrentPage).value;
+  }
 </script>
 
 <% form_tag "/orders/create", :method => :post do
@@ -87,6 +128,7 @@
 
 <%= touch_location_tag "REFERRED BY", @patient, nil,
 {:id => "referred_by",
+ :tt_onUnLoad => "setReferredBy();",
 :helpText => "Referred from"} %>
 
 <% options = "<option value=''></option>"
@@ -104,6 +146,13 @@
 
 <%= touch_text_field_tag 'PAYMENT AMOUNT',@patient , '',
  {:id => "payment_amount",:helpText=> "Payment mount" ,:condition => '$("paying").value == "Yes"'} %>
+
+<label for='summary'>Summary</label>                                        
+<%= text_field_tag :summary, nil, { :tt_onLoad => "summary();", 
+    :optional => "true", 
+    :tt_pageStyleClass => "NoControls" } %>
+
+
 
 <%end%>
 
