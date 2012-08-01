@@ -50,14 +50,14 @@
 on the rest of the stations %>
 
               <%# if @location =~ /HIV Reception/ %>
-                <option value='/people/search' link='/people/search' ttSize="220px">Find By Name</option>
+                <option value='/people/search' link='/people/search' ttSize="295px">Find or Register Patient</option>
               <%# else %>
                 <!--<option value='/people/search' link='/people/search' ttSize="200px">Find By Name</option>-->
               <%# end %>
 
               <%# Hide Find by iARV Number button on non-HIV workstations %>
               <% unless @location.match(/HIV/i) %>
-                <option value="/people/find_by_exam_number" ttSize="330px">Find By Examination Number</option>
+                <option value="/people/find_by_exam_number" ttSize="295px">Find By Exam Number</option>
               <% end %>
               <% if development_environment? %>
                 <option value='/location?from=clinic' ttSize="100px">Swap Desk</option>

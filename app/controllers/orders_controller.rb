@@ -27,7 +27,7 @@ class OrdersController < ApplicationController
     end
 
     encounter_type_name = params[:encounter][:encounter_type_name]
-    @encounter = current_encounter(encounter_type_name,@patient, session_date, user_person_id)
+    @encounter = create_encounter(encounter_type_name,@patient, session_date, user_person_id)
     examination_number = params['examination_number']
     if params['investigation_type']
       order_type_name = params['investigation_type']
@@ -62,15 +62,20 @@ class OrdersController < ApplicationController
       end
     end
 
-    redirect_to :controller => :patients ,:action => :show ,:id => @patient.patient_id
+    print_and_redirect("/orders/examination_number?order_id=#{@order_id}", "/patients/show/#{@patient.patient_id}")
+    #redirect_to :controller => :patients ,:action => :show ,:id => @patient.patient_id
 
   end
+  
+  def examination_number
+    print_string = PatientService.examination_number_label(params[:order_id])
+    send_data(print_string,:type=>"application/label; charset=utf-8",:stream=> false, 
+      :filename=>"#{params[:order_id]}#{rand(10000)}.lbl",:disposition => "inline")
+  end
 
-
-  def current_encounter(encounter_type_name,patient, date = Time.now(), provider = current_user.person_id)
+  def create_encounter(encounter_type_name,patient, date = Time.now(), provider = current_user.person_id)
     type = EncounterType.find_by_name(encounter_type_name)
-    encounter = patient.encounters.find(:first,:conditions =>["DATE(encounter_datetime) = ? AND encounter_type = ?",date.to_date,type.id])
-    encounter ||= patient.encounters.create(:encounter_type => type.id,:encounter_datetime => date, :provider_id => provider)
+    encounter = patient.encounters.create(:encounter_type => type.id,:encounter_datetime => date, :provider_id => provider)
   end
 
   

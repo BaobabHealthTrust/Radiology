@@ -207,9 +207,9 @@
 
   <%= text_field_tag "person[addresses][city_village]",  params[:city_village], {:field_type => 'alpha', :helpText => 'Location/Village', :tt_requireNextClick => false, :ajaxURL => '/people/village?search_string=', :allowFreeText => true , :tt_onLoad => "set_ajaxURL_for_suggestions('/people/village/Village?filter_value=' ,document.getElementById('filter_t_a').value);$('nextButton').style.display = 'none';"}%>
 
-<%= text_field_tag "person[addresses][address1]",  params[:address1], {:id => 'address1', :helpText => 'Closest Landmark or Plot Number<br /><span style="font-size:0.7em;font-style:italic">(Please do not include these words: Next to, close, in front of, behind)</span>', :allowFreeText => true, :ajaxURL => '', :tt_onLoad => "set_ajaxURL_for_suggestions('/people/landmark?filter_value=' ,document.getElementById('person_addresses_city_village').value);$('nextButton').style.display = 'block';" }%>
+<%#= text_field_tag "person[addresses][address1]",  params[:address1], {:id => 'address1', :helpText => 'Closest Landmark or Plot Number<br /><span style="font-size:0.7em;font-style:italic">(Please do not include these words: Next to, close, in front of, behind)</span>', :allowFreeText => true, :ajaxURL => '', :tt_onLoad => "set_ajaxURL_for_suggestions('/people/landmark?filter_value=' ,document.getElementById('person_addresses_city_village').value);$('nextButton').style.display = 'block';" }%>
 
-  <%= text_field_tag "person[cell_phone_number]",  params[:cell_phone_number], 
+  <%#= text_field_tag "person[cell_phone_number]",  params[:cell_phone_number],
       {
         :field_type => 'number',
         :helpText => 'Cell Phone Number', 
@@ -220,10 +220,10 @@
       }
   %>
 
-  <% ask_multiple_phone_numbers = get_global_property_value("ask.multiple.phone.numbers") rescue 'false'
+  <%# ask_multiple_phone_numbers = get_global_property_value("ask.multiple.phone.numbers") rescue 'false'
      if ask_multiple_phone_numbers == 'true' 
   %>
-  <%= text_field_tag "person[office_phone_number]",  params[:office_phone_number], 
+  <%#= text_field_tag "person[office_phone_number]",  params[:office_phone_number],
       {
         :field_type => 'number', 
         :helpText => 'Office Phone Number',
@@ -232,7 +232,7 @@
       }
   %>
 
-  <%= text_field_tag "person[home_phone_number]",  params[:home_phone_number], 
+  <%#= text_field_tag "person[home_phone_number]",  params[:home_phone_number],
       {
         :field_type => 'number', 
         :helpText => 'Home Phone Number',  
@@ -240,9 +240,9 @@
         :validationMessage => "Not a valid phone number"
       }
   %>
-  <%else%>
-    <%= text_field_tag "person[home_phone_number]",  params[:home_phone_number], {:field_type => 'number', :helpText => 'Ground Phone Number', :allowFreeText => true, :tt_pageStyleClass => "nota", :validationRule => "^0\\d{7,9}$|Unknown|Not Available|N\/A", :validationMessage => "Not a valid phone number" } if ask_ground_phone%>
-  <%end%>
+  <%#else%>
+    <%#= text_field_tag "person[home_phone_number]",  params[:home_phone_number], {:field_type => 'number', :helpText => 'Ground Phone Number', :allowFreeText => true, :tt_pageStyleClass => "nota", :validationRule => "^0\\d{7,9}$|Unknown|Not Available|N\/A", :validationMessage => "Not a valid phone number" } if ask_ground_phone%>
+  <%#end%>
 
   <%#= select_tag("person[agrees_phone_text_for_TB_therapy]", options_for_select([" ", "Yes", "No", "Unknown"] ,params[:agrees_phone_text_for_TB_therapy]),:helpText =>"Can we send you an SMS for follow-up?", :condition => "$('cellphone').value !='Unknown' && $('cellphone').value !='N/A'", :tt_onLoad => 'seen(tstCurrentPage);') if ask_sms_for_TB_therapy%>
   
@@ -251,7 +251,7 @@
   
   <%#= select_tag("person[occupation]", options_for_select([" ", "Housewife", "Farmer", "Police", "Soldier", "Business", "Teacher", "Student", "Healthcare Worker"].sort.concat(["Other"]) ,params[:occupation]),:helpText =>"Occupation",:allowFreeText => true, :tt_onLoad => 'seen(tstCurrentPage);')%>
 
-  <%= select_tag("person[occupation]", options_for_select(@occupations ,params[:occupation]),
+  <%#= select_tag("person[occupation]", options_for_select(@occupations ,params[:occupation]),
       :helpText =>"Occupation",
       :id => "occupation",
       :allowFreeText => false, 
