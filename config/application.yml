@@ -3,6 +3,13 @@ production:
  use.user.selected.activities: no
  filing.number.prefix: FN101,FN102
  auto_set_appointment: false
+ current.health.facility: Kamuzu Central Hospital
+ hod: Dr Chipa, Consultant Radiologist
+ facility.address.l1: P.O. Box 149
+ facility.address.l2: Lilongwe, Malawi
+ facility.tel: +265 1 753 555/753 Ext. 142
+ facility.fax: +265 1 765 380
+ footer: Ministry of Health and Population - Kamuzu Central Hospital - Department of Radiology<br/> Examinations Provided Conventional X-ray - Gastrointestinal and Urinary Tract Studies with Contrast<br/> - Computertomography (Perfomed at Queen Elizabeth, Blantyre)<br/> General Ultrasound - Color Doppler Ultrasound - Echocardography<br/> For Referral and Booking Please Call 08 843 528 or 01 753 555 Ext. 142
 
 development:
  create_from_remote: no
@@ -11,6 +18,13 @@ development:
  auto_set_appointment: false
  show.patient.confirmation: yes
  statistics.show_encounter_types: EXAMINATION
+ current.health.facility: Kamuzu Central Hospital
+ hod: Dr Chipa, Consultant Radiologist
+ facility.address.l1: P.O. Box 149
+ facility.address.l2: Lilongwe, Malawi
+ facility.tel: +265 1 753 555/753 Ext. 142
+ facility.fax: +265 1 765 380
+ footer: Ministry of Health and Population - Kamuzu Central Hospital - Department of Radiology<br/> Examinations Provided Conventional X-ray - Gastrointestinal and Urinary Tract Studies with Contrast<br/> - Computertomography (Perfomed at Queen Elizabeth, Blantyre)<br/> General Ultrasound - Color Doppler Ultrasound - Echocardography<br/> For Referral and Booking Please Call 08 843 528 or 01 753 555 Ext. 142
 
 test: &TEST
  create_from_remote: no
