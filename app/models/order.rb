@@ -27,7 +27,12 @@ class Order < ActiveRecord::Base
   end
 
   def to_s
-    "#{drug_order}"
+    if drug_order
+      "#{drug_order}"
+    else
+      "#{self.order_type.name} - #{self.concept.fullname } - (#{self.accession_number})"
+    end
+ 
   end
   
 end
