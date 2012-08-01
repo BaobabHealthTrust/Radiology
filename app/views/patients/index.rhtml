@@ -44,13 +44,13 @@
                  task_name = (task.encounter_type || 'NONE').upcase rescue 'NONE'
               %>
             </div>
+            <% exam_number = params["examination_number"] rescue nil %>
             <select id="tabs">
-              <option value='/patients/visit_history?patient_id=<%= @patient.id %>'>Current Visit</option>
+              <option value='/patients/visit_history?patient_id=<%= @patient.id  %>&examination_number=<%= exam_number %>'>Current Visit</option>
               <option value='/patients/past_visits_summary?patient_id=<%= @patient.id %>'>Past Visits</option>
               <option value='/patients/personal/<%= @patient_bean.patient_id -%>'>Printouts/Other</option>
             </select>
             <select id="links">
-                <% exam_number = params["examination_number"] rescue nil %>
                 <%  if exam_number.nil? %>
                 <option value='/investigation/new/<%=@patient_bean.patient_id%>'>Investigation</option>
                 <%  else %>

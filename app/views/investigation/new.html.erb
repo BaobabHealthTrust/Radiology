@@ -85,9 +85,9 @@
 :condition => '$("investigation_type_value").value =="Upper limb"',
 :tt_pageStyleClass => "NoKeyboard NoInput small" } %>
 
-<%= touch_location_tag "REFERRED BY", @patient, nil,
-{:id => "referred_by",
-:helpText => "Referred from"} %>
+
+<%=  select_tag :referred_by, options_for_select(@wards),
+     {:helpText => "Referred from"} %>
 
 <% options = "<option value=''></option>"
    options+="<option value='Yes'>Yes</option>"
