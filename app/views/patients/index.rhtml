@@ -57,8 +57,10 @@
               <%  else %>
                 <option value='/film/size?examination_number=<%= exam_number %>'>Film Sizes</option>
                 <option value='/patients/examination?examination_number=<%= exam_number %>'>Notes</option>
+                <option value='/patients/print_investigation?patient_id=<%=@patient_bean.patient_id
+                    %>&examination_number=<%= exam_number %>&encounter_date=<%= (params["encounter_date"] rescue "")
+                    %>'>Print Investigation</option>
               <%  end %>
-              <option value='/patients/print_investigation?patient_id=<%=@patient_bean.patient_id%>'>Print Investigation</option>
               <option value='/patients/dashboard_print_national_id/<%=@patient_bean.patient_id%>'>Print Registration</option>
             </select>
             <tr>

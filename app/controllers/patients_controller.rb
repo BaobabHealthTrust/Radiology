@@ -48,7 +48,8 @@ class PatientsController < GenericPatientsController
 
   def investigations_printable
     @patient = Patient.find(params[:patient_id]) rescue nil
-
+		@patient_bean = PatientService.get_patient(@patient.person)
+    
     # Details specified in config/application.yml
     @facility = CoreService.get_global_property_value("current.health.facility") rescue ""
     @hod = CoreService.get_global_property_value("hod") rescue ""
@@ -59,6 +60,8 @@ class PatientsController < GenericPatientsController
     @footer = CoreService.get_global_property_value("footer") rescue ""
 
     # Assuming the test/procedure identifier is passed as a parameter, details are reflected here
+    @reportdate = (params["encounter_date"].to_date rescue Date.today).strftime("%d-%b-%Y") rescue ""
+
     @test_type = "Xray" rescue "&nbsp;"
     @test_part = "Skull" rescue "&nbsp;"
     @test_date = (Date.today rescue Date.today).strftime("%d-%b-%Y") rescue ""
