@@ -1359,5 +1359,37 @@ EOF
     id = self.get_national_id(patient, force)
     id[0..4] + "-" + id[5..8] + "-" + id[9..-1] rescue id
   end
+  
+  def self.name_of_referring_site(order_id)
+    concept_id = ConceptName.find_by_name("Name of referring site").concept_id
+    location = Observation.find(:first,
+      :conditions =>["order_id = ? AND concept_id = ?",order_id,concept_id])
 
+    Location.find(location.value_text).name rescue nil
+  end
+
+  def self.examination_number_label(order_id)
+    order = Order.find(order_id)                                   
+    patient_bean = get_patient(order.encounter.patient.person)                                  
+    return unless patient_bean.national_id                                      
+    sex =  patient_bean.sex.match(/F/i) ? "(F)" : "(M)"                         
+    address = patient.person.address.strip[0..24].humanize rescue ""            
+    name_of_referring_site = self.name_of_referring_site(order_id)
+    session_date = order.encounter.encounter_datetime.strftime('%d-%b-%Y')
+    study_type = order.concept.fullname
+    type = order.order_type.name
+
+    label = ZebraPrinter::StandardLabel.new                                     
+    label.font_size = 1                                                 
+    label.font_horizontal_multiplier = 2                                        
+    label.font_vertical_multiplier = 2                                          
+    label.left_margin = 50                                                      
+    label.draw_barcode(50,180,0,1,5,15,90,false,"#{order.accession_number}") 
+    label.draw_multi_text("#{patient_bean.name.titleize}")                      
+    label.draw_multi_text("#{patient_bean.national_id_with_dashes} #{sex} #{patient_bean.birth_date}")
+    label.draw_multi_text("#{type} - #{study_type}")                            
+    label.draw_multi_text("#{session_date}, #{order.accession_number} (#{name_of_referring_site})")                            
+    label.print(1)                                                              
+  end
+ 
 end
