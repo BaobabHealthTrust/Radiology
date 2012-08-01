@@ -22,6 +22,8 @@ if [ ! -x config/database.yml ] ; then
   cp config/database.yml.example config/database.yml
 fi
 
+sudo apt-get install wkhtmltopdf
+
 USERNAME=`ruby -ryaml -e "puts YAML::load_file('config/database.yml')['${ENV}']['username']"`
 PASSWORD=`ruby -ryaml -e "puts YAML::load_file('config/database.yml')['${ENV}']['password']"`
 DATABASE=`ruby -ryaml -e "puts YAML::load_file('config/database.yml')['${ENV}']['database']"`
@@ -44,6 +46,9 @@ mysql --user=$USERNAME --password=$PASSWORD $DATABASE < db/data/${SITE}/tasks.sq
 mysql --user=$USERNAME --password=$PASSWORD $DATABASE < db/moh_regimens_only.sql
 mysql --user=$USERNAME --password=$PASSWORD $DATABASE < db/regimen_indexes.sql
 mysql --user=$USERNAME --password=$PASSWORD $DATABASE < db/retrospective_station_entries.sql
+mysql --user=$USERNAME --password=$PASSWORD $DATABASE < db/concept.sql
+mysql --user=$USERNAME --password=$PASSWORD $DATABASE < db/concept_name.sql
+mysql --user=$USERNAME --password=$PASSWORD $DATABASE < db/order_type.sql
 
 #mysql --user=$USERNAME --password=$PASSWORD $DATABASE < db/privilege.sql
 #mysql --user=$USERNAME --password=$PASSWORD $DATABASE < db/bart2_role_privileges.sql

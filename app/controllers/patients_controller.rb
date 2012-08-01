@@ -70,7 +70,7 @@ class PatientsController < GenericPatientsController
     @findings = "The imagines ..." rescue "&nbsp;"
     @comment = "CELEBRAL WHITE MATTER ..." rescue "&nbsp;"
 
-    @provider = "DR YUTING HOU" rescue "&nbsp;"
+    @provider = current_user.name.upcase rescue "&nbsp;"
 
     @provider_title = "CONSULTANT" rescue "&nbsp;"
 
