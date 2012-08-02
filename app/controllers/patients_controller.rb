@@ -132,9 +132,13 @@ class PatientsController < GenericPatientsController
 	  start_date = session_date.strftime('%Y-%m-%d 00:00:00')
 	  end_date = session_date.strftime('%Y-%m-%d 23:59:59')
     if params[:examination_number]
-      @encounters = Encounter.find(:all,:joins => :orders,:conditions => ["accession_number = ? ",params[:examination_number]])
+      order = Order.find(:first,:conditions => ["accession_number = ?  AND voided = 0",params[:examination_number]])
+      @encounters = Encounter.find(:all,:joins => :observations,:conditions => ["order_id = ? AND patient_id = ?",
+                                                                                 order.order_id,order.patient_id],
+                                   :group => ["encounter_id"])
     else
-      @encounters = Encounter.find(:all, 	:conditions => [" patient_id = ? AND encounter_datetime >= ? AND encounter_datetime <= ?", @patient.id, start_date, end_date])
+      @encounters = Encounter.find(:all, :conditions => ["patient_id = ? AND encounter_datetime >= ? AND encounter_datetime <= ?",
+                                                          @patient.id, start_date, end_date])
     end
     
 
