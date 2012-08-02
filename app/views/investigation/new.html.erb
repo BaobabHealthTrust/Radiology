@@ -126,8 +126,20 @@
 :condition => '$("investigation_type_value").value =="Upper limb"',
 :tt_pageStyleClass => "NoKeyboard NoInput small" } %>
 
-<%=  select_tag :referred_by, options_for_select(@wards),
+<%#=  select_tag :referred_by, options_for_select(@wards),
      {:helpText => "Referred from",:tt_onUnLoad => "setReferredBy();"} %>
+
+<% options = "<option value=''></option>"
+   @wards.each do |ward|
+   options+="<option value=#{ward[1]}>#{ward[0]}</option>"
+   end
+%>
+  
+<%= touch_select_tag "REFERRED BY", @patient, options ,
+                     {:id => "referred_by",
+                      :helpText => "Referred from",
+                      :tt_pageStyleClass => "NoKeyboard NoInput small",
+                      :tt_onUnLoad => "setReferredBy();"} %>
 
 <% options = "<option value=''></option>"
    options+="<option value='Yes'>Yes</option>"
@@ -135,15 +147,23 @@
 %>
 
 <%= touch_select_tag "PAYING", @patient, options ,
-{:id => "paying",
-:helpText => "Paying",
-:tt_pageStyleClass => "NoKeyboard NoInput small" } %>
+                     {:id => "paying",
+                      :helpText => "Paying",
+                      :tt_pageStyleClass => "NoKeyboard NoInput small" } %>
 
-<%= touch_text_field_tag 'RECEIPT NUMBER',@patient , '',
- {:id => "receipt_number",:helpText=> "Receipt number" ,:condition => '$("paying").value == "Yes"'} %>
+<%= touch_text_field_tag 'RECEIPT NUMBER',@patient , nil,
+                         {:id => "receipt_number",
+                          :helpText=> "Receipt number" , 
+                          :condition => '$("paying").value == "Yes"'} %>
 
-<%= touch_text_field_tag 'PAYMENT AMOUNT',@patient , '',
- {:id => "payment_amount",:helpText=> "Payment amount" ,:condition => '$("paying").value == "Yes"'} %>
+<%= touch_text_field_tag 'PAYMENT AMOUNT',@patient , nil,
+                         {:id => "payment_amount",
+                          :field_type => "number",
+                          :helpText=> "Payment amount" ,
+                          :validationRule => "([0-9]+\\.[0-9])|Unknown$",
+		          :validationMessage => "You must enter a decimal between 0 and 9",
+                          :tt_pageStyleClass => "Numeric NumbersOnlyWithDecimal",
+                          :condition => '$("paying").value == "Yes"'} %>
 
 <label for='summary'>Summary</label>                                        
 <%= text_field_tag :summary, nil, { :tt_onLoad => "summary();", 
