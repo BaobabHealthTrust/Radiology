@@ -62,8 +62,11 @@ class OrdersController < ApplicationController
       end
     end
 
-    print_and_redirect("/orders/examination_number?order_id=#{@order_id}", "/patients/show/#{@patient.patient_id}")
-    #redirect_to :controller => :patients ,:action => :show ,:id => @patient.patient_id
+    if encounter_type_name == "EXAMINATION"
+         print_and_redirect("/orders/examination_number?order_id=#{@order_id}", "/patients/show/#{@patient.patient_id}")
+    else
+         redirect_to :controller => :patients ,:action => :show ,:id => @patient.patient_id
+    end
 
   end
   
