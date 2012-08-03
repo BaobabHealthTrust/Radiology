@@ -101,9 +101,10 @@ class PeopleController < GenericPeopleController
       end                                                                      
     end                                                                         
   end
-  def search
+def search
 		found_person = nil
 		if params[:identifier]
+
       radiology_character = params[:identifier][0].chr
       if radiology_character == "R"
          order = Order.find(:first,:conditions =>["accession_number = ? AND voided = 0",params[:identifier]])
@@ -117,6 +118,7 @@ class PeopleController < GenericPeopleController
            redirect_to :controller => 'clinic'
          end
       end
+
 			local_results = PatientService.search_by_identifier(params[:identifier])
 
 			if local_results.length > 1
@@ -137,7 +139,9 @@ class PeopleController < GenericPeopleController
 				else
 					redirect_to :action => 'confirm', :found_person_id => found_person.id, :relation => params[:relation] and return
 				end
-		  end
+			end
+		end
+
 		@relation = params[:relation]
 		@people = PatientService.person_search(params)
 		@patients = []
@@ -146,7 +150,5 @@ class PeopleController < GenericPeopleController
 			@patients << patient
 		end
 
-	 end
-
-  end
+	end
 end
