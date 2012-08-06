@@ -27,7 +27,20 @@
     line2 += " <%=patient.birth_date%>";
     
     var line3 = $("investigation_type").value;
-    var line3 = line3 + " - " + $("investigation_type_value").value
+    if($("investigation_type").value =="Xray")
+     {
+        var line3 = line3 + " - " + $("xray_investigation_value").value
+     }
+     else if ($("investigation_type").value =="Ultrasound")
+     {
+        var line3 = line3 + " - " + $("ultrasound_investigation_value").value
+     }
+     else if ($("investigation_type").value =="MRI")
+     {
+        var line3 = line3 + " - " + $("mri_investigation_value").value
+     }
+      
+    
     var referred_from =  referred_by;
 
     var line4 = "<%= session_date %>, " + referred_from;
@@ -43,11 +56,7 @@
   }
 </script>
 
-<% form_tag "/orders/create", :method => :post do
-   options = "<option value=''></option>"
-   options+="<option value='Xray'>Xray</option>"
-   options+="<option value='Ultrasound'>Ultrasound</option>"
-%>
+<% form_tag "/orders/create", :method => :post do %>
 
 <%= hidden_field_tag "encounter[encounter_type_name]", "EXAMINATION" %>
 <%= hidden_field_tag "encounter[patient_id]", @patient.id %>
@@ -56,86 +65,136 @@
 
 <%= hidden_field_tag  :examination_number, @next_exam_number %>
 
-<% @options = ['Xray','Ultrasound'] %>
-<%=  select_tag :investigation_type, options_for_select(@options),
+<% @investigation_options = ['Xray','Ultrasound','MRI'] %>
+<%=  select_tag :investigation_type, options_for_select(@investigation_options),
      {:helpText => "Investigation type"} %>
 
 
 
-<% @options = ['Skull','Facial bones','C-spine','T-spine','L-spine','Upper limb','Lower limb','Chest','Abdomen',
-               'Pelvis','Contrast GI study','Contrast UT study','HSG','Other'] %>
+<% @xray_options = ['','Skull','Chest','Upper Limbs','Lower Limbs','Stenum/Rib/Shoulder','Abdomen',
+                    'Spine','Pelvis','Contrast GI studies','Contrast UT studies','Hystero-Salpingogram',
+                    'Computed Tomography','Mammography','Sinogram','Siologram','Bronchogram']
+
+   @ultrasound_options = ['','Breast','Musculoskeletal','Carotid Doppler','Abdominal Doppler and Color Flow',
+                          'Male Pelvis - Prostate Gland,Scrotum and Penis','Thyroid and Parathyroid Glands',
+                          'Peritheral Arterial and Venous Duplex','Abdomen','Obsterics-Fetal','Female Pelvis-Gynaecology',
+                          'Echocardiography-Adult','Echochardiography-Pediatric','Neonatal Brain','Transvaginal','Transrectal',
+                          'Prostate','FAST','Umbilical Artery Doppler','Ultrasound Guided Procedures']
+   @mri_options = ['','Brain','Chest','Abdomen','Pelvis','Angiogram','Upper Extremity','Lower Extremity']
 
 
-<%=  select_tag :investigation_type_value, options_for_select(@options),
-     {:helpText => "Investigation type value"} %>
 
-<%
    lower_limb = "<option value=''></option>"
-   lower_limb+="<option value='Left Hip'>Left Hip</option>"
-   lower_limb+="<option value='Right Hip'>Right Hip</option>"
-   lower_limb+="<option value='Left Femur'>Left Femur</option>"
-   lower_limb+="<option value='Right Femur'>Right Femur</option>"
-   lower_limb+="<option value='Left Knee'>Left Knee</option>"
-   lower_limb+="<option value='Right Knee'>Right Knee</option>"
-   lower_limb+="<option value='Left Tibia/Fibula'>Left Tibia/Fibula</option>"
-   lower_limb+="<option value='Right Tibia/Fibula'>Right Tibia/Fibula</option>"
-   lower_limb+="<option value='Left Ankle'>Left Ankle</option>"
-   lower_limb+="<option value='Right Ankle'>Right Ankle</option>"
-   lower_limb+="<option value='Left Foot'>Left Foot</option>"
-   lower_limb+="<option value='Right Foot'>Right Foot</option>"
-   lower_limb+="<option value='Left Toes'>Left Toes</option>"
-   lower_limb+="<option value='Right Toes'>Right Toes</option>"
+   lower_limb+="<option value='Hip joint'>Hip joint</option>"
+   lower_limb+="<option value='Femur'>Femur</option>"
+   lower_limb+="<option value='Knee joint'>Knee joint</option>"
+   lower_limb+="<option value='Leg'>Leg</option>"
+   lower_limb+="<option value='Ankle joint'>Ankle joint</option>"
+   lower_limb+="<option value='Foot'>Foot</option>"
+   lower_limb+="<option value='Toe(s)'>Toe(s)</option>"
 
    upper_limb = "<option value=''></option>"
-   upper_limb+="<option value='Left Shoulder'>Left Shoulder</option>"
-   upper_limb+="<option value='Right Shoulder'>Right Shoulder</option>"
-   upper_limb+="<option value='Left Humerus'>Left Humerus</option>"
-   upper_limb+="<option value='Right Humerus'>Right Humerus</option>"
-   upper_limb+="<option value='Left Elbow'>Left Elbow</option>"
-   upper_limb+="<option value='Right Elbow'>Right Elbow</option>"
-   upper_limb+="<option value='Left Radius/Ulna'>Left Radius/Ulna</option>"
-   upper_limb+="<option value='Right Radius/Ulna'>Right Radius/Ulna</option>"
-   upper_limb+="<option value='Left Wrist'>Left Wrist</option>"
-   upper_limb+="<option value='Right Wrist'>Right Wrist</option>"
-   upper_limb+="<option value='Left Hand'>Left Hand</option>"
-   upper_limb+="<option value='Right Hand'>Right Hand</option>"
-   upper_limb+="<option value='Left Fingers'>Left Fingers</option>"
-   upper_limb+="<option value='Right Fingers'>Right Fingers</option>"
-%>
-<script>
-  function captionChange(){
-    /*selected_text = document.getElementById('xray_type').value;
-     document.getElementsByClassName('helpTextClass')[0].innerHTML+= " " + selected_text;
-     limb_type = document.getElementById('limb_type');
-    if(selected_text == 'Lower limb'){
-      limb_type.innerHTML = lower_limb 
-    } else { limb_type.innerHTML = upper_limb }
-    */
-  }
-</script>
+   upper_limb+="<option value='Humerus'>Humerus</option>"
+   upper_limb+="<option value='Elbow joint'>Elbow joint</option>"
+   upper_limb+="<option value='Fore arm'>Fore arm</option>"
+   upper_limb+="<option value='Wrist joint'>Wrist joint</option>"
+   upper_limb+="<option value='Hand'>Hand</option>"
+   upper_limb+="<option value='Finger(s)'>Finger(s)</option>"
 
-<%= touch_select_tag "LIMB TYPE", @patient, lower_limb ,
-{:id => "lower_limb",
-:helpText => "Which part of Lower limb",
-:condition => '$("investigation_type_value").value =="Lower limb"',
-:tt_pageStyleClass => "NoKeyboard NoInput small" } %>
+   skull = "<option value=''></option>"
+   skull+="<option value='Cranium'>Cranium</option>"
+   skull+="<option value='Facial bones'>Facial bones</option>"
 
-<%= touch_select_tag "LIMB TYPE", @patient, upper_limb ,
-{:id => "upper_limb",
-:helpText => "Which part of Upper limb",
-:condition => '$("investigation_type_value").value =="Upper limb"',
-:tt_pageStyleClass => "NoKeyboard NoInput small" } %>
+   spine = "<option value=''></option>"
+   spine+="<option value='Cervical'>Cervical</option>"
+   spine+="<option value='Thoracic'>Thoracic</option>"
+   spine+="<option value='Lumbar'>Lumbar</option>"
+   spine+="<option value='Sacrum'>Sacrum</option>"
+   spine+="<option value='Cervical'>Cervical</option>"
+   spine+="<option value='Coccyx'>Coccyx</option>"
 
-<%#=  select_tag :referred_by, options_for_select(@wards),
-     {:helpText => "Referred from",:tt_onUnLoad => "setReferredBy();"} %>
+   contrast_gi_studies = "<option value=''></option>"
+   contrast_gi_studies+="<option value='Swallow'>Swallow</option>"
+   contrast_gi_studies+="<option value='Meal'>Meal</option>"
+   contrast_gi_studies+="<option value='Enema'>Enema</option>"
 
-<% options = "<option value=''></option>"
+   contrast_ut_studies = "<option value=''></option>"
+   contrast_ut_studies+="<option value='Intravenous Urogram'>Intravenous Urogram</option>"
+   contrast_ut_studies+="<option value='Cystogram'>Cystogram</option>"
+   contrast_ut_studies+="<option value='Cystogramurethrogram'>Cystogramurethrogram</option>"
+
+   computed_tomography = "<option value=''></option>"
+   computed_tomography+="<option value='Brain'>Brain</option>"
+   computed_tomography+="<option value='Chest'>Chest</option>"
+   computed_tomography+="<option value='Abdomen'>Abdomen</option>"
+   computed_tomography+="<option value='Pelvis'>Pelvis</option>"
+   computed_tomography+="<option value='Angiogram'>Angiogram</option>"
+   computed_tomography+="<option value='Lower extremity'>Lower extremity</option>"
+   computed_tomography+="<option value='Upper extremity'>Upper extremity</option>"
+
+   wards = "<option value=''></option>"
    @wards.each do |ward|
-   options+="<option value=#{ward[1]}>#{ward[0]}</option>"
+   wards+="<option value=#{ward[1]}>#{ward[0]}</option>"
    end
 %>
+
+
+<%=  select_tag :xray_investigation_value, options_for_select(@xray_options),
+     {:helpText => "Xray examination",
+      :condition => '$("investigation_type").value =="Xray"'} %>
+<%=  select_tag :ultrasound_investigation_value, options_for_select(@ultrasound_options),
+     {:helpText => "Ultrasound examination",
+      :condition => '$("investigation_type").value =="Ultrasound"'} %>
+<%=  select_tag :mri_investigation_value, options_for_select(@mri_options),
+     {:helpText => "MRI examination",
+      :condition => '$("investigation_type").value =="MRI"'} %>
+
+<%= touch_select_tag "PART", @patient, skull ,
+{:id => "skull",
+:helpText => "Which part of the Skull",
+:condition => '$("xray_investigation_value").value =="Skull" && $("investigation_type").value =="Xray"',
+:tt_pageStyleClass => "NoKeyboard NoInput small" } %>
+
+<%= touch_select_tag "PART", @patient, lower_limb ,
+{:id => "lower_limb",
+:helpText => "Which part of Lower limb",
+:condition => '$("xray_investigation_value").value =="Lower Limbs" && $("investigation_type").value =="Xray"',
+:tt_pageStyleClass => "NoKeyboard NoInput small" } %>
+
+<%= touch_select_tag "PART", @patient, upper_limb ,
+{:id => "upper_limb",
+:helpText => "Which part of Upper limb",
+:condition => '$("xray_investigation_value").value =="Upper Limbs" && $("investigation_type").value =="Xray"',
+:tt_pageStyleClass => "NoKeyboard NoInput small" } %>
+
+
+<%= touch_select_tag "PART", @patient, spine ,
+{:id => "spine",
+:helpText => "Which part of the Spine",
+:condition => '$("xray_investigation_value").value =="Spine" && $("investigation_type").value =="Xray"',
+:tt_pageStyleClass => "NoKeyboard NoInput small" } %>
+
+
+<%= touch_select_tag "PART", @patient, contrast_gi_studies ,
+{:id => "contrast_gi_study",
+:helpText => "Which type of study",
+:condition => '$("xray_investigation_value").value =="Contrast GI studies" && $("investigation_type").value =="Xray"',
+:tt_pageStyleClass => "NoKeyboard NoInput small" } %>
+
+
+<%= touch_select_tag "PART", @patient, contrast_ut_studies ,
+{:id => "contrast_ut_study",
+:helpText => "Which type of study",
+:condition => '$("xray_investigation_value").value =="Contrast UT studies" && $("investigation_type").value =="Xray"',
+:tt_pageStyleClass => "NoKeyboard NoInput small" } %>
+
+<%= touch_select_tag "PART", @patient, computed_tomography ,
+{:id => "computed_tomography",
+:helpText => "Which part of the body",
+:condition => '$("xray_investigation_value").value =="Computed Tomography" && $("investigation_type").value =="Xray"',
+:tt_pageStyleClass => "NoKeyboard NoInput small" } %>
   
-<%= touch_select_tag "REFERRED BY", @patient, options ,
+<%= touch_select_tag "REFERRED BY", @patient, wards ,
                      {:id => "referred_by",
                       :helpText => "Referred from",
                       :tt_pageStyleClass => "NoKeyboard NoInput small",
@@ -156,19 +215,20 @@
                           :helpText=> "Receipt number" , 
                           :condition => '$("paying").value == "Yes"'} %>
 
-<%= touch_text_field_tag 'PAYMENT AMOUNT',@patient , nil,
+<%= touch_numeric_tag 'PAYMENT AMOUNT',@patient , nil,
                          {:id => "payment_amount",
                           :field_type => "number",
                           :helpText=> "Payment amount" ,
                           :validationRule => "([0-9]+\\.[0-9])|Unknown$",
-		          :validationMessage => "You must enter a decimal between 0 and 9",
+		          :validationMessage => "You must enter a decimal number",
                           :tt_pageStyleClass => "Numeric NumbersOnlyWithDecimal",
                           :condition => '$("paying").value == "Yes"'} %>
 
 <label for='summary'>Summary</label>                                        
-<%= text_field_tag :summary, nil, { :tt_onLoad => "summary();", 
-    :optional => "true", 
-    :tt_pageStyleClass => "NoControls" } %>
+<%= text_field_tag :summary, nil,
+                  { :tt_onLoad => "summary();",
+                    :optional => "true",
+                    :tt_pageStyleClass => "NoControls" } %>
 
 <%end%>
 

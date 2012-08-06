@@ -31,14 +31,23 @@ class OrdersController < ApplicationController
     examination_number = params['examination_number']
     if params['investigation_type']
       order_type_name = params['investigation_type']
-      concept = ConceptName.find_by_name(params['investigation_type_value'])
+
+      if params['xray_investigation_value'] !=""
+        concept = ConceptName.find_by_name(params['xray_investigation_value'])
+      elsif params['ultrasound_investigation_value'] !=""
+        concept = ConceptName.find_by_name(params['ultrasound_investigation_value'])
+      elsif params['mri_investigation_value'] !=""
+        #raise "i got hit"
+        concept = ConceptName.find_by_name(params['mri_investigation_value'])
+        raise params['mri_investigation_value'].to_s
+      end
+
       @order = current_order(examination_number,@patient,order_type_name,concept,@encounter.encounter_id)
     else
       @order = current_order(examination_number,@patient)
     end
     
     @order_id = @order.order_id
-
     params['observations'].each do |ob|
       if ob['value_coded'].blank? && ob['value_coded_or_text'].blank?
         obs = Observation.new(
