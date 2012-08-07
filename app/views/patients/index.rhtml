@@ -67,6 +67,12 @@
               <%  end %>
               <option value='/patients/dashboard_print_national_id/<%=@patient_bean.patient_id%>'>Print Registration</option>
             </select>
+             <select id="navigation_links">
+                <option link='<%= ((session[:datetime].to_date rescue '') != '' ?
+                            "/people/reset_datetime/#{@patient.id}" : "/people/set_datetime/#{@patient.id}") %>'  ttSize="160px">
+                  <%= ((session[:datetime].to_date rescue '') != '' ? "Reset Date" : "Set Date") %></option>
+                </select>
+             
             <tr>
               <td align='center'>
                 <input type='submit' value='Finish' />
