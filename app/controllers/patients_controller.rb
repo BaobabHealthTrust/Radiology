@@ -47,6 +47,8 @@ class PatientsController < GenericPatientsController
   end
 
   def investigations_printable
+    order = Order.find(:first,:conditions => ["accession_number = ? AND voided = 0",params["examination_number"]])
+    notes_concept_id = ConceptName.find_by_name("NOTES").concept_id
     @patient = Patient.find(params[:patient_id]) rescue nil
 		@patient_bean = PatientService.get_patient(@patient.person)
     
@@ -61,15 +63,20 @@ class PatientsController < GenericPatientsController
 
     # Assuming the test/procedure identifier is passed as a parameter, details are reflected here
     @reportdate = (params["encounter_date"].to_date rescue Date.today).strftime("%d-%b-%Y") rescue ""
+    @test_type = order.order_type.name rescue "&nbsp;"
+    @test_part = ConceptName.find_by_concept_id(order.concept_id).name
+    @test_date = (order.date_created rescue Date.today).strftime("%d-%b-%Y") rescue ""
+    @full_test_name = @test_type rescue "&nbsp;"
 
-    @test_type = "Xray" rescue "&nbsp;"
-    @test_part = "Skull" rescue "&nbsp;"
-    @test_date = (Date.today rescue Date.today).strftime("%d-%b-%Y") rescue ""
-    @full_test_name = "CT-Scan" rescue "&nbsp;"
-
-    @findings = "The imagines ..." rescue "&nbsp;"
-    @comment = "CELEBRAL WHITE MATTER ..." rescue "&nbsp;"
-
+    @findings = '<p><span class="bold">Liver</span>: Right lobe measures <span>....</span> cm, Left lobe measures<span>....</span>
+normal homogeneity noted. No focal lesions seen,no dilatation of the bile duct seen.</p>
+ <p><span class="bold">Gallbladder</span> appears fully distended, wall thickness measures<span>....</span>., no features of stones, sludge, polyps noted. No    pericholecystic fluid seen.</p><p><span class="bold">Portal vein</span> measures<span>.....</span>.</p><p><span class="bold">Common bile duct</span> measures<span>.....</span>.</p>
+  <p><span class="bold">Right kidney</span> measures<span>.....</span>, Left kidney measures<span>.....</span>. No calculi, no hydronephrosis, both move well with respiration.</p><p><span class="bold">Spleen</span> measures<span>.....</span>. normal homogeneity is visualized.</p>
+<p><span class="bold">Pancreas</span> measurement: <span class="bold">Head</span><span>.....</span>. <span class="bold">Body</span><span>.....</span>
+<span class="bold">Tail</span><span>.....</span>, normal homogeneity noted no calcifications, no stones, no cysts noted.</p>p><span class="bold">Inferior venacava</span> measures<span>.....</span> Aorta measures<span>.....</span>. appears. No periportal, paraaortic lymphadenopathy seen.No free fluid seen in the abdomen.</p>' rescue "&nbsp;"
+  
+    @comments = Observation.find(:all,:conditions => ["order_id = ? AND concept_id = ? AND voided = 0",order.order_id,notes_concept_id]) rescue "&nbsp;"
+  
     @provider = current_user.name.upcase rescue "&nbsp;"
 
     @provider_title = "CONSULTANT" rescue "&nbsp;"

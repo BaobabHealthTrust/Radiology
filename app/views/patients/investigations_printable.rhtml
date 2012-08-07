@@ -2,6 +2,9 @@
   <head>
     <title></title>
     <style type="text/css">
+      body {
+            font-family: Arial,sans-serif;
+      }
       .bold {
         font-weight: bold;
         font-size: 0.9em;
@@ -155,11 +158,14 @@
       </tr>
       <tr>
         <td style="padding: 10px; font-weight: bold; padding-left: 0px;">
-          Comment:
+          Comments:
         </td>
         <td colspan="4">
-          <%= @comment %>
+        <% @comments.each do |comment| %>
+          <%= comment.value_text %><br/><br/>
+        <% end  %>  
         </td>
+
       </tr>
       <tr>
         <td colspan="5" style="padding: 10px; padding-left: 0px;">
