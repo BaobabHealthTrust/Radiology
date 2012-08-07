@@ -3,6 +3,7 @@ production:
  use.user.selected.activities: no
  filing.number.prefix: FN101,FN102
  auto_set_appointment: false
+ statistics.show_encounter_types: EXAMINATION
  show.patient.confirmation: no
  current.health.facility: Kamuzu Central Hospital
  hod: Dr Chipa, Consultant Radiologist
