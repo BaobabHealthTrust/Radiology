@@ -68,33 +68,26 @@ class PatientsController < GenericPatientsController
     @test_date = (order.date_created rescue Date.today).strftime("%d-%b-%Y") rescue ""
     @full_test_name = @test_type rescue "&nbsp;"
 
-    @findings = '<p><span class="bold">Liver</span>: Right lobe measures <span>....</span> cm, Left lobe measures<span>....</span>
-normal homogeneity noted. No focal lesions seen,no dilatation of the bile duct seen.</p>
- <p><span class="bold">Gallbladder</span> appears fully distended, wall thickness measures<span>....</span>., no features of stones, sludge, polyps noted. No    pericholecystic fluid seen.</p><p><span class="bold">Portal vein</span> measures<span>.....</span>.</p><p><span class="bold">Common bile duct</span> measures<span>.....</span>.</p>
-  <p><span class="bold">Right kidney</span> measures<span>.....</span>, Left kidney measures<span>.....</span>. No calculi, no hydronephrosis, both move well with respiration.</p><p><span class="bold">Spleen</span> measures<span>.....</span>. normal homogeneity is visualized.</p>
-<p><span class="bold">Pancreas</span> measurement: <span class="bold">Head</span><span>.....</span>. <span class="bold">Body</span><span>.....</span>
-<span class="bold">Tail</span><span>.....</span>, normal homogeneity noted no calcifications, no stones, no cysts noted.</p>p><span class="bold">Inferior venacava</span> measures<span>.....</span> Aorta measures<span>.....</span>. appears. No periportal, paraaortic lymphadenopathy seen.No free fluid seen in the abdomen.</p>' rescue "&nbsp;"
+    @findings = ""
   
     @comments = Observation.find(:all,:conditions => ["order_id = ? AND concept_id = ? AND voided = 0",order.order_id,notes_concept_id]) rescue "&nbsp;"
   
     @provider = current_user.name.upcase rescue "&nbsp;"
 
-    @provider_title = "CONSULTANT" rescue "&nbsp;"
+    @provider_title = "Sonographer" rescue "&nbsp;"
 
     render :layout => false
   end
 
   def print_note
     # raise request.remote_ip.to_yaml
-
     location = request.remote_ip rescue ""
-    @patient    = Patient.find(params[:patient_id] || session[:patient_id]) rescue nil
-    @user = params[:user_id]
+    @patient = Patient.find(params[:patient_id] || session[:patient_id]) rescue nil
+    @user = current_user.user_id
     if @patient
       current_printer = ""
-
       wards = GlobalProperty.find_by_property("facility.ward.printers").property_value.split(",") rescue []
-
+      raise params['examination_number'].to_s
       printers = wards.each{|ward|
         current_printer = ward.split(":")[1] if ward.split(":")[0].upcase == location
       } rescue []
@@ -106,24 +99,24 @@ normal homogeneity noted. No focal lesions seen,no dilatation of the bile duct s
           request.env["HTTP_HOST"] + "\"/encounters/observations_printable?patient_id=" +
           @patient.id.to_s + "&user_id=" + @user + "\"\n"
 =end
-
+        
         Kernel.system "wkhtmltopdf -s A4 http://" +
           request.env["HTTP_HOST"] + "\"/patients/investigations_printable?patient_id=" +
           @patient.id.to_s + "&examination_number=#{ params["examination_number"] }&" +
           "encounter_date=#{ (params["encounter_date"] rescue "")}" +
           (params[:ret] ? "&ret=" + params[:ret] : "") + "&user_id=" + @user +
-          "\" /tmp/output-" + session[:user_id].to_s + ".pdf \n"
+          "\" /tmp/output-" + @user.to_s + ".pdf \n"
       }
 
       t2 = Thread.new{
         sleep(5)
         Kernel.system "lp #{(!current_printer.blank? ? '-d ' + current_printer.to_s : "")} /tmp/output-" +
-          session[:user_id].to_s + ".pdf\n"
+          @user.to_s + ".pdf\n"
       }
 
       t3 = Thread.new{
         sleep(10)
-        Kernel.system "rm /tmp/output-" + session[:user_id].to_s + ".pdf\n"
+        Kernel.system "rm /tmp/output-" + @user.to_s + ".pdf\n"
       }
 
     end
@@ -142,10 +135,10 @@ normal homogeneity noted. No focal lesions seen,no dilatation of the bile duct s
       order = Order.find(:first,:conditions => ["accession_number = ?  AND voided = 0",params[:examination_number]])
       @encounters = Encounter.find(:all,:joins => :observations,:conditions => ["order_id = ? AND patient_id = ?",
                                                                                  order.order_id,order.patient_id],
-                                   :group => ["encounter_id"])
+                                   :group => ["encounter_id"],:order => "encounter_datetime DESC")
     else
       @encounters = Encounter.find(:all, :conditions => ["patient_id = ? AND encounter_datetime >= ? AND encounter_datetime <= ?",
-                                                          @patient.id, start_date, end_date])
+                                                          @patient.id, start_date, end_date],:order => "encounter_datetime DESC")
     end
     
 

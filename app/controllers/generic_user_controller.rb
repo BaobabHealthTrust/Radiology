@@ -143,7 +143,7 @@ class GenericUserController < ApplicationController
       @user_admin_role = params[:user_role_admin][:role]
       @user_name = params[:user][:username]
     end
-	
+
 	params[:user][:password] = params[:user][:plain_password]
 	params[:user][:plain_password] = nil
     person = Person.create()
@@ -152,8 +152,8 @@ class GenericUserController < ApplicationController
     @user = RawUser.new(params[:user])
     @user.person_id = person.id
     if @user.save
-     # if params[:user_role_admin][:role] == "Yes"  
-      #  @roles = Array.new.push params[:user_role][:role_id] 
+     # if params[:user_role_admin][:role] == "Yes"
+      #  @roles = Array.new.push params[:user_role][:role_id]
        # @roles << "superuser"
        # @roles.each{|role|
        # user_role=UserRole.new
@@ -178,38 +178,6 @@ class GenericUserController < ApplicationController
 
   def edit
     @user = User.find(params[:id])
-  end
-
-  def update
-    #find_by_person_id(params[:id])
-    @user = User.find(params[:id])
-
-    username = params[:user]['username'] rescue current_user.username
-
-    if username
-      @user.update_attributes(:username => username)
-    end
-
-    PersonName.find(:all,:conditions =>["voided = 0 AND person_id = ?",@user.person_id]).each do | person_name |
-      person_name.voided = 1
-      person_name.voided_by = current_user.person_id
-      person_name.date_voided = Time.now()
-      person_name.void_reason = 'Edited name'
-      person_name.save
-    end rescue nil
-
-    person_name = PersonName.new()
-    person_name.family_name = params[:person_name]["family_name"]
-    person_name.given_name = params[:person_name]["given_name"]
-    person_name.person_id = @user.person_id
-    person_name
-    if person_name.save
-      flash[:notice] = 'User was successfully updated.'
-      redirect_to :action => 'show', :id => @user.id and return
-    end rescue nil
-
-    flash[:notice] = "OOps! User was not updated!."
-    render :action => 'show', :id => @user.id
   end
 
   def destroy

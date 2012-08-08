@@ -1,8 +1,8 @@
 --- 
-cwd: /var/www/mateme/current/
-log_file: /var/www/mateme/current/log/mongrel.log
-port: 8000
+cwd: /home/blessings/Work/Radiology
+log_file: /home/blessings/Work/Radiology/log/mongrel.log
+port: 3000
 environment: production
-address: 127.0.0.1
-pid_file:  /var/www/mateme/current/tmp/pids/mongrel.pid
-servers: 3 
+address: 0.0.0.0
+pid_file:  /home/blessings/Work/Radiology/tmp/pids/mongrel.pid
+servers: 1 

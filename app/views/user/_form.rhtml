@@ -4,8 +4,8 @@
         <%= @username = User.all(:order =>'username').map{|u|[u.username]}
            select(:user, :username, @username,{},{:include_blank => true ,:textCase => "lower" ,:validationRule =>"\\w{6}\\w*" ,:validationMessage => "Username must be at least SIX characters long"})%>
   <%when "change_password"%>
-      <p><label for="user_password">Password</label><br/>
-      <%= password_field 'user', 'password', :xhelpText => 'Password' ,:textCase =>"lower", :validationRule => "\\w{4}\\w*", :validationMessage => "Password less than six characters", :value =>"", :minlength => 6 %></p>
+      <p><label for="user_plain_password">Password</label><br/>
+      <%= password_field 'user', 'plain_password', :xhelpText => 'Password' ,:textCase =>"lower", :validationRule => "\\w{4}\\w*", :validationMessage => "Password less than six characters", :value =>"", :minlength => 6 %></p>
 
       <p><label for="user_confirm_password">Re-enter Password</label><br/>
       <%= password_field 'user_confirm', 'password', :xhelpText => 'Password',:textCase =>"lower",:validationRule =>"\\w{4}\\w*", :validationMessage =>"Password less than FOUR characters." %></p>
@@ -46,7 +46,7 @@
 
       <p><label for="user_role_role_id">User Role</label></br>
       <%= text_field 'user_role', 'role_id', :xhelpText => 'User role', :ajaxURL => '/user/role/Role?field=role&value='%></p>
-        
+
 
       <!--p><label for="user_role_admin_role">Is user a system administrator?</label><br/-->
       <!--%= select(:user_role_admin, :role, %w{ Yes No},:include_blank =>"true", :value =>@user_admin_role) %></p-->
@@ -54,8 +54,8 @@
       <p><label for="user_username">Username</label><br/>
       <%= text_field 'user', 'username', :xhelpText => 'Username',:textCase => "lower",:value => @user_name,:tt_onload =>"$('touchscreenInput5').value = ($('user_first_name').value.substring(0,3)+$('user_last_name').value.substring(0,3)).toLowerCase()" ,:validationRule =>"\\w{6}\\w*" ,:validationMessage => "Username must have at least SIX letters" ,:textCase => "lower"%></p>
 
-      <p><label for="user_password">Password</label><br/>
-      <%= password_field 'user', 'password', :xhelpText => 'Password', :minlength => 6 ,:textCase =>"lower", :validationRule => "\\w{4}\\w*", :validationMessage => "Password less than six characters" %></p>
+      <p><label for="user_plain_password">Password</label><br/>
+      <%= password_field 'user', 'plain_password', :xhelpText => 'Password', :minlength => 6 ,:textCase =>"lower", :validationRule => "\\w{4}\\w*", :validationMessage => "Password less than six characters" %></p>
 
       <p><label for="user_confirm_password">Re-enter Password</label><br/>
       <%= password_field 'user_confirm', 'password', :xhelpText => 'Password',:textCase =>"lower",:validationRule =>"\\w{4}\\w*", :validationMessage =>"Password less than FOUR characters." %></p>

@@ -172,7 +172,7 @@
 
   Gender: <%= f.select :gender, {"" => "", "Male" => "M", "Female" => "F"}, {:selected => params[:gender]}, {:id => 'gender', :helpText => 'Gender', :condition => '$("gender").value == "" || skipped[tstCurrentPage] == 1', :tt_onLoad => 'seen(tstCurrentPage);' } %>
 
-  <%= text_field_tag "person[names][middle_name]", params[:middle_name], {:id => 'middle_name', :field_type => 'alpha', :helpText => 'Middle name', :ajaxURL => '/person_names/middle_name?search_string=', :allowFreeText => true, :condition => '$("middle_name").value == "" || skipped[tstCurrentPage] == 1', :tt_onLoad => 'seen(tstCurrentPage);' } if ask_middle_name %>
+  <%= text_field_tag "person[names][middle_name]", params[:middle_name], {:id => 'middle_name', :field_type => 'alpha',:optional => true, :helpText => 'Middle name', :ajaxURL => '/person_names/middle_name?search_string=', :allowFreeText => true, :condition => '$("middle_name").value == "" || skipped[tstCurrentPage] == 1', :tt_onLoad => 'seen(tstCurrentPage);' } if ask_middle_name %>
 
   <%= text_field_tag "person[birth_year]", nil, {:helpText => 'Year of Birth', :field_type => 'number', :absoluteMin => "1890", :min => "1940", :absoluteMax => Date.today.year, :tt_pageStyleClass => "Numeric NumbersOnly", :tt_onLoad => 'seen(tstCurrentPage);',:validationJS => "setDOB();" }  %>
 
@@ -207,59 +207,7 @@
 
   <%= text_field_tag "person[addresses][city_village]",  params[:city_village], {:field_type => 'alpha', :helpText => 'Location/Village', :tt_requireNextClick => false, :ajaxURL => '/people/village?search_string=', :allowFreeText => true , :tt_onLoad => "set_ajaxURL_for_suggestions('/people/village/Village?filter_value=' ,document.getElementById('filter_t_a').value);$('nextButton').style.display = 'none';"}%>
 
-<%#= text_field_tag "person[addresses][address1]",  params[:address1], {:id => 'address1', :helpText => 'Closest Landmark or Plot Number<br /><span style="font-size:0.7em;font-style:italic">(Please do not include these words: Next to, close, in front of, behind)</span>', :allowFreeText => true, :ajaxURL => '', :tt_onLoad => "set_ajaxURL_for_suggestions('/people/landmark?filter_value=' ,document.getElementById('person_addresses_city_village').value);$('nextButton').style.display = 'block';" }%>
 
-  <%#= text_field_tag "person[cell_phone_number]",  params[:cell_phone_number],
-      {
-        :field_type => 'number',
-        :helpText => 'Cell Phone Number', 
-        :validationRule => "^0\\d{7}$|Unknown|Not Available|N\/A|^0\\d{9}$",
-        :validationMessage => "Not a valid phone number",
-        :tt_pageStyleClass => "nota",
-        :id => 'cellphone'
-      }
-  %>
-
-  <%# ask_multiple_phone_numbers = get_global_property_value("ask.multiple.phone.numbers") rescue 'false'
-     if ask_multiple_phone_numbers == 'true' 
-  %>
-  <%#= text_field_tag "person[office_phone_number]",  params[:office_phone_number],
-      {
-        :field_type => 'number', 
-        :helpText => 'Office Phone Number',
-        :validationRule => "^0\\d{7}$|Unknown|Not Available|^0\\d{9}$", 
-        :validationMessage => "Not a valid phone number"
-      }
-  %>
-
-  <%#= text_field_tag "person[home_phone_number]",  params[:home_phone_number],
-      {
-        :field_type => 'number', 
-        :helpText => 'Home Phone Number',  
-        :validationRule => "^0\\d{7}$|Unknown|Not Available|^0\\d{9}$", 
-        :validationMessage => "Not a valid phone number"
-      }
-  %>
-  <%#else%>
-    <%#= text_field_tag "person[home_phone_number]",  params[:home_phone_number], {:field_type => 'number', :helpText => 'Ground Phone Number', :allowFreeText => true, :tt_pageStyleClass => "nota", :validationRule => "^0\\d{7,9}$|Unknown|Not Available|N\/A", :validationMessage => "Not a valid phone number" } if ask_ground_phone%>
-  <%#end%>
-
-  <%#= select_tag("person[agrees_phone_text_for_TB_therapy]", options_for_select([" ", "Yes", "No", "Unknown"] ,params[:agrees_phone_text_for_TB_therapy]),:helpText =>"Can we send you an SMS for follow-up?", :condition => "$('cellphone').value !='Unknown' && $('cellphone').value !='N/A'", :tt_onLoad => 'seen(tstCurrentPage);') if ask_sms_for_TB_therapy%>
-  
-  <%#= select_tag("person[agrees_to_be_visited_for_TB_therapy]", options_for_select([" ", "Yes", "No", "Unknown"] ,params[:agrees_to_be_visited_for_TB_therapy]),:helpText =>"Can we visit you at home for follow-up?", :tt_onLoad => 'seen(tstCurrentPage);') if ask_visit_home_for_TB_therapy %>
-  
-  
-  <%#= select_tag("person[occupation]", options_for_select([" ", "Housewife", "Farmer", "Police", "Soldier", "Business", "Teacher", "Student", "Healthcare Worker"].sort.concat(["Other"]) ,params[:occupation]),:helpText =>"Occupation",:allowFreeText => true, :tt_onLoad => 'seen(tstCurrentPage);')%>
-
-  <%#= select_tag("person[occupation]", options_for_select(@occupations ,params[:occupation]),
-      :helpText =>"Occupation",
-      :id => "occupation",
-      :allowFreeText => false, 
-      :tt_onLoad => 'seen(tstCurrentPage);setAttributes();', 
-      :tt_onUnLoad => 'resetAttributes();', 
-      :ttMatchFromBeginning => "true")%>
-
-  <!-- Make sure patient is created -->
 
   <%= hidden_field_tag "person[patient]", "" %>
 

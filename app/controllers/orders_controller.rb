@@ -37,9 +37,7 @@ class OrdersController < ApplicationController
       elsif params['ultrasound_investigation_value'] !=""
         concept = ConceptName.find_by_name(params['ultrasound_investigation_value'])
       elsif params['mri_investigation_value'] !=""
-        #raise "i got hit"
         concept = ConceptName.find_by_name(params['mri_investigation_value'])
-        raise params['mri_investigation_value'].to_s
       end
 
       @order = current_order(examination_number,@patient,order_type_name,concept,@encounter.encounter_id)
@@ -72,7 +70,7 @@ class OrdersController < ApplicationController
     end
 
     if encounter_type_name == "EXAMINATION"
-         print_and_redirect("/orders/examination_number?order_id=#{@order_id}", "/patients/show/#{@patient.patient_id}")
+         print_and_redirect("/orders/examination_number?order_id=#{@order_id}", "/clinic")
     else
          redirect_to :controller => :patients ,:action => :show ,:id => @patient.patient_id
     end
