@@ -10,9 +10,7 @@ class ClinicController < GenericClinicController
   end
 
   def properties_tab
-    @settings = [
-      ["Manage Roles", "/properties/set_role_privileges"]
-    ]
+    @settings = []
     render :layout => false
   end
   
