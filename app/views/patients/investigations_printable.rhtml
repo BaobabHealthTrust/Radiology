@@ -12,6 +12,9 @@
       .cell {
         width: 25%;
       }
+      .blank{
+        height: 50px;color:#ffffff;
+       }
     </style>
   </head>
   <body>
@@ -145,22 +148,28 @@
       </tr>
       <tr>
         <th colspan="5">
-          Report Of <%= @full_test_name %>-<%= @test_part %>
+
+          Report Of
+         <%  unless @test_part_part.blank? %>
+           <%= @full_test_name %>-<%= @test_part %>-<%= @test_part_part %>
+         <% else %>
+           <%= @full_test_name %>-<%= @test_part %>
+         <% end %>
         </th>
       </tr>
       <tr>
         <td style="padding: 10px; font-weight: bold; padding-left: 0px;">
-          Findings:
+          FINDINGS:
         </td>
         <td colspan="4">
-          <%= render :partial => "abdominal_ultrasound" %>
+          <%= render :partial => @findings %>
         </td>
       </tr>
       <tr>
         <td style="padding: 10px; font-weight: bold; padding-left: 0px;">
-          Comments:
+          COMMENT:
         </td>
-        <td colspan="4">
+        <td colspan="4" valign="bottom">
         <% @comments.each do |comment| %>
           <%= comment.value_text %><br/><br/>
         <% end  %>  
@@ -173,17 +182,17 @@
         </td>
       </tr>
       <tr>
-        <td colspan="5" style="padding: 10px; padding-left: 0px;">
+        <td colspan="5" style="padding: 10px; font-weight: bold; padding-left: 0px;">
           <%= @provider_title %>
         </td>
       </tr>
       <tr>
-        <td colspan="5" style="border-bottom: #000 solid 1px">
+        <td colspan="5" style="border-bottom: #000 solid 1px;padding-top: 10px">
           &nbsp;
         </td>
       </tr>
       <tr>
-        <th colspan="5" style="font-size: 0.7em;">
+        <th colspan="5" style="font-size: 0.8em;">
           <%= @footer %>
         </th>
       </tr>

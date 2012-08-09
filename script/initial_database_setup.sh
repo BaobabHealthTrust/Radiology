@@ -36,6 +36,7 @@ mysql --user=$USERNAME --password=$PASSWORD $DATABASE < db/openmrs_1_7_2_concept
 #echo "schema additions"
 mysql --user=$USERNAME --password=$PASSWORD $DATABASE < db/schema_bart2_additions.sql
 mysql --user=$USERNAME --password=$PASSWORD $DATABASE < db/bart2_views_schema_additions.sql
+mysql --user=$USERNAME --password=$PASSWORD $DATABASE < db/openmrs_metadata_1_7.sql
 #echo "defaults"
 mysql --user=$USERNAME --password=$PASSWORD $DATABASE < db/defaults.sql
 #echo "user schema modifications"
@@ -57,9 +58,9 @@ mysql --user=$USERNAME --password=$PASSWORD $DATABASE < db/create_dde_server_con
 #mysql --user=$USERNAME --password=$PASSWORD $DATABASE < db/bart2_role_privileges.sql
 mysql --user=$USERNAME --password=$PASSWORD $DATABASE < db/migrate/create_weight_height_for_ages.sql
 mysql --user=$USERNAME --password=$PASSWORD $DATABASE < db/migrate/insert_weight_for_ages.sql
-mysql --user=$USERNAME --password=$PASSWORD $DATABASE < db/concept.sql
-mysql --user=$USERNAME --password=$PASSWORD $DATABASE < db/concept_name.sql
-mysql --user=$USERNAME --password=$PASSWORD $DATABASE < db/order_type.sql
+#mysql --user=$USERNAME --password=$PASSWORD $DATABASE < db/concept.sql
+#mysql --user=$USERNAME --password=$PASSWORD $DATABASE < db/concept_name.sql
+#mysql --user=$USERNAME --password=$PASSWORD $DATABASE < db/order_type.sql
 #mysql --user=$USERNAME --password=$PASSWORD $DATABASE < db/regimens.sql
 
 #rake openmrs:bootstrap:load:defaults RAILS_ENV=$ENV

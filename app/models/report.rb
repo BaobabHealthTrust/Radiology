@@ -302,7 +302,38 @@ ORDER BY clinic ASC"])
   end
   
   
-  def self.investigations(start_date,end_date)
+  def self.investigations(month,year = Date.today.year)
+   exams = Hash.new()
+
+   start_days = [1, 8, 15, 22, 29]
+   week = Hash.new()
+   count = 0
+    start_days.each do|day|
+      start_date = "#{day}-#{month}-#{year}".to_date.strftime("%Y-%m-%d 00:00:00")
+      if month == 2 and day == 29 and !Date.leap?(start_date.year)
+         return week
+      elsif day == 29
+         end_date = "#{Time.days_in_month(month)}-#{month}-#{year}".to_date.strftime("%Y-%m-%d 23:59:59")
+      else
+         end_date = ((start_date.to_date + 1.week) - 1.day).strftime("%Y-%m-%d 23:59:59")
+      end
+      
+      order = Order.find_by_sql("SELECT odt.name as examination_name,cn.name as examination_part,COUNT(od.concept_id) as count FROM orders od
+                               INNER JOIN concept_name cn
+                               ON od.concept_id = cn.concept_id
+                               INNER JOIN order_type odt
+                               ON od.order_type_id = odt.order_type_id
+                               WHERE od.voided = 0
+                               AND od.date_created BETWEEN '#{start_date}' AND '#{end_date}'
+                               GROUP BY odt.name,cn.name
+                               ORDER BY odt.name DESC")
+
+       week[count +=1] = order
+       
+    end
+  end
+
+=begin
     encounter_type = EncounterType.find(:first,:conditions =>["name = ?",'EXAMINATION']).id
     return if encounter_type.blank?
     statastics = Hash.new(0)
@@ -323,7 +354,8 @@ ORDER BY clinic ASC"])
       end
     end
     statastics
-  end
+=end
+
 
   def self.investigation_type(encounter_id)
     investigation_type = ConceptName.find_by_name('INVESTIGATION TYPE').concept_id
