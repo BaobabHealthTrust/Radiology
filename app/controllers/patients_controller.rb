@@ -87,7 +87,6 @@ class PatientsController < GenericPatientsController
     if @patient
       current_printer = ""
       wards = GlobalProperty.find_by_property("facility.ward.printers").property_value.split(",") rescue []
-      raise params['examination_number'].to_s
       printers = wards.each{|ward|
         current_printer = ward.split(":")[1] if ward.split(":")[0].upcase == location
       } rescue []
