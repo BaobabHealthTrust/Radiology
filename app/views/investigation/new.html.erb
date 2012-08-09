@@ -39,7 +39,10 @@
      {
         var line3 = line3 + " - " + $("mri_investigation_value").value
      }
-      
+     else if ($("investigation_type").value =="CT")
+     {
+        var line3 = line3 + " - " + $("ct_investigation_value").value
+     }
     
     var referred_from =  referred_by;
 
@@ -65,18 +68,18 @@
 
 <%= hidden_field_tag  :examination_number, @next_exam_number %>
 
-<% @investigation_options = ['Xray','Ultrasound','MRI'] %>
+<% @investigation_options = ['Xray','Ultrasound','MRI','CT'] %>
 <%=  select_tag :investigation_type, options_for_select(@investigation_options),
      {:helpText => "Investigation type"} %>
 
 
 
-<% @xray_options = ['','Skull','Chest','Upper Limbs','Lower Limbs','Stenum/Rib/Shoulder','Abdomen',
-                    'Spine','Pelvis','Contrast GI studies','Contrast UT studies','Hystero-Salpingogram',
-                    'Computed Tomography','Mammography','Sinogram','Siologram','Bronchogram']
+<% @xray_options = ['','Skull','Chest','Upper Limb','Lower Limb','Stenum/Rib/Shoulder','Abdomen',
+                    'Spine','Pelvis','Contrast GI Studies','Contrast UT Studies','Hystero-Salpingogram',
+                    'Mammography','Sinogram','Siologram','Bronchogram']
 
    @ultrasound_options = ['','Breast','Musculoskeletal','Carotid Doppler','Abdominal Doppler and Color Flow',
-                          'Male Pelvis - Prostate Gland,Scrotum and Penis','Thyroid and Parathyroid Glands',
+                          'Male Pelvis-Prostate Gland,Scrotum and Penis','Thyroid and Parathyroid Glands',
                           'Peritheral Arterial and Venous Duplex','Abdomen','Obsterics-Fetal','Female Pelvis-Gynaecology',
                           'Echocardiography-Adult','Echochardiography-Pediatric','Neonatal Brain','Transvaginal','Transrectal',
                           'Prostate','FAST','Umbilical Artery Doppler','Ultrasound Guided Procedures']
@@ -91,15 +94,15 @@
    lower_limb+="<option value='Leg'>Leg</option>"
    lower_limb+="<option value='Ankle joint'>Ankle joint</option>"
    lower_limb+="<option value='Foot'>Foot</option>"
-   lower_limb+="<option value='Toe(s)'>Toe(s)</option>"
+   lower_limb+="<option value='Toe'>Toe(s)</option>"
 
    upper_limb = "<option value=''></option>"
    upper_limb+="<option value='Humerus'>Humerus</option>"
    upper_limb+="<option value='Elbow joint'>Elbow joint</option>"
-   upper_limb+="<option value='Fore arm'>Fore arm</option>"
+   upper_limb+="<option value='Forearm'>Forearm</option>"
    upper_limb+="<option value='Wrist joint'>Wrist joint</option>"
    upper_limb+="<option value='Hand'>Hand</option>"
-   upper_limb+="<option value='Finger'>Finger</option>"
+   upper_limb+="<option value='Finger'>Finger(s)</option>"
 
    skull = "<option value=''></option>"
    skull+="<option value='Cranium'>Cranium</option>"
@@ -148,6 +151,9 @@
 <%=  select_tag :mri_investigation_value, options_for_select(@mri_options),
      {:helpText => "MRI examination",
       :condition => '$("investigation_type").value =="MRI"'} %>
+<%=  select_tag :ct_investigation_value, options_for_select(@mri_options),
+     {:helpText => "Computed tomography examination",
+      :condition => '$("investigation_type").value =="CT"'} %>
 
 <%= touch_select_tag "PART", @patient, skull ,
 {:id => "skull",
@@ -158,13 +164,13 @@
 <%= touch_select_tag "PART", @patient, lower_limb ,
 {:id => "lower_limb",
 :helpText => "Which part of Lower limb",
-:condition => '$("xray_investigation_value").value =="Lower Limbs" && $("investigation_type").value =="Xray"',
+:condition => '$("xray_investigation_value").value =="Lower Limb" && $("investigation_type").value =="Xray"',
 :tt_pageStyleClass => "NoKeyboard NoInput small" } %>
 
 <%= touch_select_tag "PART", @patient, upper_limb ,
 {:id => "upper_limb",
 :helpText => "Which part of Upper limb",
-:condition => '$("xray_investigation_value").value =="Upper Limbs" && $("investigation_type").value =="Xray"',
+:condition => '$("xray_investigation_value").value =="Upper Limb" && $("investigation_type").value =="Xray"',
 :tt_pageStyleClass => "NoKeyboard NoInput small" } %>
 
 
