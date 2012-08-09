@@ -38,6 +38,8 @@ class OrdersController < ApplicationController
         concept = ConceptName.find_by_name(params['ultrasound_investigation_value'])
       elsif params['mri_investigation_value'] !=""
         concept = ConceptName.find_by_name(params['mri_investigation_value'])
+      elsif params['ct_investigation_value'] !=""
+        concept = ConceptName.find_by_name(params['ct_investigation_value'])
       end
 
       @order = current_order(examination_number,@patient,order_type_name,concept,@encounter.encounter_id)
