@@ -4,7 +4,6 @@ class OrdersController < ApplicationController
   end
 
   def create
-
     @patient = Patient.find(params[:encounter][:patient_id] || session[:patient_id]) rescue nil
     unless params[:location]
       session_date = session[:datetime] || Time.now()
@@ -48,16 +47,55 @@ class OrdersController < ApplicationController
     end
     
     @order_id = @order.order_id
+
+    params['observations'].each do |ob|
+     if ob['concept_name'] == "FILM SIZE"
+       @film_size = ob['value_coded_or_text']
+     elsif ob['concept_name'] == "GOOD FILM" || ob['concept_name'] == "WASTED FILM"
+       @available_film = ob['value_coded_or_text']
+     end
+    end
+
+    if encounter_type_name == "FILM"
+       params['observations'].each do |ob|
+
+      if  ob['concept_name'] == "GOOD FILM" || ob['concept_name'] == "WASTED FILM"
+       
+      1.upto(ob['value_coded_or_text'].to_i) do
+          obs = Observation.new(
+            :concept_name => ob['concept_name'],
+            :order_id => @order_id,
+            :value_text =>@film_size,
+            :person_id => @patient.person.person_id,
+            :encounter_id => @encounter.id,
+            :obs_datetime => session_date || Time.now())
+      obs.save
+      end
+      elsif !@available_film.blank?
+        
+        obs = Observation.new(
+            :concept_name => ob['concept_name'],
+            :order_id => @order_id,
+            :value_coded =>ob['value_coded'],
+            :value_text =>ob['value_coded_or_text'],
+            :person_id => @patient.person.person_id,
+            :encounter_id => @encounter.id,
+            :obs_datetime => session_date || Time.now())
+        obs.save
+      end
+    end
+    else
+
     params['observations'].each do |ob|
       if ob['value_coded'].blank? && ob['value_coded_or_text'].blank?
         obs = Observation.new(
-          :concept_name => ob['concept_name'],
-          :order_id => @order_id,
-          :value_text =>ob['value_text'],
-          :person_id => @patient.person.person_id,
-          :encounter_id => @encounter.id,
-          :obs_datetime => session_date || Time.now())
-      obs.save
+            :concept_name => ob['concept_name'],
+            :order_id => @order_id,
+            :value_text =>ob['value_text'],
+            :person_id => @patient.person.person_id,
+            :encounter_id => @encounter.id,
+            :obs_datetime => session_date || Time.now())
+        obs.save
       else
         obs = Observation.new(
             :concept_name => ob['concept_name'],
@@ -68,6 +106,7 @@ class OrdersController < ApplicationController
             :encounter_id => @encounter.id,
             :obs_datetime => session_date || Time.now())
         obs.save
+        end
       end
     end
 

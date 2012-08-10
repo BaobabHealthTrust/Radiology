@@ -1,33 +1,37 @@
 class ReportController < GenericReportController
 
-  def examination
-    @patient = Patient.find(params[:id])                                        
-    encounter_type = EncounterType.find_by_name('OBSERVATIONS').id              
-    @examinations = Hash.new()                                                  
-    Observation.find(:all,                                                      
-      :joins => "INNER JOIN encounter e USING(encounter_id)",                   
-      :conditions =>["patient_id = ? AND encounter_type = ?",                   
-      params[:id],encounter_type]).map do | obs |                               
-        name = obs_to = obs.to_s.split(':')[0]                                  
-        value = obs_to = obs.to_s.split(':')[1]                                 
-        next if name.match(/WORKSTATION LOCATION/i)                                 
-        @examinations[obs.obs_datetime.to_date] = nil if @examinations[obs.obs_datetime.to_date].blank?
-        @examinations[obs.obs_datetime.to_date] += '<br />' + obs.value_text unless  @examinations[obs.obs_datetime.to_date].blank?
-        @examinations[obs.obs_datetime.to_date] = obs.value_text if  @examinations[obs.obs_datetime.to_date].blank?
-    end                                                                         
-    render :partial => 'examination' and return                                 
-  end
-
   def show 
-    @start_date = (params[:start_date]).to_date
-    @end_date = (params[:end_date]).to_date
+    @month = (params[:month])
+    @year = (params[:year])
+    @investigation_type = (params[:investigation_type]) rescue ""
+    
     case params[:id]
       when 'film_used'
-        @xray = 'FILM SIZE'
+        @report_type = 'FILM SIZE'
         @encounters = Report.film_used(@start_date,@end_date) 
       when 'investigations'
-        @xray = 'EXAMINATION'
-        @encounters = Report.investigations(@start_date,@end_date)
+        @report_type = "INVESTIGATIONS"
+        case  @investigation_type.upcase
+          when "XRAY"
+            @investigation_options = ['Skull','Chest','Upper Limb','Lower Limb','Stenum/Rib/Shoulder','Abdomen',
+                      'Spine','Pelvis','Contrast GI Studies','Contrast UT Studies','Hystero-Salpingogram',
+                      'Mammography','Sinogram','Siologram','Bronchogram']
+
+          when "ULTRASOUND"
+             @investigation_options = ['Breast','Musculoskeletal','Carotid Doppler','Abdominal Doppler and Color Flow',
+                            'Male Pelvis - Prostate Gland, Scrotum and Penis','Thyroid and Parathyroid Glands',
+                            'Peritheral Arterial and Venous Duplex','Abdomen','Obsterics-Fetal','Female Pelvis-Gynaecology',
+                            'Echocardiography-Adult','Echochardiography-Pediatric','Neonatal Brain','Transvaginal','Transrectal',
+                            'Prostate','FAST','Umbilical Artery Doppler','Ultrasound Guided Procedures']
+
+          when "MRI"
+              @investigation_options = ['Brain','Chest','Abdomen','Pelvis','Angiogram','Upper Extremity','Lower Extremity']
+          when "CT"
+              @investigation_options = ['Brain','Chest','Abdomen','Pelvis','Angiogram','Upper Extremity','Lower Extremity']
+         end
+         @aggregates = Report.investigations(@investigation_type,@month.to_i,@year.to_i)
+         when 'revenue_collected'
+           
     end
     render :layout => 'menu'
   end

@@ -28,34 +28,37 @@
 
 <%  
   options = "<option value=''></option>"
-  options += "<option value='None'>None</option>"
-  options += "<option value='1 Film'>1 Film</option>"
-  options += "<option value='2 films'>2 Films</option>"
-  options += "<option value='3 films'>3 Films</option>"
-  options += "<option value='4 films'>4 Films</option>"
-  options += "<option value='5 films'>5 Films</option>"
+  options += "<option value=''>None</option>"
+  options += "<option value='1'>1 Film</option>"
+  options += "<option value='2'>2 Films</option>"
+  options += "<option value='3'>3 Films</option>"
+  options += "<option value='4'>4 Films</option>"
+  options += "<option value='5'>5 Films</option>"
 %>
 
-<%= touch_select_tag "BAD FILM", @patient, options ,
+<%= touch_select_tag "WASTED FILM", @patient, options ,
 {:id => "bad_film",
-:helpText => "Bad film(s) used",
+:helpText => "Wasted film(s) used",
 :tt_pageStyleClass => "NoKeyboard NoInput small" } %>
 
 
 <%  
   options = "<option value=''></option>"
-  options += "<option value='None'>None</option>"
-  options += "<option value='1 Film'>1 Film</option>"
-  options += "<option value='2 films'>2 Films</option>"
-  options += "<option value='3 films'>3 Films</option>"
-  options += "<option value='4 films'>4 Films</option>"
-  options += "<option value='5 films'>5 Films</option>"
+  options += "<option value=''>None</option>"
+  options += "<option value='1'>1 Film</option>"
+  options += "<option value='2'>2 Films</option>"
+  options += "<option value='3'>3 Films</option>"
+  options += "<option value='4'>4 Films</option>"
+  options += "<option value='5'>5 Films</option>"
 %>
 
 <%= touch_select_tag "GOOD FILM", @patient, options ,
 {:id => "good_film",
 :helpText => "Good film(s) used",
-:tt_pageStyleClass => "NoKeyboard NoInput small" } %>
+:tt_pageStyleClass => "NoKeyboard NoInput small"} %>
+
+
+
 
 <% end -%>
 

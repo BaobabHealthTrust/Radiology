@@ -32,6 +32,26 @@ module TouchscreenHelper
     content
   end
 
+  def touch_cd4_count_numeric_tag(concept, patient, value, options={}, time=DateTime.now())
+    # Try to find an associated concept_numeric for limits
+    concept_name = ConceptName.first(:conditions => {:name => concept},
+      :include => {:concept => [:concept_numeric]})
+    precision = concept_name.concept.concept_numeric.precision rescue {}
+    options = precision.merge(options)
+    options = {
+      :field_type => 'number',
+      :validationRule => "^(>|<|=)([0-9\.]+)$|Unknown$",
+      :validationMessage => "You must enter a modifier plus numbers only (for example =90)",
+      :tt_pageStyleClass => "Numeric NumbersOnly"
+    }.merge(options)                 
+    limits = concept_name.concept.concept_numeric.options rescue {}
+    options = limits.merge(options)
+    content = ""
+    content << text_field_tag("observations[][value_numeric]", value, options) 
+    content << touch_meta_tag(concept, patient, time, 'value_numeric', options)
+    content
+  end
+
   def touch_numeric_tag(concept, patient, value, options={}, time=DateTime.now())
     # Try to find an associated concept_numeric for limits
     concept_name = ConceptName.first(:conditions => {:name => concept},
@@ -123,9 +143,14 @@ module TouchscreenHelper
   def touch_hidden_tag(concept, patient, value, options={}, time=DateTime.now())
     options = {  
      :allowFreeText => false 
-    }.merge(options)      
+    }.merge(options)
     
-    kind = "value_coded_or_text"
+    if !options[:kind].blank?
+			kind = options[:kind]
+    else
+			kind = "value_coded_or_text"   
+    end
+    
     if options[:value_datetime] 
       kind = "value_datetime"
     elsif options[:multiple]

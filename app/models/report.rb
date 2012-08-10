@@ -302,35 +302,38 @@ ORDER BY clinic ASC"])
   end
   
   
-  def self.investigations(month,year = Date.today.year)
-   exams = Hash.new()
-
+  def self.investigations(order_type_name,month,year = Date.today.year)
+   order_type_id = OrderType.find_by_name(order_type_name).order_type_id
    start_days = [1, 8, 15, 22, 29]
-   week = Hash.new()
-   count = 0
-    start_days.each do|day|
+   weeks = Hash.new()
+  
+    start_days.each_with_index do|day,count|
+      weeks[count] = Hash.new()
       start_date = "#{day}-#{month}-#{year}".to_date.strftime("%Y-%m-%d 00:00:00")
       if month == 2 and day == 29 and !Date.leap?(start_date.year)
-         return week
+         return weeks
       elsif day == 29
          end_date = "#{Time.days_in_month(month)}-#{month}-#{year}".to_date.strftime("%Y-%m-%d 23:59:59")
       else
          end_date = ((start_date.to_date + 1.week) - 1.day).strftime("%Y-%m-%d 23:59:59")
       end
       
-      order = Order.find_by_sql("SELECT odt.name as examination_name,cn.name as examination_part,COUNT(od.concept_id) as count FROM orders od
-                               INNER JOIN concept_name cn
-                               ON od.concept_id = cn.concept_id
-                               INNER JOIN order_type odt
-                               ON od.order_type_id = odt.order_type_id
-                               WHERE od.voided = 0
-                               AND od.date_created BETWEEN '#{start_date}' AND '#{end_date}'
-                               GROUP BY odt.name,cn.name
-                               ORDER BY odt.name DESC")
+      orders = Order.find_by_sql("SELECT odt.name as examination_name,cn.name as examination_part,COUNT(od.concept_id) as cnt FROM orders od
+                                 INNER JOIN concept_name cn
+                                 ON od.concept_id = cn.concept_id
+                                 INNER JOIN order_type odt
+                                 ON od.order_type_id = odt.order_type_id
+                                 WHERE od.voided = 0 AND odt.order_type_id = #{order_type_id}
+                                 AND od.date_created BETWEEN '#{start_date}' AND '#{end_date}'
+                                 GROUP BY odt.name,cn.name
+                                 ORDER BY odt.name DESC")
 
-       week[count +=1] = order
-       
+      orders.each do |order|
+         weeks[count][order.examination_part] = order.cnt
+      end
+         
     end
+    weeks
   end
 
 =begin
@@ -374,18 +377,18 @@ ORDER BY clinic ASC"])
     encounters.each do | encounter |
       next unless encounter.name.upcase == 'FILM'
       film_size = nil
-      bad_film = 0
+      wasted_film = 0
       good_film = 0
-      ['FILM SIZE','GOOD','BAD'].each do | concept_name |
+      ['FILM SIZE','GOOD FILM','WASTED FILM'].each do | concept_name |
         encounter.observations.each do | obs |
           next unless concept_name == obs.to_s.split(":")[0].to_s.upcase.strip rescue nil
           obs_value = [obs.to_s.split(":")[1].to_s.strip] rescue nil
           obs_value << [obs.to_s.split(":")[2].to_s.strip] rescue nil
           case concept_name.upcase 
-            when 'BAD'
-              bad_film += obs_value.join(' ').match(/[0-9]/)[0].to_i rescue 0 
-              statastics[film_size][:bad] += bad_film 
-            when 'GOOD'
+            when 'WASTED FILM'
+              wasted_film += obs_value.join(' ').match(/[0-9]/)[0].to_i rescue 0
+              statastics[film_size][:bad] += wasted_film
+            when 'GOOD FILM'
               good_film += obs_value.join(' ').match(/[0-9]/)[0].to_i rescue 0
               statastics[film_size][:good] += good_film 
             when 'FILM SIZE'

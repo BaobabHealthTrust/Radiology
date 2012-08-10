@@ -22,7 +22,7 @@ class GenericEncountersController < ApplicationController
         end
       end
     end
-    
+
     if params['encounter']['encounter_type_name'] == 'HIV_CLINIC_REGISTRATION'
 
       has_tranfer_letter = false
@@ -160,7 +160,7 @@ class GenericEncountersController < ApplicationController
         create_obs(encounter , params)
       end
 
-      unless observations.blank?
+      unless observations.blank? 
         encounter = Encounter.new()
         encounter.encounter_type = EncounterType.find_by_name("HIV STAGING").id
         encounter.patient_id = params['encounter']['patient_id']
@@ -330,12 +330,75 @@ class GenericEncountersController < ApplicationController
       user_person_id = User.find_by_user_id(encounter[:provider_id]).person_id
     end
     encounter.provider_id = user_person_id
-    
-    encounter.save   
-  
-    #create observations for the just created encounter
-    create_obs(encounter , params)   
 
+    encounter.save    
+
+    #create observations for the just created encounter
+    create_obs(encounter , params)
+
+		if !params[:recalculate_bmi].blank? && params[:recalculate_bmi] == "true"
+				weight = 0
+				height = 0
+
+				weight_concept_id  = ConceptName.find_by_name("Weight (kg)").concept_id
+				height_concept_id  = ConceptName.find_by_name("Height (cm)").concept_id
+				bmi_concept_id = ConceptName.find_by_name("Body mass index, measured").concept_id
+				work_station_concept_id = ConceptName.find_by_name("Workstation location").concept_id
+				
+				vitals_encounter_id = EncounterType.find_by_name("VITALS").encounter_type_id
+				enc = Encounter.find(:all, :conditions => ["encounter_type = ? AND patient_id = ?
+											AND voided=0", vitals_encounter_id, @patient.id])
+
+				encounter.observations.each do |o|
+							height = o.answer_string.squish if o.concept_id == height_concept_id 
+				end
+								
+				enc.each do |e|
+						obs_created = false
+						weight = nil
+						
+						e.observations.each do |o|
+							next if o.concept_id == work_station_concept_id
+							
+							if o.concept_id == weight_concept_id
+								weight = o.answer_string.squish.to_i
+							elsif o.concept_id == height_concept_id || o.concept_id == bmi_concept_id
+								o.voided = 1
+								o.date_voided = Time.now
+								o.voided_by = encounter.creator
+								o.void_reason = "Back data entry recalculation"
+								o.save
+							end
+						end
+
+						bmi = (weight.to_f/(height.to_f*height.to_f)*10000).round(1) rescue "Unknown"
+
+						field = :value_numeric
+						field = :value_text and height = 'Unknown' if height == 'Unknown' || height.to_i == 0
+
+						height_obs = Observation.new(
+							:concept_name => "Height (cm)",
+							:person_id => @patient.id,
+							:encounter_id => e.id,
+							field => height,
+							:obs_datetime => e.encounter_datetime)
+
+						height_obs.save
+						
+						field = :value_numeric
+						field = :value_text and bmi = 'Unknown' if bmi == 'Unknown' || bmi.to_i == 0
+												
+						bmi_obs = Observation.new(
+							:concept_name => "Body mass index, measured",
+							:person_id => @patient.id,
+							:encounter_id => e.id,
+							field => bmi,
+							:obs_datetime => e.encounter_datetime)
+
+						bmi_obs.save
+				end
+		end
+		
     # Program handling
     date_enrolled = params[:programs][0]['date_enrolled'].to_time rescue nil
     date_enrolled = session[:datetime] || Time.now() if date_enrolled.blank?
@@ -1246,7 +1309,7 @@ class GenericEncountersController < ApplicationController
 
 	def create_obs(encounter , params)
 		# Observation handling
-
+		#raise params.to_yaml
 		(params[:observations] || []).each do |observation|
 			# Check to see if any values are part of this observation
 			# This keeps us from saving empty observations
@@ -1262,10 +1325,7 @@ class GenericEncountersController < ApplicationController
 			observation[:obs_datetime] = encounter.encounter_datetime || Time.now()
 			observation[:person_id] ||= encounter.patient_id
 			observation[:concept_name].upcase ||= "DIAGNOSIS" if encounter.type.name.upcase == "OUTPATIENT DIAGNOSIS"
-      
-    
 
-        
 			# Handle multiple select
 
 			if observation[:value_coded_or_text_multiple] && observation[:value_coded_or_text_multiple].is_a?(String)
@@ -1288,10 +1348,30 @@ class GenericEncountersController < ApplicationController
 				observation[:obs_group_id] = Observation.find(:first, :conditions=> ['concept_id = ? AND encounter_id = ?',concept_id, encounter.id]).id rescue ""
 				observation.delete(:parent_concept_name)
 			end
-      
+
 			extracted_value_numerics = observation[:value_numeric]
 			extracted_value_coded_or_text = observation[:value_coded_or_text]
-
+      
+      #TODO : Added this block with Yam, but it needs some testing.
+      if params[:location]
+        if encounter.encounter_type == EncounterType.find_by_name("ART ADHERENCE").id
+          passed_concept_id = Concept.find_by_name(observation[:concept_name]).concept_id rescue -1
+          obs_concept_id = Concept.find_by_name("AMOUNT OF DRUG BROUGHT TO CLINIC").concept_id rescue -1
+          if observation[:order_id].blank? && passed_concept_id == obs_concept_id
+            order_id = Order.find(:first,
+                                  :select => "orders.order_id",
+                                  :joins => "INNER JOIN drug_order USING (order_id)",
+                                  :conditions => ["orders.patient_id = ? AND drug_order.drug_inventory_id = ? 
+                                                  AND orders.start_date < ?", encounter.patient_id, 
+                                                  observation[:value_drug], encounter.encounter_datetime.to_date],
+                                  :order => "orders.start_date DESC").order_id rescue nil
+            if !order_id.blank?
+              observation[:order_id] = order_id
+            end
+          end
+        end
+      end
+      
 			if observation[:value_coded_or_text_multiple] && observation[:value_coded_or_text_multiple].is_a?(Array) && !observation[:value_coded_or_text_multiple].blank?
 				values = observation.delete(:value_coded_or_text_multiple)
 				values.each do |value| 
@@ -1307,11 +1387,23 @@ class GenericEncountersController < ApplicationController
 			elsif extracted_value_numerics.class == Array
 				extracted_value_numerics.each do |value_numeric|
 					observation[:value_numeric] = value_numeric
+					
+				  if !observation[:value_numeric].blank? && !(Float(observation[:value_numeric]) rescue false)
+						observation[:value_text] = observation[:value_numeric]
+						observation.delete(:value_numeric)
+					end
+									
 					Observation.create(observation)
 				end
 			else      
 				observation.delete(:value_coded_or_text_multiple)
 				observation = update_observation_value(observation) if !observation[:value_coded_or_text].blank?
+				
+		    if !observation[:value_numeric].blank? && !(Float(observation[:value_numeric]) rescue false)
+					observation[:value_text] = observation[:value_numeric]
+					observation.delete(:value_numeric)
+				end
+				
 				Observation.create(observation)
 			end
 		end

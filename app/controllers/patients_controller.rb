@@ -116,31 +116,32 @@ class PatientsController < GenericPatientsController
         current_printer = ward.split(":")[1] if ward.split(":")[0].upcase == location
       } rescue []
 
-      t1 = Thread.new{
+      #t1 = Thread.new{
         # wkhtmltopdf
 =begin
         Kernel.system "htmldoc --size 210x297mm --webpage -f /tmp/output-" + session[:user_id].to_s + ".pdf http://" +
           request.env["HTTP_HOST"] + "\"/encounters/observations_printable?patient_id=" +
           @patient.id.to_s + "&user_id=" + @user + "\"\n"
 =end
-        
-        Kernel.system "wkhtmltopdf -s A4 http://" +
+    t1 = Thread.new{
+       Kernel.system "wkhtmltopdf -s A4 http://" +
           request.env["HTTP_HOST"] + "\"/patients/investigations_printable?patient_id=" +
           @patient.id.to_s + "&examination_number=#{ params["examination_number"] }&" +
           "encounter_date=#{ (params["encounter_date"] rescue "")}" +
-          (params[:ret] ? "&ret=" + params[:ret] : "") + "&user_id=" + @user +
+          (params[:ret] ? "&ret=" + params[:ret] : "") + "&user_id=" + @user.to_s +
           "\" /tmp/output-" + @user.to_s + ".pdf \n"
       }
 
-      t2 = Thread.new{
+     t2 = Thread.new{
         sleep(5)
         Kernel.system "lp #{(!current_printer.blank? ? '-d ' + current_printer.to_s : "")} /tmp/output-" +
           @user.to_s + ".pdf\n"
       }
 
       t3 = Thread.new{
-        sleep(10)
-        Kernel.system "rm /tmp/output-" + @user.to_s + ".pdf\n"
+
+      sleep(10)
+      Kernel.system "rm /tmp/output-" + @user.to_s + ".pdf\n"
       }
 
     end
