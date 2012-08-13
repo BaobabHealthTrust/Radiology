@@ -98,9 +98,6 @@ class PatientsController < GenericPatientsController
   
     @provider = current_user.name.upcase rescue "&nbsp;"
     
-
-    #@provider_title = "Sonographer" rescue "&nbsp;"
-
     render :layout => false
   end
 
@@ -116,13 +113,7 @@ class PatientsController < GenericPatientsController
         current_printer = ward.split(":")[1] if ward.split(":")[0].upcase == location
       } rescue []
 
-      #t1 = Thread.new{
-        # wkhtmltopdf
-=begin
-        Kernel.system "htmldoc --size 210x297mm --webpage -f /tmp/output-" + session[:user_id].to_s + ".pdf http://" +
-          request.env["HTTP_HOST"] + "\"/encounters/observations_printable?patient_id=" +
-          @patient.id.to_s + "&user_id=" + @user + "\"\n"
-=end
+
     t1 = Thread.new{
        Kernel.system "wkhtmltopdf -s A4 http://" +
           request.env["HTTP_HOST"] + "\"/patients/investigations_printable?patient_id=" +
