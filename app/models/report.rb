@@ -309,9 +309,14 @@ ORDER BY clinic ASC"])
   
     start_days.each_with_index do|day,count|
       weeks[count] = Hash.new()
+
+      if month == 2 and day == 29 and !Date.leap?(year)
+        return weeks
+      end
+      
       start_date = "#{day}-#{month}-#{year}".to_date.strftime("%Y-%m-%d 00:00:00")
-      if month == 2 and day == 29 and !Date.leap?(start_date.year)
-         return weeks
+      if month == 2 and day == 29 and Date.leap?(start_date.to_date.year)
+        end_date = "#{Time.days_in_month(month)}-#{month}-#{year}".to_date.strftime("%Y-%m-%d 23:59:59")  
       elsif day == 29
          end_date = "#{Time.days_in_month(month)}-#{month}-#{year}".to_date.strftime("%Y-%m-%d 23:59:59")
       else
@@ -336,73 +341,52 @@ ORDER BY clinic ASC"])
     weeks
   end
 
-=begin
-    encounter_type = EncounterType.find(:first,:conditions =>["name = ?",'EXAMINATION']).id
-    return if encounter_type.blank?
-    statastics = Hash.new(0)
-    encounters = Encounter.find(:all,
-      :conditions =>["DATE(encounter_datetime) >= ? AND DATE(encounter_datetime) <= ?
-      AND encounter_type = ?",start_date,end_date,encounter_type])
-  
-    encounters.each do | encounter |
-      name = encounter.name
-      investigation_type = self.investigation_type(encounter.id)
-      encounter.observations.each do | obs |
-        concept_name = obs.to_s.split(":")[0].to_s.strip rescue nil
-        obs_value = [obs.to_s.split(":")[1].to_s.strip] rescue nil
-        obs_value << [obs.to_s.split(":")[2].to_s.strip] rescue nil
-        next if concept_name.blank?
-        next unless concept_name.upcase == 'XRAY' || concept_name.upcase == 'ULTRASOUND'
-        statastics["#{investigation_type},#{obs_value.join(' ')}".strip]+=1
-      end
-    end
-    statastics
-=end
+  def self.revenue_collected(start_date,end_date)
 
-
-  def self.investigation_type(encounter_id)
-    investigation_type = ConceptName.find_by_name('INVESTIGATION TYPE').concept_id
-    Observation.find(:first,:conditions =>["encounter_id = ? AND concept_id = ?",
-                      encounter_id , investigation_type]).to_s.split(':')[1].strip rescue nil
+    payment_amount_concept_id = ConceptName.find_by_name("PAYMENT AMOUNT").concept_id
+    Observation.find_by_sql("SELECT SUM(value_numeric) as total_revenue FROM obs o
+                             WHERE o.voided = 0 and o.concept_id = #{payment_amount_concept_id}
+                             AND o.obs_datetime BETWEEN '#{start_date}' AND '#{end_date}'") rescue 0.0
   end
 
   
-  def self.film_used(start_date,end_date)
-    encounter_type = EncounterType.find(:first,:conditions =>["name = ?",'FILM']).id
-    return if encounter_type.blank?
-    statastics = Hash.new(0)
-    encounters = Encounter.find(:all,
-      :conditions =>["DATE(encounter_datetime) >= ? AND DATE(encounter_datetime) <= ?
-      AND encounter_type = ?",start_date,end_date,encounter_type])
-    encounters.each do | encounter |
-      next unless encounter.name.upcase == 'FILM'
-      film_size = nil
-      wasted_film = 0
-      good_film = 0
-      ['FILM SIZE','GOOD FILM','WASTED FILM'].each do | concept_name |
-        encounter.observations.each do | obs |
-          next unless concept_name == obs.to_s.split(":")[0].to_s.upcase.strip rescue nil
-          obs_value = [obs.to_s.split(":")[1].to_s.strip] rescue nil
-          obs_value << [obs.to_s.split(":")[2].to_s.strip] rescue nil
-          case concept_name.upcase 
-            when 'WASTED FILM'
-              wasted_film += obs_value.join(' ').match(/[0-9]/)[0].to_i rescue 0
-              statastics[film_size][:bad] += wasted_film
-            when 'GOOD FILM'
-              good_film += obs_value.join(' ').match(/[0-9]/)[0].to_i rescue 0
-              statastics[film_size][:good] += good_film 
-            when 'FILM SIZE'
-              film_size = obs_value.join(' ').strip
-              statastics[film_size] = {:bad => 0,:good => 0} unless statastics[film_size].blank? 
-          end
-        end
-      end
-    end
+  def self.film_used(film_state_id,month,year = Date.today.year)
+    film_encounter_id = EncounterType.find_by_name('FILM').id
+    film_state_concept_id = film_state_id
+    start_days = [1, 8, 15, 22, 29]
+    weeks = Hash.new()
 
-    statastics
+    start_days.each_with_index do|day,count|
+      weeks[count] = Hash.new()
+
+      if month == 2 and day == 29 and !Date.leap?(year)
+        return weeks
+      end
+
+      start_date = "#{day}-#{month}-#{year}".to_date.strftime("%Y-%m-%d 00:00:00")
+      if month == 2 and day == 29 and Date.leap?(start_date.to_date.year)
+        end_date = "#{Time.days_in_month(month)}-#{month}-#{year}".to_date.strftime("%Y-%m-%d 23:59:59")
+      elsif day == 29
+         end_date = "#{Time.days_in_month(month)}-#{month}-#{year}".to_date.strftime("%Y-%m-%d 23:59:59")
+      else
+         end_date = ((start_date.to_date + 1.week) - 1.day).strftime("%Y-%m-%d 23:59:59")
+      end
+
+      obs = Observation.find_by_sql("SELECT o.value_text as film_size,COUNT(o.concept_id) as cnt FROM obs o
+                                    INNER JOIN encounter e
+                                    ON o.encounter_id = e.encounter_id
+                                    WHERE e.encounter_type = #{film_encounter_id}
+                                    AND o.concept_id = #{film_state_concept_id} AND
+                                    e.encounter_datetime BETWEEN '#{start_date}' AND '#{end_date}' AND o.voided = 0 AND e.voided = 0
+                                    GROUP BY o.value_text;")
+
+      obs.each do |ob|
+         weeks[count][ob.film_size] = ob.cnt
+      end
+
+    end
+    weeks
 
   end
   
-  
-
 end
