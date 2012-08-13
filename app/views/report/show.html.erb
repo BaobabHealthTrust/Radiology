@@ -2,106 +2,50 @@
 <head>
 <%= javascript_include_tag "prototype" %>
 <%= stylesheet_link_tag "cohort" %>
-  <style type="text/css">
-  table {
-    border-style:none;
-    border-width:1px;
-  }
+<style type="text/css">
 
-  th {
-    border-style:none;
-    border-width:1px;
-  }
+     body {
+            font-family: Arial,sans-serif;
+          }
 
-  td {
-    text-align:center;
-    border-style:solid;
-    border-width:1px;
-    font-size:22px;
-  }
+     .bold {
+            font-weight: bold;
+            font-size: 1em;
+           }
+      .cell {
+            width: 25%;
+            }
+      .blank{
+            height: 50px;color:#ffffff;
+            }
+       #head{
+            padding-left: 40px;
+            }
 
-  .row_break td {
-    border-width:0px;
-  }
-
-  div.scrollTableContainer {
-    border-style:solid;
-  }
-
-  .survival-analysis th, .survival-analysis td {
-    text-align:left;
-  }
-
-  #head {
-    padding-left:40px;
-  }
-</style>
+       table {
+            border-style:none;
+            border-width:1px;
+             }
+        th {
+            border-style:none;
+            border-width:1px;
+           }
+        td {
+            text-align:center;
+            border-style:solid;
+            border-width:1px;
+            font-size:2em;
+         }
+  </style>
 
 <script>
   var tt_cancel_destination = "/clinic"
 </script>
 </head>
 <%if @report_type == "INVESTIGATIONS" %>
-<body>
- <% start_date = "#{1}-#{@month}-#{@year}".to_date.strftime("%B") %>
-<div id="head">
-  <span><h2><%= Location.current_health_center.name.upcase %></h2></span>
-  <span><h2>MONTHLY RADIOLOGICAL STATISTICS(<%= @investigation_type.upcase %>)- <%= "#{start_date}  #{@year}" %></h2></span>
-</div>
-  
+ <%= render :partial => 'investigations' %>
+<%elsif @report_type == "FILM SIZE" %>
+ <%= render :partial => 'film_size' %>
+<% end %>
 
-<div class='scrollTableContainer'>
-
-<table class='dataTable' cellspacing='0'>
-<thead>
-
-<tr>
-  <th style = "text-align:left;padding-left:10px;"><%= @investigation_type.upcase %> EXAMINATIONS</th>
-  <th style = "text-align:center;padding-left:0px;">WEEK 1</th>
-  <th style = "text-align:center;padding-left:0px;">WEEK 2</th>
-  <th style = "text-align:center;padding-left:0px;">WEEK 3</th>
-  <th style = "text-align:center;padding-left:0px;">WEEK 4</th>
-  <th style = "text-align:center;padding-left:0px;">WEEK 5</th>
-  <th style = "text-align:center;padding-left:0px;">TOTAL</th>
-</tr>
-</thead>
-<% @total_week1  = @total_week2 =  @total_week3 =  @total_week4 = @total_week5 = 0  %>
-<% @investigation_options.each do|part| %>
-<tr>
-  <td style = "text-align:left;padding-left:10px;"><%=part%></td>
-  <td><%= @aggregates[0][part] || 0%> </td>
-  <td><%= @aggregates[1][part] || 0%> </td>
-  <td><%= @aggregates[2][part] || 0%> </td>
-  <td><%= @aggregates[3][part] || 0%> </td>
-  <td><%= @aggregates[4][part] || 0%> </td>
-
-      <%@total = @aggregates[0][part].to_i + 
-                 @aggregates[1][part].to_i +
-                 @aggregates[2][part].to_i +
-                 @aggregates[3][part].to_i +
-                 @aggregates[4][part].to_i 
-                 %>
-
-  <td><%= @total || 0 %> </td>
-  <%
-     @total_week1 += @aggregates[0][part].to_i
-     @total_week2 += @aggregates[1][part].to_i
-     @total_week3 += @aggregates[2][part].to_i
-     @total_week4 += @aggregates[3][part].to_i
-     @total_week5 += @aggregates[4][part].to_i
-  %>
-</tr> 
-<%end%>
-<tr><td style = "text-align:left;padding-left:10px;font-weight:bold">Total Exams</td>
-    <td style = "font-weight:bold"><%= @total_week1 %></td>
-    <td style = "font-weight:bold"><%= @total_week2 %></td>
-    <td style = "font-weight:bold"><%= @total_week3 %></td>
-    <td style = "font-weight:bold"><%= @total_week4 %></td>
-    <td style = "font-weight:bold"><%= @total_week5 %></td>
-    <td style = "font-weight:bold"><%= @total_week1.to_i + @total_week2.to_i + @total_week3.to_i + @total_week4.to_i + @total_week5.to_i %></td>
-</tr>
-</table>
-</div>
-</body>
-<%end%>
 </html>
