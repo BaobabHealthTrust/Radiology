@@ -11,8 +11,6 @@ class OrdersController < ApplicationController
       session_date = params[:encounter_datetime] #Use date_created passed during import
     end
 
-
-
     # set current location via params if given
     Location.current_location = Location.find(params[:location]) if params[:location]
 
@@ -61,16 +59,16 @@ class OrdersController < ApplicationController
 
       if  ob['concept_name'] == "GOOD FILM" || ob['concept_name'] == "WASTED FILM"
        
-      1.upto(ob['value_coded_or_text'].to_i) do
-          obs = Observation.new(
-            :concept_name => ob['concept_name'],
-            :order_id => @order_id,
-            :value_text =>@film_size,
-            :person_id => @patient.person.person_id,
-            :encounter_id => @encounter.id,
-            :obs_datetime => session_date || Time.now())
-      obs.save
-      end
+          1.upto(ob['value_coded_or_text'].to_i) do
+              obs = Observation.new(
+                :concept_name => ob['concept_name'],
+                :order_id => @order_id,
+                :value_text =>@film_size,
+                :person_id => @patient.person.person_id,
+                :encounter_id => @encounter.id,
+                :obs_datetime => session_date || Time.now())
+          obs.save
+          end
       elsif !@available_film.blank?
         
         obs = Observation.new(
@@ -85,12 +83,12 @@ class OrdersController < ApplicationController
       end
     end
     else
-
     params['observations'].each do |ob|
       if ob['value_coded'].blank? && ob['value_coded_or_text'].blank?
         obs = Observation.new(
             :concept_name => ob['concept_name'],
             :order_id => @order_id,
+            :value_numeric =>ob['value_numeric'],
             :value_text =>ob['value_text'],
             :person_id => @patient.person.person_id,
             :encounter_id => @encounter.id,
