@@ -1,18 +1,11 @@
+<%= javascript_include_tag 'jquery' %>
 <script>
   dat = "<%=@encounter_date.to_date rescue Date.today %>"
   tt_cancel_destination = '/patients/show?encounter_date=' + dat + '&patient_id=' + '<%=@patient.id%>'+ '&examination_number=' + '<%= params['examination_number']%>'
 </script>
 
 
-<% form_tag "/encounters/create", :method => :post do
-  options = "<option value=''></option>"
-  options += "<option value='35x43'>35x43</option>"
-  options += "<option value='35x35'>35x35</option>"
-  options += "<option value='30x40'>30x40</option>"
-  options += "<option value='24x30'>24x30</option>"
-  options += "<option value='18x43'>18x43</option>"
-  options += "<option value='18x24'>18x24</option>"
-%>
+<% form_tag "/encounters/create", :method => :post do %>
 
 <%= hidden_field_tag "encounter[encounter_type_name]", "FILM" %>
 <%= hidden_field_tag "encounter[patient_id]", @patient.id %>
@@ -20,12 +13,15 @@
 <%= hidden_field_tag "encounter[provider_id]", current_user.user_id %>
 <%= hidden_field_tag "examination_number", @order.accession_number %>
 
+<%= touch_select_tag "FILM SIZE", @patient, concept_set_options("Film size"),
+{
+	:id => "film_size",
+	:helpText => "Film size",
+	:tt_pageStyleClass => "NoKeyboard NoInput small",
+	:order_id => @order.id,
+	:tt_onUnload => "jQuery('#film_size ~ #observations__parent_concept_name').val(jQuery('#film_size').val())"
+} %>
 
-<%= touch_select_tag "FILM SIZE", @patient, options,
-{:id => "film_size",
-:helpText => "Film size",
-:tt_pageStyleClass => "NoKeyboard NoInput small",
-:order_id => @order.id } %>
 
 <%  
   options = "<option value=''></option>"

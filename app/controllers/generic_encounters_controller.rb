@@ -314,24 +314,30 @@ class GenericEncountersController < ApplicationController
     end
 
     # Encounter handling
-    encounter = Encounter.new(params[:encounter])
-    unless params[:location]
-      encounter.encounter_datetime = session[:datetime] unless session[:datetime].blank?
-    else
-      encounter.encounter_datetime = params['encounter']['encounter_datetime']
-    end
-
+		session_date = session[:datetime].to_date rescue Date.today
+		film_encounter_type_id = EncounterType.find_by_name("FILM").encounter_type_id
+		encounter = Encounter.find(:last,
+									:conditions=>["DATE(encounter_datetime) = ? AND patient_id = ? AND encounter_type = ? ",
+									session_date, @patient.id, film_encounter_type_id])
+		if encounter.blank?
+				encounter = Encounter.new(params[:encounter])
+				unless params[:location]
+				  encounter.encounter_datetime = session[:datetime] unless session[:datetime].blank?
+				else
+				  encounter.encounter_datetime = params['encounter']['encounter_datetime']
+				end
 	
-    if params[:filter] and !params[:filter][:provider].blank?
-      user_person_id = User.find_by_username(params[:filter][:provider]).person_id
-    elsif params[:location] # Migration
-      user_person_id = encounter[:provider_id]
-    else
-      user_person_id = User.find_by_user_id(encounter[:provider_id]).person_id
-    end
-    encounter.provider_id = user_person_id
+				if params[:filter] and !params[:filter][:provider].blank?
+				  user_person_id = User.find_by_username(params[:filter][:provider]).person_id
+				elsif params[:location] # Migration
+				  user_person_id = encounter[:provider_id]
+				else
+				  user_person_id = User.find_by_user_id(encounter[:provider_id]).person_id
+				end
+				encounter.provider_id = user_person_id
 
-    encounter.save    
+				encounter.save
+		end    
 
     #create observations for the just created encounter
     create_obs(encounter , params)
@@ -1238,7 +1244,7 @@ class GenericEncountersController < ApplicationController
 
       if(observation[:parent_concept_name])
         concept_id = Concept.find_by_name(observation[:parent_concept_name]).id rescue nil
-        observation[:obs_group_id] = Observation.find(:first, :conditions=> ['concept_id = ? AND encounter_id = ?',concept_id, encounter.id]).id rescue ""
+        observation[:obs_group_id] = Observation.find(:first, :conditions=> ['value_coded = ? AND encounter_id = ?',concept_id, encounter.id]).id rescue ""
         observation.delete(:parent_concept_name)
       end
 
@@ -1309,7 +1315,7 @@ class GenericEncountersController < ApplicationController
 
 	def create_obs(encounter , params)
 		# Observation handling
-		#raise params.to_yaml
+		# raise params.to_yaml
 		(params[:observations] || []).each do |observation|
 			# Check to see if any values are part of this observation
 			# This keeps us from saving empty observations
@@ -1345,7 +1351,7 @@ class GenericEncountersController < ApplicationController
 
 			if(observation[:parent_concept_name])
 				concept_id = Concept.find_by_name(observation[:parent_concept_name]).id rescue nil
-				observation[:obs_group_id] = Observation.find(:first, :conditions=> ['concept_id = ? AND encounter_id = ?',concept_id, encounter.id]).id rescue ""
+				observation[:obs_group_id] = Observation.find(:last, :conditions=> ['value_coded = ? AND encounter_id = ?',concept_id, encounter.id]).id rescue ""
 				observation.delete(:parent_concept_name)
 			end
 
