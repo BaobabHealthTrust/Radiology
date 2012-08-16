@@ -35,81 +35,8 @@ class OrdersController < ApplicationController
     examination_number = next_available_exam_number
     order = current_radiology_order(examination_number, order_type_concept, patient, encounter)
 
-    #raise params['observations']['RADIOLOGY TEST'].to_s
-    #order_type_concept = ConceptName.find_by_name(params['radiology_test'])
-    #raise order_type_concept.to_s
-     #raise examination_number.to_s
-
     print_and_redirect("/orders/examination_number?order_id=#{order.order_id}", "/clinic")
 
-=begin
-    if params['list_of_radiology_tests']
-
-
-      if params['xray_investigation_value'] !=""
-        concept = ConceptName.find_by_name(params['xray_investigation_value'])
-      elsif params['ultrasound_investigation_value'] !=""
-        concept = ConceptName.find_by_name(params['ultrasound_investigation_value'])
-      elsif params['mri_investigation_value'] !=""
-        concept = ConceptName.find_by_name(params['mri_investigation_value'])
-      elsif params['ct_investigation_value'] !=""
-        concept = ConceptName.find_by_name(params['ct_investigation_value'])
-      end
-    else
-      @order = current_order(examination_number, @patient)
-    end
-    
-    @order_id = @order.order_id
-
-
-   if encounter_type_name == "EXAMINATION"
-         params['observations'].each do |ob|
-      if ob['value_coded'].blank? && ob['value_coded_or_text'].blank?
-        obs = Observation.new(
-            :concept_name => ob['concept_name'],
-            :value_numeric =>ob['value_numeric'],
-            :value_text =>ob['value_text'],
-            :person_id => @patient.person.person_id,
-            :encounter_id => @encounter.id,
-            :obs_datetime => session_date || Time.now())
-        obs.save
-      else
-        obs = Observation.new(
-            :concept_name => ob['concept_name'],
-            :value_coded =>ob['value_coded'],
-            :value_text =>ob['value_coded_or_text'],
-            :person_id => @patient.person.person_id,
-            :encounter_id => @encounter.id,
-            :obs_datetime => session_date || Time.now())
-        obs.save
-        end
-      end
-         print_and_redirect("/orders/examination_number?order_id=#{@order_id}", "/clinic")
-    else
-       params['observations'].each do |ob|
-      if ob['value_coded'].blank? && ob['value_coded_or_text'].blank?
-        obs = Observation.new(
-            :concept_name => ob['concept_name'],
-            :order_id => @order_id,
-            :value_numeric =>ob['value_numeric'],
-            :value_text =>ob['value_text'],
-            :person_id => @patient.person.person_id,
-            :encounter_id => @encounter.id,
-            :obs_datetime => session_date || Time.now())
-        obs.save
-      else
-        obs = Observation.new(
-            :concept_name => ob['concept_name'],
-            :order_id => @order_id,
-            :value_coded =>ob['value_coded'],
-            :value_text =>ob['value_coded_or_text'],
-            :person_id => @patient.person.person_id,
-            :encounter_id => @encounter.id,
-            :obs_datetime => session_date || Time.now())
-        obs.save
-        end
-      end
-=end  
   end
   
   def examination_number
@@ -166,7 +93,7 @@ class OrdersController < ApplicationController
     examination = Observation.find( :first, :select => "concept_id, value_coded",
                                            :conditions => ["encounter_id = ? AND concept_id = ?",
                                             encounter_id, examination_concept]).answer_concept.fullname rescue nil
-    if examination.empty?
+    if examination.nil?
       examination_concept = ConceptName.find_by_name("EXAMINATION").concept_id
       examination = Observation.find( :first, :select => "concept_id, value_coded",
                                              :conditions => ["encounter_id = ? AND concept_id = ?",

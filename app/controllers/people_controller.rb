@@ -109,7 +109,6 @@ def search
       radiology_character = params[:identifier][0].chr
       if radiology_character == "R"
          order = Order.find(:first,:conditions =>["accession_number = ? AND voided = 0",params[:identifier]])
-         raise order.to_yaml
          if order
            unless order.date_created.to_date == Date.today
              session[:datetime] = order.date_created.to_date

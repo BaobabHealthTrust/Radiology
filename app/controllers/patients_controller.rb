@@ -49,7 +49,9 @@ class PatientsController < GenericPatientsController
   def investigations_printable
     order = Order.find(:first,:conditions => ["accession_number = ? AND voided = 0",params["examination_number"]])
     notes_concept_id = ConceptName.find_by_name("NOTES").concept_id
-    part_concept_id = ConceptName.find_by_name("PART").concept_id
+    findings_concept_id = ConceptName.find_by_name("FINDINGS").concept_id
+    examination_concept_id = ConceptName.find_by_name("EXAMINATION").concept_id
+    detailed_examination = ConceptName.find_by_name("DETAILED EXAMINATION").concept_id
     @patient = Patient.find(params[:patient_id]) rescue nil
 		@patient_bean = PatientService.get_patient(@patient.person)
     
@@ -64,36 +66,14 @@ class PatientsController < GenericPatientsController
 
     # Assuming the test/procedure identifier is passed as a parameter, details are reflected here
     @reportdate = (params["encounter_date"].to_date rescue Date.today).strftime("%d-%b-%Y") rescue ""
-    @test_type = order.order_type.name rescue "&nbsp;"
-    @test_part = ConceptName.find_by_concept_id(order.concept_id).name
-    @test_part_part = Observation.find(:first,:conditions => ["order_id = ? AND concept_id = ? AND voided = 0",order.order_id,part_concept_id]).value_text rescue ""
+    @examination_type = ConceptName.find_by_concept_id(order.concept_id).name
+    @examination =  Observation.find(:first,:conditions => ["encounter_id = ? AND concept_id = ? AND voided = 0",order.encounter_id,examination_concept_id]).name rescue ""
+    @detailed_examination = Observation.find(:first,:conditions => ["encounter_id = ? AND concept_id = ? AND voided = 0",order.encounter_id,detailed_examination]).name rescue ""
     @test_date = (order.date_created rescue Date.today).strftime("%d-%b-%Y") rescue ""
     @full_test_name = @test_type rescue "&nbsp;"
+    @provider_title = "Radiologist"
 
-
-    if @test_type == "Ultrasound"
-          @provider_title = "Clinical Sonographer"
-        if @test_part == "Abdomen"
-          @findings = "abdominal_ultrasound"
-        elsif  @test_part == "Female Pelvis-Gynaecology"
-          @findings ="gynaecology_ultrasound"
-        elsif @test_part == "Echocardiography-Adult" || @test_part == "Echocardiography-Pediatric"
-          @findings = "echocardiograhy_2decho"
-        elsif @test_part == "FAST"
-          @findings = "fast_ultrasound"
-        elsif @test_part == "Obstetrics-Fetal"
-          @findings = "fetal_ultrasound"
-        elsif @test_part == "Carotid Doppler"
-          @findings = "carotid_doppler_ultrasound"
-        else
-          @findings = "blank_table"
-        end
-    else
-        @provider_title = "Radiologist"
-        @findings = "blank_table"
-    end
-
-    
+    @findings = Observation.find(:all,:conditions => ["order_id = ? AND concept_id = ? AND voided = 0",order.order_id,findings_concept_id]) rescue "&nbsp;"
     @comments = Observation.find(:all,:conditions => ["order_id = ? AND concept_id = ? AND voided = 0",order.order_id,notes_concept_id]) rescue "&nbsp;"
   
     @provider = current_user.name.upcase rescue "&nbsp;"

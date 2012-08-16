@@ -44,7 +44,7 @@
               task_name = (task.encounter_type || 'NONE').upcase rescue 'NONE'
             %>
             </div>
-            <% exam_number = session[:examination_number] rescue nil %>
+            <% exam_number = session[:examination_number] || params[:examination_number] rescue nil %>
             <select id="tabs">
               <%  if exam_number.nil? %>
               <option value='/patients/visit_history?patient_id=<%= @patient.id  %>'>Current Visit</option>

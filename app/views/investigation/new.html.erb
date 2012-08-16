@@ -32,24 +32,16 @@
     line2 += "(<%=patient.sex.first%>)";
     line2 += " <%=patient.birth_date%>";
 
-    var line3 = $("examination_type").value;
-    if($("examination_type").value =="Xray")
+    var line3 = $("list_of_radiology_test").value;
+    if($("detailed_examination").value !="")
      {
-        var line3 = line3 + " - " + $("examination_type").value
+        var line3 = line3 + " - " + $("detailed_examination").value
      }
-     else if ($("examination_type").value =="Ultrasound")
+    else
      {
-        var line3 = line3 + " - " + $("examination_type").value
+       var line3 = line3 + " - " + $("examination").value
      }
-     else if ($("examination_type").value =="MRI scan")
-     {
-        var line3 = line3 + " - " + $("examination_type").value
-     }
-     else if ($("examination_type").value =="Computed tomography scan")
-     {
-        var line3 = line3 + " - " + $("examination_type").value
-     }
-
+    
     var referred_from =  referred_by;
 
     var line4 = "<%= session_date %>, " + referred_from;
