@@ -14,7 +14,7 @@ progress = obs.length
 
 obs.each_with_index do |o, i|
 	#progress bar counter	
-	move = (i.to_f/progress).round(1)*100 rescue 0
+	move = (i.to_f/progress).round(2)*100 rescue 0
 	
 	value_text = o.value_text.to_s.strip
 	test_value = value_text.upcase
