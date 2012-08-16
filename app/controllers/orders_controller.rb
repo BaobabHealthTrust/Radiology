@@ -3,7 +3,7 @@ class OrdersController < ApplicationController
 
   end
 
-  def create_radiology_order
+  def create
     patient = Patient.find(params[:encounter][:patient_id] || session[:patient_id]) rescue nil
     unless params[:location]
       session_date = session[:datetime] || Time.now()
@@ -25,13 +25,21 @@ class OrdersController < ApplicationController
 
     encounter_type_name = params[:encounter][:encounter_type_name]
     encounter = create_encounter(encounter_type_name, patient, session_date, user_person_id)
+    create_obs(encounter, params)
+
+    radiology_test = ConceptName.find_by_name("RADIOLOGY TEST").concept_id
+    order_type_concept = Observation.find( :first, :select => "concept_id, value_coded",
+                                           :conditions => ["encounter_id = ? AND concept_id = ?",
+                                            encounter.encounter_id, radiology_test]).answer_concept
 
     examination_number = next_available_exam_number
+    order = current_radiology_order(examination_number, order_type_concept, patient, encounter)
 
-    order_type_concept = ConceptName.find_by_name(params['radiology_test'])
-    order = current_radiology_order(examination_number,  order_type_concept, patient, encounter)
+    #raise params['observations']['RADIOLOGY TEST'].to_s
+    #order_type_concept = ConceptName.find_by_name(params['radiology_test'])
+    #raise order_type_concept.to_s
+     #raise examination_number.to_s
 
-    create_obs(encounter, params)
     print_and_redirect("/orders/examination_number?order_id=#{order.order_id}", "/clinic")
 
 =begin
@@ -105,7 +113,7 @@ class OrdersController < ApplicationController
   end
   
   def examination_number
-    print_string = PatientService.examination_number_label(params[:order_id])
+    print_string = examination_number_label(params[:order_id])
     send_data(print_string,:type=>"application/label; charset=utf-8",:stream=> false, 
       :filename=>"#{params[:order_id]}#{rand(10000)}.lbl",:disposition => "inline")
   end
@@ -117,7 +125,7 @@ class OrdersController < ApplicationController
 
   
   def current_radiology_order(examination_number, concept = nil, patient = nil, encounter = nil)
-    type = OrderType.find_by_name("RADIOLOGY ORDER")
+    type = OrderType.find_by_name("RADIOLOGY")
     order = patient.orders.find_by_accession_number(examination_number)
     order ||= patient.orders.create(:order_type_id => type.id,
                                     :patient_id => patient.patient_id,
@@ -145,6 +153,48 @@ class OrdersController < ApplicationController
     prefix + (last_exam_num[index..-1].to_i + 1).to_s.rjust(8,'0')
   end
 
+  def examination_number_label(order_id)
+    order = Order.find(order_id)
+    encounter_id = order.encounter.encounter_id
+
+    referred_from_concept = ConceptName.find_by_name("REFERRED FROM").concept_id
+    referred_from = Observation.find( :first, :select => "concept_id, value_text",
+                                           :conditions => ["encounter_id = ? AND concept_id = ?",
+                                            encounter_id, referred_from_concept]).value_text
+
+    examination_concept = ConceptName.find_by_name("DETAILED EXAMINATION").concept_id
+    examination = Observation.find( :first, :select => "concept_id, value_coded",
+                                           :conditions => ["encounter_id = ? AND concept_id = ?",
+                                            encounter_id, examination_concept]).answer_concept.fullname rescue nil
+    if examination.empty?
+      examination_concept = ConceptName.find_by_name("EXAMINATION").concept_id
+      examination = Observation.find( :first, :select => "concept_id, value_coded",
+                                             :conditions => ["encounter_id = ? AND concept_id = ?",
+                                              encounter_id, examination_concept]).answer_concept.fullname
+    end
+
+    patient_bean = PatientService.get_patient(order.encounter.patient.person)
+    return unless patient_bean.national_id
+    sex =  patient_bean.sex.match(/F/i) ? "(F)" : "(M)"
+    address = patient.person.address.strip[0..24].humanize rescue ""
+    #name_of_referring_site = referred_from
+    session_date = order.encounter.encounter_datetime.strftime('%d-%b-%Y')
+    # study_type = order.concept.fullname
+
+    type = order.concept.fullname
+
+    label = ZebraPrinter::StandardLabel.new
+    label.font_size = 1
+    label.font_horizontal_multiplier = 2
+    label.font_vertical_multiplier = 2
+    label.left_margin = 50
+    label.draw_barcode(50,180,0,1,5,15,90,false,"#{order.accession_number}")
+    label.draw_multi_text("#{patient_bean.name.titleize}")
+    label.draw_multi_text("#{patient_bean.national_id_with_dashes} #{sex} #{patient_bean.birth_date}")
+    label.draw_multi_text("#{type} - #{examination}")
+    label.draw_multi_text("#{session_date}, #{order.accession_number} (#{referred_from})")
+    label.print(1)
+  end
    
   def create_obs(encounter , params)
 		# Observation handling
