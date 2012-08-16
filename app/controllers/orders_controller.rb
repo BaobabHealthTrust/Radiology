@@ -93,7 +93,7 @@ class OrdersController < ApplicationController
     examination = Observation.find( :first, :select => "concept_id, value_coded",
                                            :conditions => ["encounter_id = ? AND concept_id = ?",
                                             encounter_id, examination_concept]).answer_concept.fullname rescue nil
-    if examination.empty?
+    if examination.nil?
       examination_concept = ConceptName.find_by_name("EXAMINATION").concept_id
       examination = Observation.find( :first, :select => "concept_id, value_coded",
                                              :conditions => ["encounter_id = ? AND concept_id = ?",
