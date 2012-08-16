@@ -97,7 +97,8 @@ class PeopleController < GenericPeopleController
         unless order.date_created.to_date == Date.today
           session[:datetime] = order.date_created.to_date
         end
- redirect_to :controller => 'patients', :action => 'show',:patient_id => order.patient_id,:encounter_date => order.date_created.to_date,:examination_number => order.accession_number and return
+        session[:examination_number] = order.accession_number 
+ redirect_to :controller => 'patients', :action => 'show',:patient_id => order.patient_id,:encounter_date => order.date_created.to_date and return
       end                                                                      
     end                                                                         
   end
