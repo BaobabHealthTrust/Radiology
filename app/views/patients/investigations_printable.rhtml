@@ -39,18 +39,7 @@
         <td class="bold" colspan="2">
           DEPARTMENT OF RADIOLOGY
         </td>
-      </tr>
-      <tr>
-        <td class="cell">
-          &nbsp;
-        </td>
-        <td class="cell">
-          &nbsp;
-        </td>
-        <td class="bold" colspan="2">
-          Head: <%= @hod %>
-        </td>
-      </tr>
+      </tr> 
       <tr>
         <td class="cell">
           &nbsp;
@@ -140,7 +129,7 @@
       </tr>
       <tr>
         <td colspan="2">
-          <%= @test_type %> - <%= @test_part %>, <%= @test_date %>
+          <%= @examination_type %> - <%= @examination %>, <%= @test_date %>
         </td>
         <td colspan="3">
           &nbsp;
@@ -148,13 +137,8 @@
       </tr>
       <tr>
         <th colspan="5">
-
           Report Of
-         <%  unless @test_part_part.blank? %>
-           <%= @full_test_name %>-<%= @test_part %>-<%= @test_part_part %>
-         <% else %>
-           <%= @full_test_name %>-<%= @test_part %>
-         <% end %>
+           <%= @examination_type %>-<%= @detailed_examination || @examination %> 
         </th>
       </tr>
       <tr>
@@ -162,7 +146,9 @@
           FINDINGS:
         </td>
         <td colspan="4">
-          <%= render :partial => @findings %>
+         <% @findings.each do |finding| %>
+          <%= finding.value_text %><br/><br/>
+        <% end  %>
         </td>
       </tr>
       <tr>
@@ -174,7 +160,6 @@
           <%= comment.value_text %><br/><br/>
         <% end  %>  
         </td>
-
       </tr>
       <tr>
         <td colspan="5" style="padding: 10px; padding-left: 0px;">
