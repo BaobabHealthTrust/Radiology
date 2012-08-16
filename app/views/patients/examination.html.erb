@@ -3,13 +3,19 @@
   tt_cancel_destination = '/patients/show?encounter_date=' + dat + '&patient_id=' + '<%=@patient.id%>'+ '&examination_number=' + '<%= params['examination_number']%>'
 </script>
 
-<form action='/orders/create' method='post'>
+<form action='/encounters/create' method='post'>
   <%= hidden_field_tag "encounter[encounter_type_name]", "NOTES" %>
   <%= hidden_field_tag "encounter[patient_id]", @patient.id %>
   <%= hidden_field_tag "encounter[encounter_datetime]", @encounter_date.to_date.to_s + Time.now.strftime(' %H:%M:%S').to_time rescue DateTime.now() %>
   <%= hidden_field_tag "encounter[provider_id]", current_user.user_id %>
   <%= hidden_field_tag "examination_number", params['examination_number'] %>
 
-  <%= touch_text_area_tag("NOTES", @patient, nil,
-    {:optional => false,:helpText => "Examination notes"}, time = DateTime.now()) %>
+  <%= touch_text_area_tag "FINDINGS", @patient, nil,
+    {:optional => false,:helpText => "Enter findings",:order_id => @order.order_id}%>
+
+  <%= touch_text_area_tag "NOTES",@patient , nil,
+                         {:optional => false,
+                          :helpText=> "Enter comments",
+                          :order_id => @order.order_id
+                          } %>
 </form>
