@@ -3,8 +3,8 @@ class OrdersController < ApplicationController
 
   end
 
-  def create
-    @patient = Patient.find(params[:encounter][:patient_id] || session[:patient_id]) rescue nil
+  def create_radiology_order
+    patient = Patient.find(params[:encounter][:patient_id] || session[:patient_id]) rescue nil
     unless params[:location]
       session_date = session[:datetime] || Time.now()
     else
@@ -24,10 +24,19 @@ class OrdersController < ApplicationController
     end
 
     encounter_type_name = params[:encounter][:encounter_type_name]
-    @encounter = create_encounter(encounter_type_name,@patient, session_date, user_person_id)
-    examination_number = params['examination_number']
-    if params['investigation_type']
-      order_type_name = params['investigation_type']
+    encounter = create_encounter(encounter_type_name, patient, session_date, user_person_id)
+
+    examination_number = next_available_exam_number
+
+    order_type_concept = ConceptName.find_by_name(params['radiology_test'])
+    order = current_radiology_order(examination_number,  order_type_concept, patient, encounter)
+
+    create_obs(encounter, params)
+    print_and_redirect("/orders/examination_number?order_id=#{order.order_id}", "/clinic")
+
+=begin
+    if params['list_of_radiology_tests']
+
 
       if params['xray_investigation_value'] !=""
         concept = ConceptName.find_by_name(params['xray_investigation_value'])
@@ -38,52 +47,38 @@ class OrdersController < ApplicationController
       elsif params['ct_investigation_value'] !=""
         concept = ConceptName.find_by_name(params['ct_investigation_value'])
       end
-
-      @order = current_order(examination_number,@patient,order_type_name,concept,@encounter.encounter_id)
     else
-      @order = current_order(examination_number,@patient)
+      @order = current_order(examination_number, @patient)
     end
     
     @order_id = @order.order_id
 
-    params['observations'].each do |ob|
-     if ob['concept_name'] == "FILM SIZE"
-       @film_size = ob['value_coded_or_text']
-     elsif ob['concept_name'] == "GOOD FILM" || ob['concept_name'] == "WASTED FILM"
-       @available_film = ob['value_coded_or_text']
-     end
-    end
 
-    if encounter_type_name == "FILM"
-       params['observations'].each do |ob|
-
-      if  ob['concept_name'] == "GOOD FILM" || ob['concept_name'] == "WASTED FILM"
-       
-          1.upto(ob['value_coded_or_text'].to_i) do
-              obs = Observation.new(
-                :concept_name => ob['concept_name'],
-                :order_id => @order_id,
-                :value_text =>@film_size,
-                :person_id => @patient.person.person_id,
-                :encounter_id => @encounter.id,
-                :obs_datetime => session_date || Time.now())
-          obs.save
-          end
-      elsif !@available_film.blank?
-        
+   if encounter_type_name == "EXAMINATION"
+         params['observations'].each do |ob|
+      if ob['value_coded'].blank? && ob['value_coded_or_text'].blank?
         obs = Observation.new(
             :concept_name => ob['concept_name'],
-            :order_id => @order_id,
+            :value_numeric =>ob['value_numeric'],
+            :value_text =>ob['value_text'],
+            :person_id => @patient.person.person_id,
+            :encounter_id => @encounter.id,
+            :obs_datetime => session_date || Time.now())
+        obs.save
+      else
+        obs = Observation.new(
+            :concept_name => ob['concept_name'],
             :value_coded =>ob['value_coded'],
             :value_text =>ob['value_coded_or_text'],
             :person_id => @patient.person.person_id,
             :encounter_id => @encounter.id,
             :obs_datetime => session_date || Time.now())
         obs.save
+        end
       end
-    end
+         print_and_redirect("/orders/examination_number?order_id=#{@order_id}", "/clinic")
     else
-    params['observations'].each do |ob|
+       params['observations'].each do |ob|
       if ob['value_coded'].blank? && ob['value_coded_or_text'].blank?
         obs = Observation.new(
             :concept_name => ob['concept_name'],
@@ -106,14 +101,7 @@ class OrdersController < ApplicationController
         obs.save
         end
       end
-    end
-
-    if encounter_type_name == "EXAMINATION"
-         print_and_redirect("/orders/examination_number?order_id=#{@order_id}", "/clinic")
-    else
-         redirect_to :controller => :patients ,:action => :show ,:id => @patient.patient_id
-    end
-
+=end  
   end
   
   def examination_number
@@ -128,17 +116,150 @@ class OrdersController < ApplicationController
   end
 
   
-  def current_order(examination_number,patient,order_type_name = nil, concept = nil,encounter_id = nil ,provider = current_user.person_id)
-
-    type = OrderType.find_by_name(order_type_name)
+  def current_radiology_order(examination_number, concept = nil, patient = nil, encounter = nil)
+    type = OrderType.find_by_name("RADIOLOGY ORDER")
     order = patient.orders.find_by_accession_number(examination_number)
     order ||= patient.orders.create(:order_type_id => type.id,
                                     :patient_id => patient.patient_id,
                                     :concept_id => concept.concept_id,
-                                    :encounter_id => encounter_id,
-                                    :orderer => provider,
-                                    :accession_number => examination_number)
+                                    :encounter_id => encounter.encounter_id,
+                                    :orderer => encounter.provider_id,
+                                    :accession_number => examination_number,
+                                    :start_date => encounter.encounter_datetime)
   end
 
+  def next_available_exam_number
+    prefix = 'R'
+    last_exam_num = Order.find(:first, :order => "accession_number DESC",
+                   :conditions => ["voided = 0"]
+                   ).accession_number rescue []
+
+    index = 0
+    last_exam_num.each_char do | c |
+      next if c == prefix
+      break unless c == '0'
+      index+=1
+    end unless last_exam_num.blank?
+
+    last_exam_num = '0' if last_exam_num.blank?
+    prefix + (last_exam_num[index..-1].to_i + 1).to_s.rjust(8,'0')
+  end
+
+   
+  def create_obs(encounter , params)
+		# Observation handling
+		#raise params.to_yaml
+		(params[:observations] || []).each do |observation|
+			# Check to see if any values are part of this observation
+			# This keeps us from saving empty observations
+			values = ['coded_or_text', 'coded_or_text_multiple', 'group_id', 'boolean', 'coded', 'drug', 'datetime', 'numeric', 'modifier', 'text'].map { |value_name|
+				observation["value_#{value_name}"] unless observation["value_#{value_name}"].blank? rescue nil
+			}.compact
+
+			next if values.length == 0
+
+			observation[:value_text] = observation[:value_text].join(", ") if observation[:value_text].present? && observation[:value_text].is_a?(Array)
+			observation.delete(:value_text) unless observation[:value_coded_or_text].blank?
+			observation[:encounter_id] = encounter.id
+			observation[:obs_datetime] = encounter.encounter_datetime || Time.now()
+			observation[:person_id] ||= encounter.patient_id
+			observation[:concept_name].upcase ||= "DIAGNOSIS" if encounter.type.name.upcase == "OUTPATIENT DIAGNOSIS"
+
+			# Handle multiple select
+
+			if observation[:value_coded_or_text_multiple] && observation[:value_coded_or_text_multiple].is_a?(String)
+				observation[:value_coded_or_text_multiple] = observation[:value_coded_or_text_multiple].split(';')
+			end
+
+			if observation[:value_coded_or_text_multiple] && observation[:value_coded_or_text_multiple].is_a?(Array)
+				observation[:value_coded_or_text_multiple].compact!
+				observation[:value_coded_or_text_multiple].reject!{|value| value.blank?}
+			end
+
+			# convert values from 'mmol/litre' to 'mg/declitre'
+			if(observation[:measurement_unit])
+				observation[:value_numeric] = observation[:value_numeric].to_f * 18 if ( observation[:measurement_unit] == "mmol/l")
+				observation.delete(:measurement_unit)
+			end
+
+			if(observation[:parent_concept_name])
+				concept_id = Concept.find_by_name(observation[:parent_concept_name]).id rescue nil
+				observation[:obs_group_id] = Observation.find(:first, :conditions=> ['concept_id = ? AND encounter_id = ?',concept_id, encounter.id]).id rescue ""
+				observation.delete(:parent_concept_name)
+			end
+
+			extracted_value_numerics = observation[:value_numeric]
+			extracted_value_coded_or_text = observation[:value_coded_or_text]
+
+      #TODO : Added this block with Yam, but it needs some testing.
+      if params[:location]
+        if encounter.encounter_type == EncounterType.find_by_name("ART ADHERENCE").id
+          passed_concept_id = Concept.find_by_name(observation[:concept_name]).concept_id rescue -1
+          obs_concept_id = Concept.find_by_name("AMOUNT OF DRUG BROUGHT TO CLINIC").concept_id rescue -1
+          if observation[:order_id].blank? && passed_concept_id == obs_concept_id
+            order_id = Order.find(:first,
+                                  :select => "orders.order_id",
+                                  :joins => "INNER JOIN drug_order USING (order_id)",
+                                  :conditions => ["orders.patient_id = ? AND drug_order.drug_inventory_id = ?
+                                                  AND orders.start_date < ?", encounter.patient_id,
+                                                  observation[:value_drug], encounter.encounter_datetime.to_date],
+                                  :order => "orders.start_date DESC").order_id rescue nil
+            if !order_id.blank?
+              observation[:order_id] = order_id
+            end
+          end
+        end
+      end
+
+			if observation[:value_coded_or_text_multiple] && observation[:value_coded_or_text_multiple].is_a?(Array) && !observation[:value_coded_or_text_multiple].blank?
+				values = observation.delete(:value_coded_or_text_multiple)
+				values.each do |value|
+					observation[:value_coded_or_text] = value
+					if observation[:concept_name].humanize == "Tests ordered"
+						observation[:accession_number] = Observation.new_accession_number
+					end
+
+					observation = update_observation_value(observation)
+
+					Observation.create(observation)
+				end
+			elsif extracted_value_numerics.class == Array
+				extracted_value_numerics.each do |value_numeric|
+					observation[:value_numeric] = value_numeric
+
+				  if !observation[:value_numeric].blank? && !(Float(observation[:value_numeric]) rescue false)
+						observation[:value_text] = observation[:value_numeric]
+						observation.delete(:value_numeric)
+					end
+
+					Observation.create(observation)
+				end
+			else
+				observation.delete(:value_coded_or_text_multiple)
+				observation = update_observation_value(observation) if !observation[:value_coded_or_text].blank?
+
+		    if !observation[:value_numeric].blank? && !(Float(observation[:value_numeric]) rescue false)
+					observation[:value_text] = observation[:value_numeric]
+					observation.delete(:value_numeric)
+				end
+
+				Observation.create(observation)
+			end
+		end
+  end
+
+	def update_observation_value(observation)
+		value = observation[:value_coded_or_text]
+		value_coded_name = ConceptName.find_by_name(value)
+
+		if value_coded_name.blank?
+			observation[:value_text] = value
+		else
+			observation[:value_coded_name_id] = value_coded_name.concept_name_id
+			observation[:value_coded] = value_coded_name.concept_id
+		end
+		observation.delete(:value_coded_or_text)
+		return observation
+	end
 
 end

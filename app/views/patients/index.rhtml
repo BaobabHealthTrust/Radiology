@@ -58,6 +58,8 @@
               <% exam_number = params["examination_number"] rescue nil %>
               <%  if exam_number.nil? %>
                 <option value='/investigation/new/<%=@patient_bean.patient_id%>'>Investigation</option>
+                <option value='/patients/patient_demographics?patient_id=<%=@patient.id%>'>Edit Demographics</option>
+                <option value='/patients/dashboard_print_national_id/<%=@patient_bean.patient_id%>'>Print Registration</option>
               <%  else %>
                 <option value='/film/size?examination_number=<%= exam_number %>'>Film Sizes</option>
                 <option value='/patients/examination?examination_number=<%= exam_number %>'>Notes</option>
@@ -65,7 +67,7 @@
                     %>&examination_number=<%= exam_number %>&encounter_date=<%= (params["encounter_date"] rescue "")
                     %>'>Print Investigation</option>
               <%  end %>
-              <option value='/patients/dashboard_print_national_id/<%=@patient_bean.patient_id%>'>Print Registration</option>
+              
             </select>
              <select id="navigation_links">
                 <option link='<%= ((session[:datetime].to_date rescue '') != '' ?

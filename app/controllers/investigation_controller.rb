@@ -1,25 +1,30 @@
 class InvestigationController < ApplicationController
   def new
     @patient = Patient.find(params[:id])
-    @next_exam_number = next_available_exam_number
-    @wards = location_wards
+    radiology_tests_id = ConceptName.find_by_name("LIST OF RADIOLOGY TESTS").concept_id
+    @examination_sets = ConceptSet.find( :all,
+                                          :select => "DISTINCT concept_set",
+                                          :conditions => ["concept_set IN (SELECT concept_id FROM concept_set
+                                            WHERE concept_set IN (SELECT concept_id FROM concept_set WHERE concept_set = ?))",
+                                            radiology_tests_id]).map{ | item |
+                                              next if item.concept_set.blank?
+                                              Concept.find(item.concept_set).fullname
+                                            }.join(';')
+    @referral_locations = CoreService.get_global_property_value("radiology.referral.locations").split(';')
   end
- 
-  def next_available_exam_number                                           
-    prefix = 'R'                                                                
-    last_exam_num = Order.find(:first, :order => "accession_number DESC",
-                   :conditions => ["voided = 0"]
-                   ).accession_number rescue []
-                                                                                
-    index = 0                                                                   
-    last_exam_num.each_char do | c |                                            
-      next if c == prefix                                                       
-      break unless c == '0'                                                     
-      index+=1                                                                  
-    end unless last_exam_num.blank?                                             
-                                                                                
-    last_exam_num = '0' if last_exam_num.blank?                                 
-    prefix + (last_exam_num[index..-1].to_i + 1).to_s.rjust(8,'0')              
+
+  def radiology_list(concept_name)
+    concept_id = concept_id = ConceptName.find_by_name(concept_name).concept_id
+    set = ConceptSet.find_all_by_concept_set(concept_id, :order => 'sort_weight')
+    options = set.map{|item|next if item.concept.blank? ; [item.concept.fullname] }
+  end
+
+  def examination
+				concept_name = params[:examination_type]
+        concept_id = concept_id = ConceptName.find_by_name(concept_name).concept_id
+        set = ConceptSet.find_all_by_concept_set(concept_id, :order => 'sort_weight')
+        options = set.map{|item|next if item.concept.blank? ; [item.concept.fullname] }
+		    render :text => "<li></li><li>" + options.join("</li><li>") + "</li>"
   end
 
   def location_wards

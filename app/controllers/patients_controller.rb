@@ -72,7 +72,7 @@ class PatientsController < GenericPatientsController
 
 
     if @test_type == "Ultrasound"
-           @provider_title = "Clinical Sonographer"
+          @provider_title = "Clinical Sonographer"
         if @test_part == "Abdomen"
           @findings = "abdominal_ultrasound"
         elsif  @test_part == "Female Pelvis-Gynaecology"
@@ -178,6 +178,53 @@ class PatientsController < GenericPatientsController
 
     render :template => 'dashboards/visit_history_tab', :layout => false
   end
+
+  def mastercard_printable
+    #the parameter are used to re-construct the url when the mastercard is called from a Data cleaning report
+    @quarter = params[:quarter]
+    @arv_start_number = params[:arv_start_number]
+    @arv_end_number = params[:arv_end_number]
+    @show_mastercard_counter = false
+
+    if params[:patient_id].blank?
+
+      @show_mastercard_counter = true
+
+      if !params[:current].blank?
+        session[:mastercard_counter] = params[:current].to_i - 1
+      end
+
+      @prev_button_class = "yellow"
+      @next_button_class = "yellow"
+      if params[:current].to_i ==  1
+        @prev_button_class = "gray"
+      elsif params[:current].to_i ==  session[:mastercard_ids].length
+        @next_button_class = "gray"
+      else
+
+      end
+      @patient_id = session[:mastercard_ids][session[:mastercard_counter]]
+      @data_demo = mastercard_demographics(Patient.find(@patient_id))
+      @visits = visits(Patient.find(@patient_id))
+      #  @patient_art_start_date = PatientService.patient_art_start_date(@patient_id)
+      #  elsif session[:mastercard_ids].length.to_i != 0
+      #  @patient_id = params[:patient_id]
+      #  @data_demo = mastercard_demographics(Patient.find(@patient_id))
+      #  @visits = visits(Patient.find(@patient_id))
+    else
+      @patient_id = params[:patient_id]
+      #@patient_art_start_date = PatientService.patient_art_start_date(@patient_id)
+      @data_demo = mastercard_demographics(Patient.find(@patient_id))
+      @visits = visits(Patient.find(@patient_id))
+    end
+
+    @visits.keys.each do|day|
+		@age_in_months_for_days[day] = PatientService.age_in_months(@patient.person, day.to_date)
+    end rescue nil
+
+    render :layout => false
+  end
+
 
 end
   

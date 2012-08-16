@@ -3,6 +3,8 @@
   .tt_controls_month_of_birth #keyboard { display:none; }
 
   #tt_page_month_of_birth .options{height:19em;}
+
+  .tt_controls_year_of_birth #Unknown { display:inline; }
 </style>
 
 <script>
@@ -78,7 +80,11 @@
     return new Date(intyear,intmonth,intday);
   }
 </script>
-  <%= text_field_tag "person[birth_year]", nil, {:helpText => 'Year of Birth', :field_type => 'number', :absoluteMin => "1890", :min => "1940", :absoluteMax => Date.today.year, :tt_pageStyleClass => "Numeric NumbersOnly", :validationJS => "setDOB();" }  %>
+  <%= text_field_tag "person[birth_year]", nil, {:helpText => 'Year of Birth', :field_type => 'number', :absoluteMin => "1890", :min => "1940", :absoluteMax => Date.today.year, :tt_pageStyleClass => "Numeric NumbersOnly", :tt_onLoad => 'seen(tstCurrentPage);',:validationJS => "setDOB();" }  %>
+
   <%= select_tag "person[birth_month]", month_name_options, {:helpText => 'Month of Birth', :condition => '$("person_birth_year").value.toLowerCase() != "unknown"',:validationJS => "validateDOB();",:validationMessage => 'Please enter a valid date'}%>
- <%= text_field_tag "person[birth_day]",  nil, :field_type => 'number', :helpText => 'Birth Day', :condition => '($("person_birth_year").value != "Unknown") && ($("person_birth_month").value != "Unknown")', :tt_onLoad => "getDayOfMonthPicker($('person_birth_year').value, $('person_birth_month').value)" ,:validationJS => "validateDOB()",:validationMessage => 'Please enter a valid date'%>
+
+  <%= text_field_tag "person[age_estimate]", nil, {:helpText => 'Age Estimate', :absoluteMin => 1, :absoluteMax => age_limit, :field_type => 'number', :condition => '$("person_birth_year").value == "Unknown"', :tt_onLoad => "$('nextButton').style.display = 'block';", :tt_pageStyleClass => "Numeric NumbersOnly"} %> 
+
+  <%= text_field_tag "person[birth_day]",  nil, :field_type => 'number', :helpText => 'Birth Day', :condition => '($("person_birth_year").value != "Unknown") && ($("person_birth_month").value != "Unknown")', :tt_onLoad => "getDayOfMonthPicker($('person_birth_year').value, $('person_birth_month').value);$('nextButton').style.display = 'block';" ,:validationJS => "validateDOB()",:validationMessage => 'Please enter a valid date'%>
 

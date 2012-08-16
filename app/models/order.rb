@@ -30,9 +30,9 @@ class Order < ActiveRecord::Base
     if drug_order
       "#{drug_order}"
     else
-      "#{self.order_type.name} - #{self.concept.fullname } - (#{self.accession_number})"
+      # TODO improve how to store examinations for a particular investigation
+      "#{self.concept.fullname } - (#{self.accession_number})"
     end
- 
   end
   
 end
