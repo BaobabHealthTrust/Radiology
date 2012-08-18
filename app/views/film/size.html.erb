@@ -39,16 +39,6 @@
 :tt_pageStyleClass => "NoKeyboard NoInput small" } %>
 
 
-<%  
-  options = "<option value=''></option>"
-  options += "<option value=''>None</option>"
-  options += "<option value='1'>1 Film</option>"
-  options += "<option value='2'>2 Films</option>"
-  options += "<option value='3'>3 Films</option>"
-  options += "<option value='4'>4 Films</option>"
-  options += "<option value='5'>5 Films</option>"
-%>
-
 <%= touch_select_tag "GOOD FILM", @patient, options ,
 {:id => "good_film",
 :helpText => "Good film(s) used",
