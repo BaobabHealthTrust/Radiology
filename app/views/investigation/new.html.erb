@@ -10,16 +10,14 @@
 
 .selected_conditions {
   font-size: 25px;
-  padding-left: 5px;
+  padding-left: 10px;
   font-weight: bold;
 }
 </style>
 
 <%
     patient = PatientService.get_patient(Person.find(@patient.id))
-    session_date = session[:datetime].to_date.strftime('%d/%m/%Y') rescue Date.today.strftime('%d/%m/%Y')
-
-   
+    session_date = session[:datetime].to_date.strftime('%d/%m/%Y') rescue Date.today.strftime('%d/%m/%Y') 
 %>
 
 <script>
@@ -35,7 +33,8 @@
     var line3 = $("list_of_radiology_test").value;
     if($("detailed_examination").value !="")
      {
-        var line3 = line3 + " - " + $("detailed_examination").value
+        var line3 = line3 +" - " + $("examination").value
+        var line3 = line3 +" - " + $("detailed_examination").value
      }
     else
      {
@@ -45,7 +44,7 @@
     var referred_from =  referred_by;
 
     var line4 = "<%= session_date %>, " + referred_from;
-    $('inputFrame'+tstCurrentPage).innerHTML += '<div class="selected_conditions"><br />' + "<%=patient.name%>" + '</div>' ;
+    $('inputFrame'+tstCurrentPage).innerHTML += '<div class="selected_conditions"><br />' + "<%=patient.name%> " + '</div>' ;
     $('inputFrame'+tstCurrentPage).innerHTML += '<div class="selected_conditions"><br />' + line2 + '</div>' ;
     $('inputFrame'+tstCurrentPage).innerHTML += '<div class="selected_conditions"><br />' + line3 + '</div>' ;
     $('inputFrame'+tstCurrentPage).innerHTML += '<div class="selected_conditions"><br />' + line4 + '</div>' ;
@@ -57,16 +56,14 @@
   }
   
   function set_ajaxURL_for_suggestions(value) {
-  	url = "/investigation/examination?examination_type=" + value,
+  	url = "/investigation/examination?radiology_test=" + value + "&examination=";
     $('touchscreenInput'+tstCurrentPage).setAttribute('ajaxURL', url);
     listSuggestions(tstCurrentPage);
   }
 
   examination_sets = '<%= "#{@examination_sets}" %>';
 </script>
-<%# @wards.each do |ward|
-     wards+="<option value=#{ward[1]}>#{ward[0]}</option>"
-   end %>
+
 <% form_tag "/orders/create", :method => :post do %>
 
 <%= hidden_field_tag "encounter[encounter_type_name]", "RADIOLOGY EXAMINATION" %>
@@ -83,13 +80,13 @@
 
 <%= touch_select_tag "Examination", @patient, nil,
 		{	:id => "examination",
-			:tt_onLoad => 'set_ajaxURL_for_suggestions(document.getElementById("list_of_radiology_test").value);',
+			:tt_onLoad => 'set_ajaxURL_for_suggestions($("list_of_radiology_test").value);',
 		 	:helpText => "Please select the examination" } %>
 
 <%= touch_select_tag "Detailed examination", @patient, nil,
 		{	:id => "detailed_examination",
 		 	:condition => 'examination_sets.contains($("examination").value)',
-                        :tt_onLoad => 'set_ajaxURL_for_suggestions(document.getElementById("examination").value);',
+                        :tt_onLoad => 'set_ajaxURL_for_suggestions($("examination").value);',
 		 	:helpText => "Please select the detailed examination" } %>
 
 
