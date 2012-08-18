@@ -13,33 +13,35 @@ class InvestigationController < ApplicationController
     @referral_locations = CoreService.get_global_property_value("radiology.referral.locations").split(';')
   end
 
-  def radiology_list(concept_name)
-    concept_id = concept_id = ConceptName.find_by_name(concept_name).concept_id
-    set = ConceptSet.find_all_by_concept_set(concept_id, :order => 'sort_weight')
-    options = set.map{|item|next if item.concept.blank? ; [item.concept.fullname] }
-  end
-
   def examination
-				concept_name = params[:examination_type]
-        concept_id = concept_id = ConceptName.find_by_name(concept_name).concept_id
-        set = ConceptSet.find_all_by_concept_set(concept_id, :order => 'sort_weight')
+				examination = params[:examination]
+        condition = ""
+
+				concept_name = params[:radiology_test]
+        concept_id = ConceptName.find_by_name(concept_name).concept_id rescue nil
+
+        if examination.blank?
+          condition = "concept_set = #{concept_id}"
+        else
+          examination = "%" + examination + "%"
+          condition = "concept_set = #{concept_id} AND concept_name.name LIKE '#{examination}'"
+        end
+
+				concept_name = params[:examination]
+        concept_id = ConceptName.find_by_name(concept_name).concept_id rescue nil
+        set = ConceptSet.find(:all, :joins => 'LEFT JOIN concept_name ON concept_set.concept_id = concept_name.concept_id', 
+          :conditions => condition, :group => "concept_id", :order => 'sort_weight')
         options = set.map{|item|next if item.concept.blank? ; [item.concept.fullname] }
 		    render :text => "<li></li><li>" + options.join("</li><li>") + "</li>"
   end
 
-  def location_wards
-    wards = Location.find_by_sql("SELECT l.* FROM location l
-                                  INNER JOIN location_tag_map ltm
-                                  ON l.location_id = ltm.location_id
-                                  INNER JOIN location_tag lt
-                                  ON lt.location_tag_id = ltm.location_tag_id
-                                  WHERE lt.name = 'Ward'")
-    wards.map do |ward|
-       [ward.name, ward.location_id]
-    end
-
+  def detailed_examination
+				concept_name = params[:detailed_examination]
+        concept_id = ConceptName.find_by_name(concept_name).concept_id rescue nil
+        set = ConceptSet.find_all_by_concept_set(concept_id, :order => 'sort_weight')
+        options = set.map{|item|next if item.concept.blank? ; [item.concept.fullname] }
+		    render :text => "<li></li><li>" + options.join("</li><li>") + "</li>"
   end
- 
 end
 
 
