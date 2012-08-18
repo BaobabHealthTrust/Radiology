@@ -90,14 +90,23 @@ class OrdersController < ApplicationController
                                             encounter_id, referred_from_concept]).value_text
 
     examination_concept = ConceptName.find_by_name("DETAILED EXAMINATION").concept_id
-    examination = Observation.find( :first, :select => "concept_id, value_coded",
+    examination_obs = Observation.find( :first, :select => "concept_id, value_coded",
                                            :conditions => ["encounter_id = ? AND concept_id = ?",
-                                            encounter_id, examination_concept]).answer_concept.fullname rescue nil
-    if examination.nil?
+                                             encounter_id, examination_concept])
+    examination = examination_obs.answer_concept.shortname rescue nil
+    if examination.blank?
+      examination = examination_obs.answer_concept.fullname rescue nil
+    end
+
+    if examination.blank?
       examination_concept = ConceptName.find_by_name("EXAMINATION").concept_id
-      examination = Observation.find( :first, :select => "concept_id, value_coded",
+      examination_obs = Observation.find( :first, :select => "concept_id, value_coded",
                                              :conditions => ["encounter_id = ? AND concept_id = ?",
-                                              encounter_id, examination_concept]).answer_concept.fullname
+                                               encounter_id, examination_concept])
+      examination = examination_obs.answer_concept.shortname rescue nil
+      if examination.blank?
+        examination = examination_obs.answer_concept.fullname rescue ''
+      end
     end
 
     patient_bean = PatientService.get_patient(order.encounter.patient.person)
@@ -109,12 +118,13 @@ class OrdersController < ApplicationController
     # study_type = order.concept.fullname
 
     type = order.concept.fullname
-
+    
     label = ZebraPrinter::StandardLabel.new
-    label.font_size = 1
-    label.font_horizontal_multiplier = 2
-    label.font_vertical_multiplier = 2
-    label.left_margin = 50
+    label.font_size = 3
+    label.x = 200
+    label.font_horizontal_multiplier = 1
+    label.font_vertical_multiplier = 1
+    label.left_margin = 100
     label.draw_barcode(50,180,0,1,5,15,90,false,"#{order.accession_number}")
     label.draw_multi_text("#{patient_bean.name.titleize}")
     label.draw_multi_text("#{patient_bean.national_id_with_dashes} #{sex} #{patient_bean.birth_date}")
