@@ -22,32 +22,21 @@
 	:tt_onUnload => "jQuery('#film_size ~ #observations__parent_concept_name').val(jQuery('#film_size').val())"
 } %>
 
+<%= touch_numeric_tag "GOOD FILM", @patient, nil ,
+{ :id => "good_film",
+  :absoluteMax => 5,
+  :validationRule => "([0-9])",
+  :validationMessage => "You must enter a decimal between 0 and 5 ",
+  :helpText => "Good film(s) used",
+} %>
 
-<%  
-  options = "<option value=''></option>"
-  options += "<option value=''>None</option>"
-  options += "<option value='1'>1 Film</option>"
-  options += "<option value='2'>2 Films</option>"
-  options += "<option value='3'>3 Films</option>"
-  options += "<option value='4'>4 Films</option>"
-  options += "<option value='5'>5 Films</option>"
-%>
-
-<%= touch_select_tag "WASTED FILM", @patient, options ,
-{:id => "wasted_film",
-:field_type => "number",
-:helpText => "Wasted film(s) used",
-:tt_pageStyleClass => "NoKeyboard NoInput small" } %>
-
-
-<%= touch_select_tag "GOOD FILM", @patient, options ,
-{:id => "good_film",
-:field_type => "number",
-:helpText => "Good film(s) used",
-:tt_pageStyleClass => "NoKeyboard NoInput small"} %>
-
-
-
+<%= touch_numeric_tag "WASTED FILM", @patient, nil ,
+{ :id => "wasted_film",
+  :absoluteMax => 5,
+  :validationRule => "([0-9])",
+  :validationMessage => "You must enter a decimal between 0 and 5 ",
+  :helpText => "Wasted film(s) used",
+ } %>
 
 <% end -%>
 
