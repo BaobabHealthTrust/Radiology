@@ -44,7 +44,9 @@
   var tt_cancel_destination = "/clinic"
 </script>
 </head>
-<%if @report_type == "INVESTIGATIONS" %>
+<%if @report_type == "INVESTIGATIONS_DAILY" %>
+ <%= render :partial => 'investigations_daily' %>
+<%elsif @report_type == "INVESTIGATIONS" %>
  <%= render :partial => 'investigations' %>
 <%elsif @report_type == "FILM SIZE" %>
  <%= render :partial => 'film_size' %>
