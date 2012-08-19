@@ -105,9 +105,8 @@ class PeopleController < GenericPeopleController
 def search
 		found_person = nil
 		if params[:identifier]
-
-      radiology_character = params[:identifier][0].chr
-      if radiology_character == "R"
+ 
+      if  params[:identifier].length == 9 && params[:identifier][0].chr == "R"
          order = Order.find(:first,:conditions =>["accession_number = ? AND voided = 0",params[:identifier]])
          if order
            unless order.date_created.to_date == Date.today
@@ -135,6 +134,8 @@ def search
 				end
 			end
 			if found_person
+        patient = DDEService::Patient.new(found_person.patient)
+        patient.check_old_national_id(params[:identifier])
 				if params[:relation]
 					redirect_to search_complete_url(found_person.id, params[:relation]) and return
 				else
