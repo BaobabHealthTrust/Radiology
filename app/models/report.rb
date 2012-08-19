@@ -300,10 +300,12 @@ ORDER BY clinic ASC"])
     end
     return demographics
   end
-  
-  
-  def self.investigations(order_type_name,month,year = Date.today.year)
-   order_type_id = OrderType.find_by_name(order_type_name).order_type_id
+    
+  def self.investigations(order_concept_name,month,year = Date.today.year)
+   order_type_id = OrderType.find_by_name("RADIOLOGY").order_type_id
+   order_concept_id = ConceptName.find_by_name(order_concept_name).concept_id
+   radiology_examination_encounter_id = EncounterType.find_by_name("RADIOLOGY EXAMINATION").encounter_type_id
+   examination_concept_id = ConceptName.find_by_name("EXAMINATION").concept_id
    start_days = [1, 8, 15, 22, 29]
    weeks = Hash.new()
   
@@ -322,33 +324,39 @@ ORDER BY clinic ASC"])
       else
          end_date = ((start_date.to_date + 1.week) - 1.day).strftime("%Y-%m-%d 23:59:59")
       end
-      
-      orders = Order.find_by_sql("SELECT odt.name as examination_name,cn.name as examination_part,COUNT(od.concept_id) as cnt FROM orders od
-                                 INNER JOIN concept_name cn
-                                 ON od.concept_id = cn.concept_id
-                                 INNER JOIN order_type odt
-                                 ON od.order_type_id = odt.order_type_id
-                                 WHERE od.voided = 0 AND odt.order_type_id = #{order_type_id}
-                                 AND od.date_created BETWEEN '#{start_date}' AND '#{end_date}'
-                                 GROUP BY odt.name,cn.name
-                                 ORDER BY odt.name DESC")
 
-      orders.each do |order|
-         weeks[count][order.examination_part] = order.cnt
+      obs = Observation.find_by_sql("SELECT cn.name as examination,COUNT(o.value_coded) as cnt FROM obs o
+                                     INNER JOIN encounter e
+                                     ON o.encounter_id = e.encounter_id
+                                     INNER JOIN concept_name cn
+                                     ON o.value_coded = cn.concept_id
+                                     INNER JOIN orders od
+                                     ON od.encounter_id = o.encounter_id
+                                     WHERE od.voided = 0
+                                     AND od.concept_id = #{order_concept_id}
+                                     AND od.order_type_id = #{order_type_id}
+                                     AND e.encounter_type = #{radiology_examination_encounter_id}
+                                      AND o.concept_id = #{examination_concept_id}
+                                     AND o.obs_datetime BETWEEN '#{start_date}' AND '#{end_date}'
+                                     GROUP BY cn.name")
+     
+
+      obs.each do |ob|
+         weeks[count][ob.examination] = ob.cnt
       end
          
     end
     weeks
   end
-
+  def self.daily_report(report_date)
+     
+  end
   def self.revenue_collected(start_date,end_date)
-
     payment_amount_concept_id = ConceptName.find_by_name("PAYMENT AMOUNT").concept_id
     Observation.find_by_sql("SELECT SUM(value_numeric) as total_revenue FROM obs o
                              WHERE o.voided = 0 and o.concept_id = #{payment_amount_concept_id}
                              AND o.obs_datetime BETWEEN '#{start_date}' AND '#{end_date}'") rescue 0.0
   end
-
   
   def self.film_used(film_state_id,month,year = Date.today.year)
     film_encounter_id = EncounterType.find_by_name('FILM').id
@@ -372,20 +380,28 @@ ORDER BY clinic ASC"])
          end_date = ((start_date.to_date + 1.week) - 1.day).strftime("%Y-%m-%d 23:59:59")
       end
 
-      obs = Observation.find_by_sql("SELECT o.value_text as film_size,COUNT(o.concept_id) as cnt FROM obs o
+      obs = Observation.find_by_sql("SELECT cnnn.name AS film_size,cn.name AS film_state,SUM(o.value_numeric) AS cnt FROM obs o
+                                    INNER JOIN obs oo ON
+                                    oo.obs_id = o.obs_group_id
+                                    INNER JOIN concept_name cnnn
+                                    on cnnn.concept_id = oo.value_coded
                                     INNER JOIN encounter e
-                                    ON o.encounter_id = e.encounter_id
-                                    WHERE e.encounter_type = #{film_encounter_id}
-                                    AND o.concept_id = #{film_state_concept_id} AND
+                                    on o.encounter_id = e.encounter_id
+                                    INNER JOIN concept_name cn
+                                    on o.concept_id = cn.concept_id
+                                    INNER JOIN concept_name cnn
+                                    ON o.value_coded = cnn.concept_id
+                                    WHERE e.encounter_type =  #{film_encounter_id} AND o.concept_id = #{film_state_concept_id} AND
                                     e.encounter_datetime BETWEEN '#{start_date}' AND '#{end_date}' AND o.voided = 0 AND e.voided = 0
-                                    GROUP BY o.value_text;")
+                                    GROUP BY cnnn.name")
+
 
       obs.each do |ob|
          weeks[count][ob.film_size] = ob.cnt
       end
 
     end
-    weeks
+   weeks
 
   end
   
