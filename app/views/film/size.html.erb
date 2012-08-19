@@ -34,13 +34,15 @@
 %>
 
 <%= touch_select_tag "WASTED FILM", @patient, options ,
-{:id => "bad_film",
+{:id => "wasted_film",
+:field_type => "number",
 :helpText => "Wasted film(s) used",
 :tt_pageStyleClass => "NoKeyboard NoInput small" } %>
 
 
 <%= touch_select_tag "GOOD FILM", @patient, options ,
 {:id => "good_film",
+:field_type => "number",
 :helpText => "Good film(s) used",
 :tt_pageStyleClass => "NoKeyboard NoInput small"} %>
 
