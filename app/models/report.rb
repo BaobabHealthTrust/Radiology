@@ -389,12 +389,9 @@ ORDER BY clinic ASC"])
                                     on o.encounter_id = e.encounter_id
                                     INNER JOIN concept_name cn
                                     on o.concept_id = cn.concept_id
-                                    INNER JOIN concept_name cnn
-                                    ON o.value_coded = cnn.concept_id
                                     WHERE e.encounter_type =  #{film_encounter_id} AND o.concept_id = #{film_state_concept_id} AND
                                     e.encounter_datetime BETWEEN '#{start_date}' AND '#{end_date}' AND o.voided = 0 AND e.voided = 0
                                     GROUP BY cnnn.name")
-
 
       obs.each do |ob|
          weeks[count][ob.film_size] = ob.cnt
@@ -402,7 +399,6 @@ ORDER BY clinic ASC"])
 
     end
    weeks
-
   end
   
 end
