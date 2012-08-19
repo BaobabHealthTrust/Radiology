@@ -75,25 +75,28 @@
 
 <%= touch_select_tag "RADIOLOGY TEST", @patient, concept_set_options("LIST OF RADIOLOGY TESTS"),
 		{	:id => "list_of_radiology_test",
+                        :tt_pageStyleClass => "Keyboard",
 		 	:helpText => "Please select the type of examination" } %>
 
 
 <%= touch_select_tag "Examination", @patient, nil,
 		{	:id => "examination",
 			:tt_onLoad => 'set_ajaxURL_for_suggestions($("list_of_radiology_test").value);',
+                        :tt_pageStyleClass => "Keyboard",
 		 	:helpText => "Please select the examination" } %>
 
 <%= touch_select_tag "Detailed examination", @patient, nil,
 		{	:id => "detailed_examination",
 		 	:condition => 'examination_sets.contains($("examination").value)',
                         :tt_onLoad => 'set_ajaxURL_for_suggestions($("examination").value);',
+                        :tt_pageStyleClass => "Keyboard",
 		 	:helpText => "Please select the detailed examination" } %>
 
 
 <%= touch_select_tag "REFERRED FROM", @patient, options_for_select(@referral_locations),
                      {:id => "referred_by",
                       :helpText => "Referred from",
-                      :tt_pageStyleClass => "NoKeyboard NoInput small",
+                      :tt_pageStyleClass => "Keyboard",
                       :tt_onUnLoad => "setReferredBy();"} %>
 
 <%= touch_yes_no_tag "PAYING", @patient, nil,
