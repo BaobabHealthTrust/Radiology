@@ -17,9 +17,9 @@ class GenericPeopleController < ApplicationController
 			"cell_phone_number"=> params['cell_phone']['identifier'],
 			"birth_month"=> params[:patient_month],
 			"addresses"=>{ "address2" => params['p_address']['identifier'],
-						"address1" => params['p_address']['identifier'],
-			"city_village"=> params['patientaddress']['city_village'],
-			"county_district"=> params[:birthplace] },
+                     "address1" => params['p_address']['identifier'],
+                     "city_village"=> params['patientaddress']['city_village'],
+                     "county_district"=> params[:birthplace] },
 			"gender" => params['patient']['gender'],
 			"birth_day" => params[:patient_day],
 			"names"=> {"family_name2"=>"Unknown",
@@ -61,8 +61,8 @@ class GenericPeopleController < ApplicationController
 		art_info = art_info_for_remote(national_id)
 		render :text => art_info.to_json
 	end
- 
-	def search
+  
+  def search
 		found_person = nil
 		if params[:identifier]
 			local_results = PatientService.search_by_identifier(params[:identifier])
@@ -74,12 +74,17 @@ class GenericPeopleController < ApplicationController
 			else
 				# TODO - figure out how to write a test for this
 				# This is sloppy - creating something as the result of a GET
-				if create_from_remote        
+				if create_from_remote
 					found_person_data = PatientService.find_remote_person_by_identifier(params[:identifier])
 					found_person = PatientService.create_from_form(found_person_data['person']) unless found_person_data.nil?
 				end
 			end
 			if found_person
+
+        patient = DDEService::Patient.new(found_person.patient)
+
+        patient.check_old_national_id(params[:identifier])
+
 				if params[:relation]
 					redirect_to search_complete_url(found_person.id, params[:relation]) and return
 				else
@@ -103,12 +108,12 @@ class GenericPeopleController < ApplicationController
       if params[:relation]
         redirect_to search_complete_url(found_person.id, params[:relation]) and return
       else
-        redirect_to :action => 'confirm', 
-          :found_person_id => found_person.id, 
+        redirect_to :action => 'confirm',
+          :found_person_id => found_person.id,
           :relation => params[:relation] and return
       end
     else
-      redirect_to :action => 'search' and return 
+      redirect_to :action => 'search' and return
     end
   end
    

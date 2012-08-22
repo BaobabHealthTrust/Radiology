@@ -2,7 +2,7 @@
  <% start_date = "#{1}-#{@month}-#{@year}".to_date.strftime("%B") %>
 <div id="head">
   <span><h2><%= Location.current_health_center.name.upcase %></h2></span>
-  <span><h2>MONTHLY RADIOLOGICAL STATISTICS(FILM USAGE)- <%= "#{start_date}  #{@year}" %></h2></span>
+  <span><h2>Monthly Radiological Statistics(Film usage)- <%= "#{start_date}  #{@year}" %></h2></span>
 </div>
 
 
@@ -27,11 +27,11 @@
 <% @film_size_options.each do|film_size| %>
 <tr>
   <td style = "text-align:left;padding-left:10px;"><%= film_size %></td>
-  <td><%= @aggregates[0][film_size] || 0%> </td>
-  <td><%= @aggregates[1][film_size] || 0%> </td>
-  <td><%= @aggregates[2][film_size] || 0%> </td>
-  <td><%= @aggregates[3][film_size] || 0%> </td>
-  <td><%= @aggregates[4][film_size] || 0%> </td>
+  <td><%= @aggregates[0][film_size].to_i || 0%> </td>
+  <td><%= @aggregates[1][film_size].to_i || 0%> </td>
+  <td><%= @aggregates[2][film_size].to_i || 0%> </td>
+  <td><%= @aggregates[3][film_size].to_i || 0%> </td>
+  <td><%= @aggregates[4][film_size].to_i || 0%> </td>
 
       <%@total = @aggregates[0][film_size].to_i +
                  @aggregates[1][film_size].to_i +

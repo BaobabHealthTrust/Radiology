@@ -2,7 +2,7 @@
  <% start_date = "#{1}-#{@month}-#{@year}".to_date.strftime("%B") %>
 <div id="head">
   <span><h2><%= Location.current_health_center.name.upcase %></h2></span>
-  <span><h2>MONTHLY RADIOLOGICAL STATISTICS(<%= @investigation_type.upcase %>)- <%= "#{start_date}  #{@year}" %></h2></span>
+  <span><h2>Monthly Radiological Statistics(<%= @investigation_type.titlecase %>)- <%= "#{start_date}  #{@year}" %></h2></span>
 </div>
 
 

@@ -1,38 +1,17 @@
 class PatientsController < GenericPatientsController
- 
+
   def personal
     @links = []
     patient = Patient.find(params[:id])
-    
+    order = Order.find(:first,:conditions => ["patient_id = ?",patient.id],:order => "start_date DESC")
     if use_user_selected_activities
       @links << ["Change User Activities","/user/activities/#{current_user.id}?patient_id=#{patient.id}"]
     end
-    @links << ["National ID (Print)","/patients/dashboard_print_national_id/#{patient.id}"]
-    @links << ["Investigation (Print)","/patients/dashboard_print_visit/#{patient.id}"]
-    
+      @links << ["National ID","/patients/dashboard_print_national_id/#{patient.id}"]
+    unless order.nil?
+      @links << ["Examination Label","/orders/examination_number?order_id=#{order.order_id}"]
+    end
     render :template => 'dashboards/personal_tab', :layout => false
-  end
-  
-  def patient_visit_label(patient, date = Date.today)
-    label = ZebraPrinter::StandardLabel.new
-    label.font_size = 3
-    label.font_horizontal_multiplier = 1
-    label.font_vertical_multiplier = 1
-    label.left_margin = 50
-    encs = patient.encounters.find(:all,:conditions =>["DATE(encounter_datetime) = ?",date])
-    return nil if encs.blank?
-
-    label.draw_multi_text("Investigation: #{encs.first.encounter_datetime.strftime("%d/%b/%Y %H:%M")}", :font_reverse => true)
-    encs.each {|encounter|
-      encounter.to_s.split("<b>").each do |string|
-        concept_name = string.split("</b>:")[0].strip rescue nil
-        obs_value = string.split("</b>:")[1].strip rescue nil
-        next if string.match(/Workstation location/i)
-        next if obs_value.blank?
-        label.draw_multi_text("#{encounter.name.humanize} - #{concept_name}: #{obs_value}", :font_reverse => false)
-      end
-    }
-    label.print(1)
   end
 
   def examination
@@ -54,7 +33,7 @@ class PatientsController < GenericPatientsController
     detailed_examination = ConceptName.find_by_name("DETAILED EXAMINATION").concept_id
     @patient = Patient.find(params[:patient_id]) rescue nil
 		@patient_bean = PatientService.get_patient(@patient.person)
-    
+
     # Details specified in config/application.yml
     @facility = CoreService.get_global_property_value("current.health.facility") rescue ""
     @hod = CoreService.get_global_property_value("hod") rescue ""
@@ -75,9 +54,9 @@ class PatientsController < GenericPatientsController
 
     @findings = Observation.find(:all,:conditions => ["order_id = ? AND concept_id = ? AND voided = 0",order.order_id,findings_concept_id]) rescue "&nbsp;"
     @comments = Observation.find(:all,:conditions => ["order_id = ? AND concept_id = ? AND voided = 0",order.order_id,notes_concept_id]) rescue "&nbsp;"
-  
+
     @provider = current_user.name.upcase rescue "&nbsp;"
-    
+
     render :layout => false
   end
 
@@ -129,9 +108,9 @@ class PatientsController < GenericPatientsController
 	  end_date = session_date.strftime('%Y-%m-%d 23:59:59')
     if params[:examination_number]
       order = Order.find(:first, :conditions => ["accession_number = ?  AND voided = 0",params[:examination_number]])
-      
+
       @encounters = Encounter.find(:all,:joins => "LEFT JOIN orders ON encounter.encounter_id = orders.encounter_id
-      																							LEFT JOIN obs ON encounter.encounter_id = obs.encounter_id", 
+      																							LEFT JOIN obs ON encounter.encounter_id = obs.encounter_id",
       															:conditions => ["orders.order_id = ? OR obs.order_id = ?", order.order_id, order.order_id],
                                    :group => ["encounter_id"],:order => "encounter_datetime DESC")
      # raise @encounters.to_yaml
@@ -139,7 +118,6 @@ class PatientsController < GenericPatientsController
       @encounters = Encounter.find(:all, :conditions => ["patient_id = ? AND encounter_datetime >= ? AND encounter_datetime <= ?",
                                                           @patient.id, start_date, end_date],:order => "encounter_datetime DESC")
     end
-    
 
     @creator_name = {}
     @encounters.each do |encounter|
@@ -200,14 +178,11 @@ class PatientsController < GenericPatientsController
       @data_demo = mastercard_demographics(Patient.find(@patient_id))
       @visits = visits(Patient.find(@patient_id))
     end
-
+    
     @visits.keys.each do|day|
 		@age_in_months_for_days[day] = PatientService.age_in_months(@patient.person, day.to_date)
     end rescue nil
 
     render :layout => false
   end
-
-
 end
-  
