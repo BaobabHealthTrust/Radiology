@@ -2,42 +2,63 @@
 <script>
   dat = "<%=@encounter_date.to_date rescue Date.today %>"
   tt_cancel_destination = '/patients/show?encounter_date=' + dat + '&patient_id=' + '<%=@patient.id%>'+ '&examination_number=' + '<%= params['examination_number']%>'
+
+	function updateNextFinish(){
+		if (tstInputTarget.value == '') {
+			$('nextButton').innerHTML = '<span>Finish</span>';
+			$('nextButton').setAttribute("onMouseDown","submit();");
+		} else {
+			$('nextButton').innerHTML = '<span>Next</span>';
+			$('nextButton').setAttribute("onMouseDown", "gotoNextPage()");
+		}
+		setTimeout(updateNextFinish, 500)
+	}
+	
+  function submit()
+  {
+      document.forms["film_size_form"].submit();
+  }
 </script>
 
 
-<% form_tag "/encounters/create", :method => :post do %>
+<% form_tag "/encounters/create", :id=>"film_size_form", :method => :post do %>
+	<%= hidden_field_tag "encounter[encounter_type_name]", "FILM" %>
+	<%= hidden_field_tag "encounter[patient_id]", @patient.id %>
+	<%= hidden_field_tag "encounter[encounter_datetime]", @encounter_date.to_date.to_s + Time.now.strftime(' %H:%M:%S').to_time rescue DateTime.now() %>
+	<%= hidden_field_tag "encounter[provider_id]", current_user.user_id %>
+	<%= hidden_field_tag "examination_number", @order.accession_number %>
 
-<%= hidden_field_tag "encounter[encounter_type_name]", "FILM" %>
-<%= hidden_field_tag "encounter[patient_id]", @patient.id %>
- <%= hidden_field_tag "encounter[encounter_datetime]", @encounter_date.to_date.to_s + Time.now.strftime(' %H:%M:%S').to_time rescue DateTime.now() %>
-<%= hidden_field_tag "encounter[provider_id]", current_user.user_id %>
-<%= hidden_field_tag "examination_number", @order.accession_number %>
+	<%6.times do |i| %>
 
-<%= touch_select_tag "FILM SIZE", @patient, concept_set_options("Film size"),
-{
-	:id => "film_size",
-	:helpText => "Film size",
-	:tt_pageStyleClass => "NoKeyboard NoInput small",
-	:order_id => @order.id,
-	:tt_onUnload => "jQuery('#film_size ~ #observations__parent_concept_name').val(jQuery('#film_size').val())"
-} %>
+		<%= touch_select_tag "FILM SIZE", @patient, concept_set_options("Film size"),
+		{
+			:id => "film_size_#{i}",
+			:helpText => "Film size",
+			:tt_pageStyleClass => "NoKeyboard NoInput small",
+			:order_id => @order.id,
+			:tt_onLoad => "setTimeout(updateNextFinish, 20)",
+			:tt_onUnload => "jQuery('#film_size_#{i} ~ #observations__parent_concept_name').val(jQuery('#film_size_#{i}').val())"
+		} %>
 
-<%= touch_numeric_tag "GOOD FILM", @patient, nil ,
-{ :id => "good_film",
-  :absoluteMax => 5,
-  :validationRule => "([0-9])",
-  :validationMessage => "You must enter a decimal between 0 and 5 ",
-  :helpText => "Good film(s) used",
-} %>
 
-<%= touch_numeric_tag "WASTED FILM", @patient, nil ,
-{ :id => "wasted_film",
-  :absoluteMax => 5,
-  :validationRule => "([0-9])",
-  :validationMessage => "You must enter a decimal between 0 and 5 ",
-  :helpText => "Wasted film(s) used",
- } %>
+		<%= touch_numeric_tag "GOOD FILM", @patient, nil ,
+		{ :id => "good_film",
+			:absoluteMax => 5,
+			:validationRule => "([0-9])",
+			:validationMessage => "You must enter a decimal between 0 and 5 ",
+			:helpText => "Good film(s) used",
+		} %>
 
+		<%= touch_numeric_tag "WASTED FILM", @patient, nil ,
+		{ :id => "wasted_film",
+			:absoluteMax => 5,
+			:validationRule => "([0-9])",
+			:validationMessage => "You must enter a decimal between 0 and 5 ",
+			:helpText => "Wasted film(s) used",
+		 } %>
+
+	<% end -%>
+	
 <% end -%>
 
 
