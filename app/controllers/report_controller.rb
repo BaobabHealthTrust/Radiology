@@ -40,7 +40,7 @@ class ReportController < GenericReportController
            @report_date = params[:report_date]
            @daily_report = Report.daily_report(@report_date)
     end
-    render :layout => 'menu'
+    render :layout => 'reports'
   end
 
   private
