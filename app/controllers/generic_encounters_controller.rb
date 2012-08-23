@@ -314,30 +314,23 @@ class GenericEncountersController < ApplicationController
     end
 
     # Encounter handling
-		session_date = session[:datetime].to_date rescue Date.today
-		film_encounter_type_id = EncounterType.find_by_name("FILM").encounter_type_id
-		encounter = Encounter.find(:last,
-									:conditions=>["DATE(encounter_datetime) = ? AND patient_id = ? AND encounter_type = ? ",
-									session_date, @patient.id, film_encounter_type_id])
-		if encounter.blank?
-				encounter = Encounter.new(params[:encounter])
-				unless params[:location]
-				  encounter.encounter_datetime = session[:datetime] unless session[:datetime].blank?
-				else
-				  encounter.encounter_datetime = params['encounter']['encounter_datetime']
-				end
-	
-				if params[:filter] and !params[:filter][:provider].blank?
-				  user_person_id = User.find_by_username(params[:filter][:provider]).person_id
-				elsif params[:location] # Migration
-				  user_person_id = encounter[:provider_id]
-				else
-				  user_person_id = User.find_by_user_id(encounter[:provider_id]).person_id
-				end
-				encounter.provider_id = user_person_id
+		encounter = Encounter.new(params[:encounter])
+		unless params[:location]
+		  encounter.encounter_datetime = session[:datetime] unless session[:datetime].blank?
+		else
+		  encounter.encounter_datetime = params['encounter']['encounter_datetime']
+		end
 
-				encounter.save
-		end    
+		if params[:filter] and !params[:filter][:provider].blank?
+		  user_person_id = User.find_by_username(params[:filter][:provider]).person_id
+		elsif params[:location] # Migration
+		  user_person_id = encounter[:provider_id]
+		else
+		  user_person_id = User.find_by_user_id(encounter[:provider_id]).person_id
+		end
+		encounter.provider_id = user_person_id
+
+		encounter.save
 
     #create observations for the just created encounter
     create_obs(encounter , params)
@@ -1241,6 +1234,10 @@ class GenericEncountersController < ApplicationController
         observation[:value_numeric] = observation[:value_numeric].to_f * 18 if ( observation[:measurement_unit] == "mmol/l")
         observation.delete(:measurement_unit)
       end
+      
+			if encounter.type.name.upcase == 'FILM' && observation[:concept_name].upcase == 'FILM SIZE'
+					observation.delete(:parent_concept_name)
+			end
 
       if(observation[:parent_concept_name])
         concept_id = Concept.find_by_name(observation[:parent_concept_name]).id rescue nil
@@ -1349,6 +1346,10 @@ class GenericEncountersController < ApplicationController
 				observation.delete(:measurement_unit)
 			end
 
+			if encounter.type.name.upcase == 'FILM' && observation[:concept_name].upcase == 'FILM SIZE'
+					observation.delete(:parent_concept_name)
+			end
+			
 			if(observation[:parent_concept_name])
 				concept_id = Concept.find_by_name(observation[:parent_concept_name]).id rescue nil
 				observation[:obs_group_id] = Observation.find(:last, :conditions=> ['value_coded = ? AND encounter_id = ?',concept_id, encounter.id]).id rescue ""
