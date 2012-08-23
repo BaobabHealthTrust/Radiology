@@ -2,16 +2,60 @@
 <%= javascript_include_tag 'utils' %>
 <style>
 
-.tt_controls_summary #clearButton { display: none; }
+/*.tt_controls_summary #clearButton { display: none; }
 
 .tt_controls_summary .inputFrameClass { height: 448px; }
 
 #tt_page_summary .inputFrameClass { height: 448px; }
+*/
+
+
+  #space { display:inline; font-size:1.2em; }
+  #Unknown { display: none}
+  .label {
+    display: inline-block;
+    padding: 40px;
+    margin: auto;
+    border: 2px dashed black;
+    height: 100px;
+    width: 400px
+  }
+  .label .labelLine {
+    
+    width: 100%;
+    display:block
+
+  }
+  .reverse {
+    display:block;
+    width: 80%;
+    margin-right: 20px;
+    background: black;
+    color: white;
+  }
+
+  .tt_controls_main_tests .keyboard{display:none;}
+  #tt_page_main_tests .options{height:550px}
+
+  .tt_controls_select_test .keyboard{display:none;}
+  #tt_page_select_test .options{height:530px}
+
+
+
 
 .selected_conditions {
   font-size: 25px;
   padding-left: 10px;
   font-weight: bold;
+}
+
+#summary {
+  width:400px;
+  height: 100px;
+  padding-left:0;
+  padding-right:0;
+  padding-top: 200px;
+  margin: auto;
 }
 </style>
 
@@ -22,45 +66,46 @@
 
 <script>
   var tt_cancel_destination = "/patients/show/<%= @patient.patient_id -%>";
-  var referred_by = null;
-
-  function summary() {
-
-    var line2 = "<%=patient.national_id%> ";
-    line2 += "(<%=patient.sex.first%>)";
-    line2 += " <%=patient.birth_date%>";
-
-    var line3 = $("list_of_radiology_test").value;
-    if($("detailed_examination").value !="")
-     {
-        var line3 = line3 +" - " + $("examination").value
-        var line3 = line3 +" - " + $("detailed_examination").value
-     }
-    else
-     {
-       var line3 = line3 + " - " + $("examination").value
-     }
-    
-    var referred_from =  referred_by;
-
-    var line4 = "<%= session_date %>, " + referred_from;
-    $('inputFrame'+tstCurrentPage).innerHTML += '<div class="selected_conditions"><br />' + "<%=patient.name%> " + '</div>' ;
-    $('inputFrame'+tstCurrentPage).innerHTML += '<div class="selected_conditions"><br />' + line2 + '</div>' ;
-    $('inputFrame'+tstCurrentPage).innerHTML += '<div class="selected_conditions"><br />' + line3 + '</div>' ;
-    $('inputFrame'+tstCurrentPage).innerHTML += '<div class="selected_conditions"><br />' + line4 + '</div>' ;
-
-  }
-
-  function setReferredBy() {
-    referred_by = $('touchscreenInput'+tstCurrentPage).value;
-  }
-  
+ 
   function set_ajaxURL_for_suggestions(value) {
   	url = "/investigation/examination?radiology_test=" + value + "&examination=";
     $('touchscreenInput'+tstCurrentPage).setAttribute('ajaxURL', url);
     listSuggestions(tstCurrentPage);
   }
 
+  function showBarcode(){
+    var exam_type = $("list_of_radiology_test").value;
+    var exam = ""
+    if ($("detailed_examination").value)
+      {
+       var exam = $("examination").value + "-" + $("detailed_examination").value
+      }
+     else
+       {
+         var exam = $("examination").value
+       }
+    var referred_from = $("referred_by").value
+    displayText = drawLabel(exam_type,exam,referred_from);
+     $('tt_page_summary').innerHTML = '<div id="summary">' + displayText + '</div>' ;
+  }
+
+  function drawLabel(exam_type,exam,referred_from){
+        //TODO Replace below wtih http://barcode-coder.com/en/barcode-jquery-plugin-201.html
+        label = "\
+        <div class='label'>\
+        <div class='labelLine'>\
+        <%= "#{patient.name}" %>\
+        </div>\
+        <div class='labelLine'>\
+        <%= "#{patient.national_id_with_dashes} (#{patient.sex.first})  #{patient.birth_date}" %>\
+        </div>\
+        <div class='labelLine'><%= "#{DateTime.now.strftime("%d-%b-%Y")}" %> <del>R00000001</del>  ("+referred_from+")</div>\
+        <div class='labelLine reverse'>"+exam_type+"-"+exam+"</div>\
+        <div class='labelLine'> <del><b>||||||| |||| | ||||| | | ||||| || | | ||||||||</b></del></div>\
+        </div>\
+        "
+        return label
+    }
   examination_sets = '<%= "#{@examination_sets}" %>';
 </script>
 
@@ -75,7 +120,6 @@
 
 <%= touch_select_tag "RADIOLOGY TEST", @patient, concept_set_options("LIST OF RADIOLOGY TESTS"),
 		{	:id => "list_of_radiology_test",
-                        :tt_pageStyleClass => "Keyboard",
 		 	:helpText => "Please select the type of examination" } %>
 
 
@@ -96,8 +140,8 @@
 <%= touch_select_tag "REFERRED FROM", @patient, options_for_select(@referral_locations),
                      {:id => "referred_by",
                       :helpText => "Referred from",
-                      :tt_pageStyleClass => "Keyboard",
-                      :tt_onUnLoad => "setReferredBy();"} %>
+                      :tt_pageStyleClass => "Keyboard"
+                      } %>
 
 <%= touch_yes_no_tag "PAYING", @patient, nil,
                      {:id => "paying",
@@ -131,9 +175,9 @@
 
 <label for='summary'>Summary</label>
 <%= text_field_tag :summary, nil,
-                  { :tt_onLoad => "summary();",
-                    :optional => "true",
-                    :tt_pageStyleClass => "NoControls" } %>
+		{	 :helpText => "Summary",
+                         :tt_onLoad => "showBarcode();$('clearButton').style.display='none';",
+			 :optional => "true", :tt_pageStyleClass => "NoControls" } %>
 
 <%end%>
 
