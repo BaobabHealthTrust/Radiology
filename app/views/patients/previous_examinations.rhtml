@@ -1,0 +1,73 @@
+<%= javascript_include_tag "jquery" %>
+<%= javascript_include_tag 'utils' %>
+<script>
+  var tt_cancel_destination = "/patients/show/<%= @patient.patient_id %>";
+</script>
+<style>
+  #space { display:inline; font-size:1.2em; }
+  #Unknown { display: none}
+  .label {
+    display: inline-block;
+    padding:20px;
+    margin: 5px;
+    border: 2px dashed black;
+    height: 80px;
+    width: 300px
+  }
+  .label .labelLine {
+
+    width: 100%;
+    display:block
+
+  }
+  .reverse {
+    padding-left:20px;
+    padding-right:20px;
+    background: black;
+    color: white;
+  }
+
+  .tt_controls_main_tests .keyboard{display:none;}
+  #tt_page_main_tests .options{height:550px}
+
+  .tt_controls_select_test .keyboard{display:none;}
+  #tt_page_select_test .options{height:530px}
+
+
+
+
+.selected_conditions {
+  font-size: 25px;
+  padding-left: 10px;
+  font-weight: bold;
+}
+
+#summary {
+  width:200px;
+  padding-left:0;
+  padding-right:0;
+  margin-left: auto;
+  margin-right: auto;
+}
+</style>
+
+<%
+    session_date = session[:datetime].to_date.strftime('%d/%m/%Y') rescue Date.today.strftime('%d/%m/%Y')
+%>
+
+<% form_tag "/orders/examination_print", :method => :post do %>
+<%
+   options = ''
+  @orders.each do |key,value|
+    options += "<option value = '#{key.to_s}'>#{value.to_s}</option>"
+  end
+%>
+<%=hidden_field_tag 'patient_id',@patient.patient_id %>
+<%= select_tag 'order_id', options,
+		{
+                  :tt_pageStyleClass => "NoKeyboard",
+                  :helpText => "Please select examination to print"
+                } %>
+
+<%end%>
+
