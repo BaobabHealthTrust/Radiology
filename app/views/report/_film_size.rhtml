@@ -1,3 +1,30 @@
+<style type="text/css">
+  .weekHeader {
+    text-align:center;
+    padding-left:0px;
+ }
+  .filmSizesUsed {
+    text-align:left;
+    padding-left:10px;
+ }
+ .boldRow{
+  font-weight:bold;
+}
+.gray {
+  background-color: gray;
+}
+.numeric{
+  text-align:right;
+  padding-right: 10px;
+  padding-bottom: 5px;
+}
+.leftTitle
+{
+  text-align:left;
+  padding-left:10px;
+}
+</style>
+
 <body>
  <% start_date = "#{1}-#{@month}-#{@year}".to_date.strftime("%B") %>
 <div id="head">
@@ -12,26 +39,27 @@
 <thead>
 
 <tr>
-  <th style = "text-align:left;padding-left:10px;">FILM SIZES USED</th>
-  <th style = "text-align:center;padding-left:0px;">WEEK 1</th>
-  <th style = "text-align:center;padding-left:0px;">WEEK 2</th>
-  <th style = "text-align:center;padding-left:0px;">WEEK 3</th>
-  <th style = "text-align:center;padding-left:0px;">WEEK 4</th>
-  <th style = "text-align:center;padding-left:0px;">WEEK 5</th>
-  <th style = "text-align:center;padding-left:0px;">TOTAL FILMS</th>
-  <th style = "text-align:center;padding-left:0px;">TOTAL BOXES</th>
+  <th class="filmSizesUsed">FILM SIZES USED</th>
+  <th class="weekHeader">WEEK 1</th>
+  <th class="weekHeader">WEEK 2</th>
+  <th class="weekHeader">WEEK 3</th>
+  <th class="weekHeader">WEEK 4</th>
+  <th class="weekHeader">WEEK 5</th>
+  <th class="weekHeader">TOTAL FILMS</th>
+  <th class="weekHeader">TOTAL BOXES</th>
 </tr>
 </thead>
+<tbody>
 <% @total_week1  = @total_week2 =  @total_week3 =  @total_week4 = @total_week5 = 0  %>
 <% @total_wasted_week1  = @total_wasted_week2 =  @total_wasted_week3 =  @total_wasted_week4 = @total_wasted_week5 = 0  %>
 <% @film_size_options.each do|film_size| %>
 <tr>
-  <td style = "text-align:left;padding-left:10px;"><%= film_size %></td>
-  <td><%= @aggregates[0][film_size].to_i || 0%> </td>
-  <td><%= @aggregates[1][film_size].to_i || 0%> </td>
-  <td><%= @aggregates[2][film_size].to_i || 0%> </td>
-  <td><%= @aggregates[3][film_size].to_i || 0%> </td>
-  <td><%= @aggregates[4][film_size].to_i || 0%> </td>
+  <td class="leftTitle"><%= film_size %></td>
+  <td class="numeric"><%= @aggregates[0][film_size].to_i || 0%> </td>
+  <td class="numeric"><%= @aggregates[1][film_size].to_i || 0%> </td>
+  <td class="numeric"><%= @aggregates[2][film_size].to_i || 0%> </td>
+  <td class="numeric"><%= @aggregates[3][film_size].to_i || 0%> </td>
+  <td class="numeric"><%= @aggregates[4][film_size].to_i || 0%> </td>
 
       <%@total = @aggregates[0][film_size].to_i +
                  @aggregates[1][film_size].to_i +
@@ -40,8 +68,8 @@
                  @aggregates[4][film_size].to_i
                  %>
 
-  <td><%= @total || 0 %> </td>
-  <td><%= @total.to_f/100.to_f %></td>
+  <td class="numeric"><%= @total || 0 %> </td>
+  <td class="numeric"><%= @total.to_f/100.to_f %></td>
   <%
      @total_week1 += @aggregates[0][film_size].to_i
      @total_week2 += @aggregates[1][film_size].to_i
@@ -57,46 +85,48 @@
   %>
 </tr>
 <%end%>
-<tr><td style = "text-align:left;padding-left:10px;font-weight:bold">Throw outs</td>
-    <td style = "font-weight:bold"><%= @total_wasted_week1 %></td>
-    <td style = "font-weight:bold"><%= @total_wasted_week2 %></td>
-    <td style = "font-weight:bold"><%= @total_wasted_week3 %></td>
-    <td style = "font-weight:bold"><%= @total_wasted_week4 %></td>
-    <td style = "font-weight:bold"><%= @total_wasted_week5 %></td>
-    <td style = "font-weight:bold"><%= @total_wasted_week1.to_i + @total_wasted_week2.to_i + @total_wasted_week3.to_i + @total_wasted_week4.to_i + @total_wasted_week5.to_i %></td>
-    <td style = "font-weight:bold"><%= (@total_wasted_week1.to_i + @total_wasted_week2.to_i + @total_wasted_week3.to_i + @total_wasted_week4.to_i + @total_wasted_week5.to_i).to_f/100.to_f %></td>
+<tr class ="boldRow"><td class="leftTitle">Total usable</td>
+    <td class="numeric"><%= @total_week1 %></td>
+    <td class="numeric"><%= @total_week2 %></td>
+    <td class="numeric"><%= @total_week3 %></td>
+    <td class="numeric"><%= @total_week4 %></td>
+    <td class="numeric"><%= @total_week5 %></td>
+    <td class="numeric"><%= @total_week1.to_i + @total_week2.to_i + @total_week3.to_i + @total_week4.to_i + @total_week5.to_i %></td>
+    <td class="gray"></td>
 </tr>
-<tr><td style = "text-align:left;padding-left:10px;font-weight:bold">TOTAL OPENED</td>
-    <td style = "font-weight:bold"><%= @total_week1.to_i + @total_wasted_week1.to_i %></td>
-    <td style = "font-weight:bold"><%= @total_week2.to_i + @total_wasted_week2.to_i %></td>
-    <td style = "font-weight:bold"><%= @total_week3.to_i + @total_wasted_week3.to_i %></td>
-    <td style = "font-weight:bold"><%= @total_week4.to_i + @total_wasted_week4.to_i%></td>
-    <td style = "font-weight:bold"><%= @total_week5.to_i + @total_wasted_week5.to_i %></td>
-    <td style = "font-weight:bold"><%= (@total_week1.to_i + @total_wasted_week1.to_i)+
+<tr class ="boldRow"><td class="leftTitle">Throw outs</td>
+    <td class="numeric"><%= @total_wasted_week1 %></td>
+    <td class="numeric"><%= @total_wasted_week2 %></td>
+    <td class="numeric"><%= @total_wasted_week3 %></td>
+    <td class="numeric"><%= @total_wasted_week4 %></td>
+    <td class="numeric"><%= @total_wasted_week5 %></td>
+    <td class="numeric"><%= @total_wasted_week1.to_i + @total_wasted_week2.to_i + @total_wasted_week3.to_i + @total_wasted_week4.to_i + @total_wasted_week5.to_i %></td>
+    <td class="numeric"><%= (@total_wasted_week1.to_i + @total_wasted_week2.to_i + @total_wasted_week3.to_i + @total_wasted_week4.to_i + @total_wasted_week5.to_i).to_f/100.to_f %></td>
+</tr>
+<tr class ="boldRow"><td class="leftTitle">Total opened</td>
+    <td class="numeric"><%= @total_week1.to_i + @total_wasted_week1.to_i %></td>
+    <td class="numeric"><%= @total_week2.to_i + @total_wasted_week2.to_i %></td>
+    <td class="numeric"><%= @total_week3.to_i + @total_wasted_week3.to_i %></td>
+    <td class="numeric"><%= @total_week4.to_i + @total_wasted_week4.to_i%></td>
+    <td class="numeric"><%= @total_week5.to_i + @total_wasted_week5.to_i %></td>
+    <td class="numeric"><%= (@total_week1.to_i + @total_wasted_week1.to_i)+
                                        (@total_week2.to_i + @total_wasted_week2.to_i)+
                                        (@total_week3.to_i + @total_wasted_week3.to_i)+
                                        (@total_week4.to_i + @total_wasted_week4.to_i)+
                                        (@total_week5.to_i + @total_wasted_week5.to_i)%></td>
-    <td style = "font-weight:bold"><%= ((@total_week1.to_i + @total_wasted_week1.to_i)+
+    <td class="numeric"><%= ((@total_week1.to_i + @total_wasted_week1.to_i)+
                                        (@total_week2.to_i + @total_wasted_week2.to_i)+
                                        (@total_week3.to_i + @total_wasted_week3.to_i)+
                                        (@total_week4.to_i + @total_wasted_week4.to_i)+
                                        (@total_week5.to_i + @total_wasted_week5.to_i)).to_f/100.to_f %></td>
 </tr>
-<tr><td style = "text-align:left;padding-left:10px;font-weight:bold">TOTAL USABLE</td>
-    <td style = "font-weight:bold"><%= @total_week1 %></td>
-    <td style = "font-weight:bold"><%= @total_week2 %></td>
-    <td style = "font-weight:bold"><%= @total_week3 %></td>
-    <td style = "font-weight:bold"><%= @total_week4 %></td>
-    <td style = "font-weight:bold"><%= @total_week5 %></td>
-    <td style = "font-weight:bold"><%= @total_week1.to_i + @total_week2.to_i + @total_week3.to_i + @total_week4.to_i + @total_week5.to_i %></td>
-    <td style = "font-weight:bold"></td>
+
+<tr class ="boldRow"><td class="leftTitle"  colspan="2">Total revenue collected is:</td>
+    <td>MK</td><td class="numeric" colspan ="2"><%= @revenue_collected.first.total_revenue.to_s %></td>
 </tr>
 
-<tr><td colspan="2" style = "text-align:left;padding-left:10px;font-weight:bold">Total revenue collected is:</td>
-    <td>MK</td><td colspan ="2" style = "font-weight:bold;text-align:right;"><%= @revenue_collected.first.total_revenue.to_s %></td>
-</tr>
-
+</tbody>
 </table>
+  
 </div>
 </body>

@@ -1,3 +1,30 @@
+<style type="text/css">
+  .weekHeader {
+    text-align:center;
+    padding-left:0px;
+ }
+  .examinations {
+    text-align:left;
+    padding-left:10px;
+ }
+ .boldRow{
+  font-weight:bold;
+}
+.gray {
+  background-color: gray;
+}
+.numeric{
+  text-align:right;
+  padding-right: 10px;
+  padding-bottom: 5px;
+}
+.leftTitle
+{
+  text-align:left;
+  padding-left:10px;
+}
+</style>
+
 <body>
  <% start_date = "#{1}-#{@month}-#{@year}".to_date.strftime("%B") %>
 <div id="head">
@@ -12,24 +39,24 @@
 <thead>
 
 <tr>
-  <th style = "text-align:left;padding-left:10px;"><%= @investigation_type.upcase %> EXAMINATIONS</th>
-  <th style = "text-align:center;padding-left:0px;">WEEK 1</th>
-  <th style = "text-align:center;padding-left:0px;">WEEK 2</th>
-  <th style = "text-align:center;padding-left:0px;">WEEK 3</th>
-  <th style = "text-align:center;padding-left:0px;">WEEK 4</th>
-  <th style = "text-align:center;padding-left:0px;">WEEK 5</th>
-  <th style = "text-align:center;padding-left:0px;">TOTAL</th>
+  <th class ="examinations"><%= @investigation_type.upcase %> EXAMINATIONS</th>
+  <th class ="weekHeader">WEEK 1</th>
+  <th class ="weekHeader">WEEK 2</th>
+  <th class ="weekHeader">WEEK 3</th>
+  <th class ="weekHeader">WEEK 4</th>
+  <th class ="weekHeader">WEEK 5</th>
+  <th class ="weekHeader"s>TOTAL</th>
 </tr>
 </thead>
 <% @total_week1  = @total_week2 =  @total_week3 =  @total_week4 = @total_week5 = 0  %>
 <% @investigation_options.each do|part| %>
 <tr>
-  <td style = "text-align:left;padding-left:10px;"><%=part%></td>
-  <td><%= @aggregates[0][part] || 0%> </td>
-  <td><%= @aggregates[1][part] || 0%> </td>
-  <td><%= @aggregates[2][part] || 0%> </td>
-  <td><%= @aggregates[3][part] || 0%> </td>
-  <td><%= @aggregates[4][part] || 0%> </td>
+  <td class="leftTitle"><%=part%></td>
+  <td class="numeric"><%= @aggregates[0][part] || 0%> </td>
+  <td class="numeric"><%= @aggregates[1][part] || 0%> </td>
+  <td class="numeric"><%= @aggregates[2][part] || 0%> </td>
+  <td class="numeric"><%= @aggregates[3][part] || 0%> </td>
+  <td class="numeric"><%= @aggregates[4][part] || 0%> </td>
 
       <%@total = @aggregates[0][part].to_i +
                  @aggregates[1][part].to_i +
@@ -38,7 +65,7 @@
                  @aggregates[4][part].to_i
                  %>
 
-  <td><%= @total || 0 %> </td>
+  <td class="numeric"><%= @total || 0 %> </td>
   <%
      @total_week1 += @aggregates[0][part].to_i
      @total_week2 += @aggregates[1][part].to_i
@@ -48,13 +75,13 @@
   %>
 </tr>
 <%end%>
-<tr><td style = "text-align:left;padding-left:10px;font-weight:bold">Total Exams</td>
-    <td style = "font-weight:bold"><%= @total_week1 %></td>
-    <td style = "font-weight:bold"><%= @total_week2 %></td>
-    <td style = "font-weight:bold"><%= @total_week3 %></td>
-    <td style = "font-weight:bold"><%= @total_week4 %></td>
-    <td style = "font-weight:bold"><%= @total_week5 %></td>
-    <td style = "font-weight:bold"><%= @total_week1.to_i + @total_week2.to_i + @total_week3.to_i + @total_week4.to_i + @total_week5.to_i %></td>
+<tr class ="boldRow"><td class="leftTitle">Total Exams</td>
+    <td class="numeric"><%= @total_week1 %></td>
+    <td class="numeric"><%= @total_week2 %></td>
+    <td class="numeric"><%= @total_week3 %></td>
+    <td class="numeric"><%= @total_week4 %></td>
+    <td class="numeric"><%= @total_week5 %></td>
+    <td class="numeric"><%= @total_week1.to_i + @total_week2.to_i + @total_week3.to_i + @total_week4.to_i + @total_week5.to_i %></td>
 </tr>
 
 </table>
