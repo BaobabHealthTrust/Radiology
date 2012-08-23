@@ -45,12 +45,15 @@ class OrdersController < ApplicationController
       :filename=>"#{params[:order_id]}#{rand(10000)}.lbl",:disposition => "inline")
   end
 
+  def examination_print
+    print_and_redirect("/orders/examination_number?order_id=#{params[:order_id]}", "/patients/show/#{params[:patient_id]}")
+  end
+
   def create_encounter(encounter_type_name,patient, date = Time.now(), provider = current_user.person_id)
     type = EncounterType.find_by_name(encounter_type_name)
     encounter = patient.encounters.create(:encounter_type => type.id,:encounter_datetime => date, :provider_id => provider)
   end
 
-  
   def current_radiology_order(examination_number, concept = nil, patient = nil, encounter = nil)
     type = OrderType.find_by_name("RADIOLOGY")
     order = patient.orders.find_by_accession_number(examination_number)
