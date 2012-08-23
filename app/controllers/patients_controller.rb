@@ -3,17 +3,27 @@ class PatientsController < GenericPatientsController
   def personal
     @links = []
     patient = Patient.find(params[:id])
-    order = Order.find(:first,:conditions => ["patient_id = ?",patient.id],:order => "start_date DESC")
+    order = Order.find(:first,:conditions => ["patient_id = ? AND voided = 0",patient.id],:order => "start_date DESC")
     if use_user_selected_activities
       @links << ["Change User Activities","/user/activities/#{current_user.id}?patient_id=#{patient.id}"]
     end
       @links << ["National ID","/patients/dashboard_print_national_id/#{patient.id}"]
     unless order.nil?
-      @links << ["Examination Label","/orders/examination_number?order_id=#{order.order_id}"]
+      #@links << ["Examination Label","/orders/examination_number?order_id=#{order.order_id}"]
+      @links << ["Examination Labels","/patients/previous_examinations/#{patient.id}"]
     end
     render :template => 'dashboards/personal_tab', :layout => false
   end
 
+  def previous_examinations
+     @patient = Patient.find(params[:id])
+     orders = Order.find(:all,:conditions => ["patient_id = ? AND voided = 0",@patient.id],:order => "date_created DESC LIMIT 5")
+     @orders = []
+     orders.each  do |order|
+       @orders << [order.order_id, order.accession_number]
+     end
+  end
+  
   def examination
     exam_number = params[:examination_number]
     @order = Order.find(:first,:conditions => ["accession_number = ? AND voided = 0",exam_number])
