@@ -1,0 +1,15 @@
+body {
+    font-family: Arial,sans-serif;
+}
+table {
+       border: 1px solid black;
+       width: 10in;
+       height: 5in;
+       border-collapse: collapse;
+}
+td,th {
+      border: 1px solid black;
+}
+.gray{
+    background-color: gray;
+}

@@ -10,6 +10,8 @@ function printContent(id){
      popupWindow.document.write('<HTML>\n<HEAD>\n');
      popupWindow.document.write('<TITLE></TITLE>\n');
      popupWindow.document.write('<URL></URL>\n');
+     popupWindow.document.write("<link href='/stylesheets/report.css' media='print' rel='stylesheet' type='text/css' />\n");
+     popupWindow.document.write("<link href='/stylesheets/report1.css' media='screen' rel='stylesheet' type='text/css' />\n");
      popupWindow.document.write('<script>\n');
      popupWindow.document.write('function print_win(){\n');
      popupWindow.document.write('\nwindow.print();\n');
