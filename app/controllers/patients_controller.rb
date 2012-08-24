@@ -123,7 +123,6 @@ class PatientsController < GenericPatientsController
       																							LEFT JOIN obs ON encounter.encounter_id = obs.encounter_id",
       															:conditions => ["orders.order_id = ? OR obs.order_id = ?", order.order_id, order.order_id],
                                    :group => ["encounter_id"],:order => "encounter_datetime DESC")
-     # raise @encounters.to_yaml
     else
       @encounters = Encounter.find(:all, :conditions => ["patient_id = ? AND encounter_datetime >= ? AND encounter_datetime <= ?",
                                                           @patient.id, start_date, end_date],:order => "encounter_datetime DESC")
