@@ -2,7 +2,7 @@
 <script type="text/javascript">
   var tt_cancel_destination = "/clinic"
 
-  function arvCode(){
+  function radCode(){
     inputElement = document.getElementById('tt_page_enter_exam_number').getElementsByTagName("input")[0]
     prefix = document.createElement("span")
     style = document.createAttribute("style")
@@ -33,8 +33,13 @@
 </style>
 
 <form method = 'post' action = 'find_by_exam_number'>
-   <%= text_field_tag :exam_number, nil , 
+  
+   <%= text_field_tag :exam_number, nil ,
        :field_type => 'number' , 
        :helpText => 'Enter Exam number',
-       :tt_onLoad =>'arvCode()'%>
+       :tt_onLoad =>'radCode()'%>
+
+  <%#=touch_text_field_tag "EXAMINATION" %>
+
+ 
 </form> 
