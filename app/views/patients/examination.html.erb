@@ -20,13 +20,13 @@
                           } %>
   <%= touch_hidden_tag "HEALTH CARE PROVIDER", current_user.user_id.to_s,nil,{:order_id => @order.order_id} %>
  
-<%# session_date = session[:datetime].to_date rescue nil
+<% session_date = session[:datetime].to_date rescue nil
     if session_date %>
-      <!--p><label for="filter_provider">Staff who provided the information (Provider)</label></br -->
-      <%#= text_field "filter" , 'provider', :helpText => 'Staff who provided the information (Provider)',
+      <p><label for="filter_provider">Staff who provided the information (Provider)</label></br>
+      <%= text_field "filter" , 'provider', :helpText => 'Staff who provided the information (Provider)',
         :ajaxURL => '/user/username?username='  %></p>
-    <%# else %>
-      <%#= hidden_field_tag "filter[provider]", nil %>
-    <%#end%>
+    <% else %>
+      <%= hidden_field_tag "filter[provider]", nil %>
+    <%end%>
 
 </form>
