@@ -32,7 +32,7 @@
     <% current_day = session[:datetime].strftime('%Y-%m-%d') rescue 'Today'%>
     
     <% if session[:examination_number] %>   
-    		<h2 style="margin: 0px;"><%=current_day %>'s Visit summary (<%= session[:examination_number] %>) </h2>
+    		<h2 style="margin: 0px;">   Visit summary (<%= session[:examination_number] %>) </h2>
     <% else %>
     		<h2 style="margin: 0px;"><%=current_day %>'s Visit summary </h2>
     <% end %>
@@ -43,11 +43,20 @@
             <% for encounter in @encounters do %> 
                 <li class="data <%= cycle('even', 'odd') %>" encounter="<%= encounter.id %>">
                   <div class="void"><img src="/images/cancel_flat_small.png"/></div>
-                  <% if encounter.name.humanize.include?('Hiv') %>
-                    <div class="encounter"><%=(h encounter.name.humanize).gsub('Hiv','HIV').gsub('Tb','TB') %> at <%=h encounter.encounter_datetime.strftime("%k:%M") %> by <%=@creator_name[encounter.creator]%></div>
-                  <% else %> 
-                    <div class="encounter"><%=(h encounter.name.humanize).gsub('Art','ART').gsub('hiv','HIV').gsub('Tb','TB') %> at <%=h encounter.encounter_datetime.strftime("%k:%M") %> by <%=@creator_name[encounter.creator]%></div>
+                  <% if session[:examination_number].blank? %>
+                      <% if encounter.name.humanize.include?('Hiv') %>
+                        <div class="encounter"><%=(h encounter.name.humanize).gsub('Hiv','HIV').gsub('Tb','TB') %> at <%=h encounter.encounter_datetime.strftime("%k:%M") %> by <%=@creator_name[encounter.creator]%></div>
+                      <% else %>
+                        <div class="encounter"><%=(h encounter.name.humanize).gsub('Art','ART').gsub('hiv','HIV').gsub('Tb','TB') %> at <%=h encounter.encounter_datetime.strftime("%k:%M") %> by <%=@creator_name[encounter.creator]%></div>
+                      <% end %>
+                  <% else %>
+                      <% if encounter.name.humanize.include?('Hiv') %>
+                        <div class="encounter"><%=(h encounter.name.humanize).gsub('Hiv','HIV').gsub('Tb','TB') %> on <%=h encounter.encounter_datetime.strftime("%d-%b-%Y at %k:%M") %> by <%=@creator_name[encounter.creator]%></div>
+                      <% else %>
+                        <div class="encounter"><%=(h encounter.name.humanize).gsub('Art','ART').gsub('hiv','HIV').gsub('Tb','TB') %> on <%=h encounter.encounter_datetime.strftime("%d-%b-%Y at %k:%M") %> by <%=@creator_name[encounter.creator]%></div>
+                      <% end %>
                   <% end %>
+                    
                 </li>
               <% end %>
             </ul>
