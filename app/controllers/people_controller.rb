@@ -94,10 +94,7 @@ class PeopleController < GenericPeopleController
       if order.blank?
         redirect_to :action => 'find_by_exam_number' and return                 
       else                  
-        unless order.date_created.to_date == Date.today
-          session[:datetime] = order.date_created.to_date
-        end
-        session[:examination_number] = order.accession_number 
+        session[:examination_number] = order.accession_number
  redirect_to :controller => 'patients', :action => 'show',:patient_id => order.patient_id,:encounter_date => order.date_created.to_date and return
       end                                                                      
     end                                                                         
@@ -109,9 +106,7 @@ def search
       if  params[:identifier].length == 9 && params[:identifier][0].chr == "R"
          order = Order.find(:first,:conditions =>["accession_number = ? AND voided = 0",params[:identifier]])
          if order
-           unless order.date_created.to_date == Date.today
-             session[:datetime] = order.date_created.to_date
-           end
+           session[:examination_number] = order.accession_number
            redirect_to :controller => 'patients', :action => 'show',:patient_id => order.patient_id,
                        :encounter_date => order.date_created.to_date,:examination_number => order.accession_number and return
          else
