@@ -1,10 +1,11 @@
 production:
- create_from_remote: no
+ create.from.remote: false
  use.user.selected.activities: no
+ create.from.dde.server: false
  filing.number.prefix: FN101,FN102
  auto_set_appointment: false
  statistics.show_encounter_types: RADIOLOGY EXAMINATION
- show.patient.confirmation: no
+ show.patient.confirmation: false
  current.health.facility: Kamuzu Central Hospital
  hod: Dr Chipa, Consultant Radiologist
  facility.address.l1: P.O. Box 149
@@ -15,11 +16,12 @@ production:
  radiology.referral.locations: 1A/1B;2A/2B;3A;3B;4A;4B;Bottom/Bwaila;Dental;Eye;EMMW;ICU;Lighthouse;MAP;Peadiatric;Skin;Other
  
 development:
- create_from_remote: no
+ create.from.remote: false
  use.user.selected.activities: no
+ create.from.dde.server: false
  filing.number.prefix: FN101,FN102
  auto_set_appointment: false
- show.patient.confirmation: no
+ show.patient.confirmation: false
  statistics.show_encounter_types:  RADIOLOGY EXAMINATION
  current.health.facility: Kamuzu Central Hospital
  hod: Dr Chipa, Consultant Radiologist
