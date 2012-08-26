@@ -3,7 +3,8 @@ class PatientsController < GenericPatientsController
   def personal
     @links = []
     patient = Patient.find(params[:id])
-    order = Order.find(:first,:conditions => ["patient_id = ? AND voided = 0",patient.id],:order => "start_date DESC")
+    order_type = OrderType.find_by_name("RADIOLOGY")
+    order = Order.find(:first,:conditions => ["patient_id = ? AND order_type_id = ? voided = 0",patient.id,order_type.id],:order => "start_date DESC")
     if use_user_selected_activities
       @links << ["Change User Activities","/user/activities/#{current_user.id}?patient_id=#{patient.id}"]
     end
