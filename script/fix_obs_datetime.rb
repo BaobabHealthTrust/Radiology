@@ -1,7 +1,7 @@
 start_time = Time.now
 puts "Start Time: #{start_time}\n\n"
-
-failure = File.open("failure_id.DAT", 'w')
+logger = Logger.new(Rails.root.join("log",'production.log')) #,3,5*1024*1024)
+logger.info "Start Time: #{start_time}"
 total_saved = 0
 total_failed = 0
 
@@ -22,18 +22,20 @@ encounter = Encounter.find(:all,
     if ob.save
 		    total_saved +=1
         puts "Total saved : #{total_saved}"
+        logger.info "Total saved : #{total_saved}"
 	  else
 		    total_failed +=1
-        failure.puts ob.obs_id
+        logger.error "Failed to save ob: #{ob.obs_id} for enc : #{enc.encounter_id}"
 	  end
   end
  end
 end_time = Time.now
-puts "\nEnd Time: #{end_time}"
-puts "Total saved: #{total_saved}"
-puts "Total failed: #{total_failed}"
-puts "It took : #{end_time - start_time}"
-puts "Completed successfully !!\n\n"
+
+logger.info "End Time: #{end_time}"
+logger.info "Total saved: #{total_saved}"
+logger.info "Total failed: #{total_failed}"
+logger.info "It took : #{end_time - start_time}"
+logger.info "Completed successfully !!\n\n"
 
 
 
