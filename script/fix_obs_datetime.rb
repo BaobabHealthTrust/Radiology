@@ -21,7 +21,7 @@ encounter = Encounter.find(:all,
      ob.obs_datetime = enc.encounter_datetime
     if ob.save
 		    total_saved +=1
-        puts "Total saved : #{total_saved}"
+        #puts "Total saved : #{total_saved}"
         logger.info "Total saved : #{total_saved}"
 	  else
 		    total_failed +=1
