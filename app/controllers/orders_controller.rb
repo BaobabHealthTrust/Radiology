@@ -61,9 +61,8 @@ class OrdersController < ApplicationController
                                     :patient_id => patient.patient_id,
                                     :concept_id => concept.concept_id,
                                     :encounter_id => encounter.encounter_id,
-                                    :orderer => encounter.provider_id,
+                                    :orderer => current_user.person_id,
                                     :accession_number => examination_number,
-                                    :date_created => encounter.date_created,
                                     :start_date => encounter.encounter_datetime)
   end
 
