@@ -63,6 +63,7 @@ class OrdersController < ApplicationController
                                     :encounter_id => encounter.encounter_id,
                                     :orderer => encounter.provider_id,
                                     :accession_number => examination_number,
+                                    :date_created => encounter.date_created,
                                     :start_date => encounter.encounter_datetime)
   end
 
