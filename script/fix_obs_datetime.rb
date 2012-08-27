@@ -13,7 +13,7 @@ encounter = Encounter.find(:all,
                    :conditions => ["encounter_type IN (?) AND encounter_id >= ? ",
                                    [radiology_examination_encounter,
                                     film_size_encounter,
-                                    notes_encounter],123503
+                                    notes_encounter],202405
                                   ]
                            )
  encounter.each do |enc|
