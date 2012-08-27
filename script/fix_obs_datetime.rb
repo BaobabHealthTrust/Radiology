@@ -1,6 +1,6 @@
 start_time = Time.now
 puts "Start Time: #{start_time}\n\n"
-logger = Logger.new(Rails.root.join("log",'production.log')) #,3,5*1024*1024)
+logger = Logger.new(Rails.root.join("log",'fix_obs_datetime.log')) #,3,5*1024*1024)
 logger.info "Start Time: #{start_time}"
 total_saved = 0
 total_failed = 0
@@ -10,10 +10,10 @@ film_size_encounter = EncounterType.find_by_name("FILM").encounter_type_id
 notes_encounter = EncounterType.find_by_name("NOTES").encounter_type_id
 
 encounter = Encounter.find(:all,
-                   :conditions => ["encounter_type IN (?)",
+                   :conditions => ["encounter_type IN (?) AND encounter_id >= ? ",
                                    [radiology_examination_encounter,
                                     film_size_encounter,
-                                    notes_encounter]
+                                    notes_encounter],123503
                                   ]
                            )
  encounter.each do |enc|
@@ -21,7 +21,7 @@ encounter = Encounter.find(:all,
      ob.obs_datetime = enc.encounter_datetime
     if ob.save
 		    total_saved +=1
-        puts "Total saved : #{total_saved}"
+        #puts "Total saved : #{total_saved}"
         logger.info "Total saved : #{total_saved}"
 	  else
 		    total_failed +=1
