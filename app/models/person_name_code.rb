@@ -59,9 +59,10 @@ class PersonNameCode < ActiveRecord::Base
        INNER JOIN person_name ON person_name_code.person_name_id = person_name.person_name_id \
        WHERE  person_name.voided = 0 AND #{field_name}_code LIKE ? \
        GROUP BY #{field_name} \
-       ORDER BY #{field_name} \
+       ORDER BY \
+        CASE INSTR(#{field_name},?) WHEN 0 THEN 9999 ELSE INSTR(#{field_name},?) END ASC \
        LIMIT 10",
-       "#{soundex}%"])
+       "#{soundex}%", search_string, search_string])
   end
 
   def self.find_top_ten(field_name)
