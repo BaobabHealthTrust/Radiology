@@ -34,7 +34,7 @@ class OrdersController < ApplicationController
 
     examination_number = next_available_exam_number
     order = current_radiology_order(examination_number, order_type_concept, patient, encounter)
-
+    #examination_number_label(order.order_id)
     print_and_redirect("/orders/examination_number?order_id=#{order.order_id}", "/clinic")
 
   end
@@ -92,24 +92,23 @@ class OrdersController < ApplicationController
                                            :conditions => ["encounter_id = ? AND concept_id = ?",
                                             encounter_id, referred_from_concept]).value_text
 
-    examination_concept = ConceptName.find_by_name("DETAILED EXAMINATION").concept_id
+    examination_concept = ConceptName.find_by_name("EXAMINATION").concept_id
     examination_obs = Observation.find( :first, :select => "concept_id, value_coded",
-                                           :conditions => ["encounter_id = ? AND concept_id = ?",
-                                             encounter_id, examination_concept])
-    examination = examination_obs.answer_concept.shortname rescue nil
-    if examination.blank?
-      examination = examination_obs.answer_concept.fullname rescue nil
-    end
-
-    if examination.blank?
-      examination_concept = ConceptName.find_by_name("EXAMINATION").concept_id
-      examination_obs = Observation.find( :first, :select => "concept_id, value_coded",
                                              :conditions => ["encounter_id = ? AND concept_id = ?",
                                                encounter_id, examination_concept])
-      examination = examination_obs.answer_concept.shortname rescue nil
-      if examination.blank?
-        examination = examination_obs.answer_concept.fullname rescue ''
-      end
+    examination = examination_obs.answer_concept.shortname rescue ''
+    
+    if examination.blank?
+      examination = examination_obs.answer_concept.fullname rescue ''
+    end
+
+    detailed_examination_concept = ConceptName.find_by_name("DETAILED EXAMINATION").concept_id
+    detailed_examination_obs = Observation.find( :first, :select => "concept_id, value_coded",
+                                           :conditions => ["encounter_id = ? AND concept_id = ?",
+                                             encounter_id, detailed_examination_concept])
+    detailed_examination = detailed_examination_obs.answer_concept.shortname rescue nil
+    if detailed_examination.blank?
+      detailed_examination = detailed_examination_obs.answer_concept.fullname rescue nil
     end
 
     patient_bean = PatientService.get_patient(order.encounter.patient.person)
@@ -119,8 +118,12 @@ class OrdersController < ApplicationController
     #name_of_referring_site = referred_from
     session_date = order.encounter.encounter_datetime.strftime('%d-%b-%Y')
     # study_type = order.concept.fullname
-
-    type = order.concept.fullname
+    
+    unless order.concept.shortname.nil?
+      type = order.concept.shortname
+    else
+      type = order.concept.fullname
+    end
     
     label = ZebraPrinter::StandardLabel.new
     label.font_size = 4
@@ -128,10 +131,14 @@ class OrdersController < ApplicationController
     label.font_horizontal_multiplier = 1
     label.font_vertical_multiplier = 1
     label.left_margin = 100
-    label.draw_barcode(50,180,0,1,5,15,90,false,"#{order.accession_number}")
+    label.draw_barcode(100,220,0,1,5,15,90,false,"#{order.accession_number}")
     label.draw_multi_text("#{patient_bean.name.titleize}")
     label.draw_multi_text("#{patient_bean.national_id_with_dashes} #{sex} #{patient_bean.birth_date}")
-    label.draw_multi_text("#{type} - #{examination}")
+    unless detailed_examination.blank?
+      label.draw_multi_text("#{type}-#{examination}-#{detailed_examination}")
+    else
+      label.draw_multi_text("#{type}-#{examination}")
+    end
     label.draw_multi_text("#{session_date}, #{order.accession_number} (#{referred_from})")
     label.print(1)
   end
