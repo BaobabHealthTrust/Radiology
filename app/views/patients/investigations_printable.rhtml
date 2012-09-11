@@ -138,10 +138,10 @@
       <tr>
         <th colspan="5">
           Report Of
-          <% unless @detailed_examination.nil? %>
+          <% unless @detailed_examination.blank? %>
            <%= @examination_type %>-<%= @examination %>-<%= @detailed_examination %>
           <% else %>
-            <%= @examination_type %>-<%=  @examination %>
+           <%= @examination_type %>-<%=  @examination %>
           <% end %>
         </th>
       </tr>
