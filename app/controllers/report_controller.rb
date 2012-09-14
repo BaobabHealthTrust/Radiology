@@ -20,7 +20,7 @@ class ReportController < GenericReportController
           when "XRAY"
             @investigation_options = ['Skull','Chest','Upper limb','Lower limb','Stenum','Shoulder','Abdomen',
                       'Spine','Pelvis','Contrast GI studies','Contrast UT studies','Hystero, salpingogram',
-                      'Mammography','Sinogram','Siologram','Bronchogram'].sort
+                      'Mammography','Sinogram','Sialogram','Bronchogram'].sort
 
           when "ULTRASOUND"
              @investigation_options = ['Breast','Musculoskeletal','Carotid doppler','Abdominal doppler and color flow',
