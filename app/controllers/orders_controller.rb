@@ -35,7 +35,7 @@ class OrdersController < ApplicationController
     examination_number = next_available_exam_number
     order = current_radiology_order(examination_number, order_type_concept, patient, encounter)
     #examination_number_label(order.order_id)
-    print_and_redirect("/orders/examination_number?order_id=#{order.order_id}", "/clinic")
+    print_and_redirect("/orders/examination_number?order_id=#{order.order_id}", "/patients/show/#{patient.patient_id}")
 
   end
   
