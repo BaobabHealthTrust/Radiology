@@ -84,7 +84,7 @@ class GenericClinicController < ApplicationController
     simple_overview = false
     if simple_overview_property != nil
       if simple_overview_property == 'true'
-        simple_overview = true
+        simple_overview = false
       end
     end
 
@@ -109,7 +109,7 @@ class GenericClinicController < ApplicationController
       @ever = Encounter.statistics(@types)
     end
 
-    @user = User.find(current_user.user_id).person.name rescue ""
+    @user = current_user.name  rescue "Me"
 
     if simple_overview
         render :template => 'clinic/overview_simple.rhtml' , :layout => false
