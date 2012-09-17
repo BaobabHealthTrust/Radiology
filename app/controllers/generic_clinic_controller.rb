@@ -84,7 +84,7 @@ class GenericClinicController < ApplicationController
     simple_overview = false
     if simple_overview_property != nil
       if simple_overview_property == 'true'
-        simple_overview = false
+        simple_overview = true
       end
     end
 
