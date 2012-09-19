@@ -308,7 +308,7 @@ ORDER BY clinic ASC"])
    examination_concept_id = ConceptName.find_by_name("EXAMINATION").concept_id
    start_days = [1, 8, 15, 22, 29]
    weeks = Hash.new()
-  
+   
     start_days.each_with_index do|day,count|
       weeks[count] = Hash.new()
 
@@ -336,7 +336,7 @@ ORDER BY clinic ASC"])
                                      AND od.concept_id = #{order_concept_id}
                                      AND od.order_type_id = #{order_type_id}
                                      AND e.encounter_type = #{radiology_examination_encounter_id}
-                                      AND o.concept_id = #{examination_concept_id}
+                                     AND o.concept_id = #{examination_concept_id}
                                      AND o.obs_datetime BETWEEN '#{start_date}' AND '#{end_date}'
                                      GROUP BY cn.name")
      
@@ -348,6 +348,61 @@ ORDER BY clinic ASC"])
     end
     weeks
   end
+  
+  def self.detailed_investigations(order_concept_name,month,year = Date.today.year)
+   order_type_id = OrderType.find_by_name("RADIOLOGY").order_type_id
+   order_concept_id = ConceptName.find_by_name(order_concept_name).concept_id
+   radiology_examination_encounter_id = EncounterType.find_by_name("RADIOLOGY EXAMINATION").encounter_type_id
+   detailed_examination_concept_id = ConceptName.find_by_name("DETAILED EXAMINATION").concept_id
+   start_days = [1, 8, 15, 22, 29]
+   weeks = Hash.new()
+  
+    start_days.each_with_index do|day,count|
+      weeks[count] = Hash.new()
+
+      if month == 2 and day == 29 and !Date.leap?(year)
+        return weeks
+      end
+      
+      start_date = "#{day}-#{month}-#{year}".to_date.strftime("%Y-%m-%d 00:00:00")
+      if month == 2 and day == 29 and Date.leap?(start_date.to_date.year)
+        end_date = "#{Time.days_in_month(month)}-#{month}-#{year}".to_date.strftime("%Y-%m-%d 23:59:59")  
+      elsif day == 29
+         end_date = "#{Time.days_in_month(month)}-#{month}-#{year}".to_date.strftime("%Y-%m-%d 23:59:59")
+      else
+         end_date = ((start_date.to_date + 1.week) - 1.day).strftime("%Y-%m-%d 23:59:59")
+      end
+      
+      
+       enema_concept_id = ConceptName.find_by_name('Enema').concept_id
+       meal_concept_id  = ConceptName.find_by_name('Meal').concept_id
+       swallow_concept_id = ConceptName.find_by_name('Swallow').concept_id
+     
+       obs = Observation.find_by_sql("SELECT cn.name as examination,COUNT(o.value_coded) as cnt FROM obs o
+                                     INNER JOIN encounter e
+                                     ON o.encounter_id = e.encounter_id
+                                     INNER JOIN concept_name cn
+                                     ON o.value_coded = cn.concept_id
+                                     INNER JOIN orders od
+                                     ON od.encounter_id = o.encounter_id
+                                     WHERE od.voided = 0
+                                     AND od.concept_id = #{order_concept_id}
+                                     AND od.order_type_id = #{order_type_id}
+                                     AND e.encounter_type = #{radiology_examination_encounter_id}
+                                     AND o.concept_id = #{detailed_examination_concept_id}
+                                     AND o.value_coded IN (#{enema_concept_id},#{meal_concept_id},#{swallow_concept_id})
+                                     AND o.obs_datetime BETWEEN '#{start_date}' AND '#{end_date}'
+                                     GROUP BY cn.name")
+     
+
+      obs.each do |ob|
+         weeks[count][ob.examination] = ob.cnt
+      end
+         
+    end
+    weeks
+  end
+   
   def self.daily_report(report_date)
      
   end
