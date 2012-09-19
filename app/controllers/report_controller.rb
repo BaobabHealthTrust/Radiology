@@ -18,9 +18,9 @@ class ReportController < GenericReportController
         @report_type = "INVESTIGATIONS"
         case  @investigation_type.upcase
           when "XRAY"
-            @investigation_options = ['Skull','Chest','Upper limb','Lower limb','Stenum','Shoulder','Abdomen',
-                      'Spine','Pelvis','Contrast GI studies','Contrast UT studies','Hystero, salpingogram',
-                      'Mammography','Sinogram','Sialogram','Bronchogram'].sort
+            @investigation_options = ['Skull','Chest','Upper limb','Lower limb','Stenum','Shoulder exam','Abdomen',
+                      'Spine','Pelvis','Contrast UT studies','HSG',
+                      'Mammography','Sinogram','Sialogram','Bronchogram','Enema','Swallow','Meal'].sort
 
           when "ULTRASOUND"
              @investigation_options = ['Breast','Musculoskeletal','Carotid doppler','Abdominal doppler and color flow',
@@ -34,7 +34,24 @@ class ReportController < GenericReportController
           when "COMPUTED TOMOGRAPHY SCAN"
               @investigation_options = ['Brain','Chest','Abdomen','Pelvis','Angiogram','Upper extrimities, CT scan','Lower extremities, CT scan'].sort
          end
-         @aggregates = Report.investigations(@investigation_type,@month.to_i,@year.to_i)
+         if @investigation_type.upcase == "XRAY"
+             aggregated = Report.investigations(@investigation_type,@month.to_i,@year.to_i)
+             aggregates_detailed =  Report.detailed_investigations(@investigation_type,@month.to_i,@year.to_i)
+             aggregating = aggregated.merge(aggregates_detailed){|key,oldval,newval| [*oldval] + [*newval] }
+             @aggregates = Hash.new()
+             aggregating.each do|key,examination|
+               @aggregates[key] = Hash.new()
+                unless examination.blank?
+                  examination.each do |exam|
+                    unless exam.blank?
+                     @aggregates[key][exam[0]] = exam[1]
+                    end
+                  end
+                end
+             end
+         else
+            @aggregates = Report.investigations(@investigation_type,@month.to_i,@year.to_i)
+         end
      when 'investigations_daily'
            @report_type = 'INVESTIGATIONS_DAILY'
            @report_date = params[:report_date]
