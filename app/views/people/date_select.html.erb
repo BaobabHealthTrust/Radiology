@@ -31,7 +31,8 @@
    <% Date.today.year.downto(2004) do |year| @years << year.to_s
     end%>
    <%if params[:id] == "investigations_daily"%>
-    <%= text_field_tag("report_date", nil, {:field_type => 'date', :helpText => 'Report date:'}) %>
+    <%= text_field_tag("start_date", nil, {:field_type => 'date', :helpText => 'Start date'}) %>
+    <%= text_field_tag("end_date", nil, {:field_type => 'date', :helpText => 'End date'}) %>
    <%elsif params[:id] == "investigations"%>
      <%=  select_tag :year, options_for_select(@years),
      {:helpText => "Select year"} %>
