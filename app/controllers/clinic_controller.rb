@@ -3,8 +3,8 @@ class ClinicController < GenericClinicController
   def reports_tab
     @reports = [
       ["Film(s) used", "/people/date_select?id=film_used"],
-      ["Examinations(Monthly)","/people/date_select?id=investigations"]
-      #["Examinations(Daily)","/people/date_select?id=investigations_daily"]
+      ["Examinations(Monthly)","/people/date_select?id=investigations"],
+      ["Radiology Report","/people/date_select?id=investigations_daily"]
     ]
 
     render :layout => false
