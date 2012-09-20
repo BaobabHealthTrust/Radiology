@@ -171,7 +171,15 @@
                           :validationRule => "([0-9]+\\.[0-9])|Unknown$",
 		          :validationMessage => "You must enter a decimal number",
                           :tt_pageStyleClass => "Numeric NumbersOnlyWithDecimal",
-                          :condition => '$("paying").value == "YES"'} %>
+                          :condition => '$("paying").value == "YES" && $("payment_type").value == "Cash"'} %>
+<%= touch_numeric_tag 'INVOICE AMOUNT',@patient , nil,
+                         {:id => "invoice_amount",
+                          :field_type => "number",
+                          :helpText=> "Enter invoice amount" ,
+                          :validationRule => "([0-9]+\\.[0-9])|Unknown$",
+		          :validationMessage => "You must enter a decimal number",
+                          :tt_pageStyleClass => "Numeric NumbersOnlyWithDecimal",
+                          :condition => '$("paying").value == "YES" && $("payment_type").value == "Invoice"'} %>
 
 <label for='summary'>Summary</label>
 <%= text_field_tag :summary, nil,
