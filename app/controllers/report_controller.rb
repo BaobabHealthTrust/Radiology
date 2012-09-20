@@ -54,8 +54,9 @@ class ReportController < GenericReportController
          end
      when 'investigations_daily'
            @report_type = 'INVESTIGATIONS_DAILY'
-           @report_date = params[:report_date]
-           @daily_report = Report.daily_report(@report_date)
+           @start_date = params[:start_date]
+           @end_date = params[:end_date]
+           @daily_report = Report.daily_report(@start_date,@end_date)
     end
     render :layout => 'reports'
   end
