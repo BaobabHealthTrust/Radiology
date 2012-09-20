@@ -121,13 +121,35 @@
                                        (@total_week5.to_i + @total_wasted_week5.to_i)).to_f/100.to_f %></td>
 </tr>
 
-<tr class ="boldRow"><td class="leftTitle"  colspan="2">Total revenue collected is:</td>
-    <td>MK</td><td class="numeric" colspan ="2"><%= @revenue_collected.first.total_revenue.to_s %></td>
+<tr class ="boldRow"><td class="leftTitle"  colspan="2">Total cash collected:</td>
+    <td>MK</td><td class="numeric" colspan ="2"><%= @revenue_collected.first.total_revenue.to_f.to_s rescue 0.0 %></td>
     <td class="gray"></td>
     <td class="gray"></td>
     <td class="gray"></td>
 </tr>
+<tr class ="boldRow"><td class="leftTitle"  colspan="2">Total invoiced:</td>
+    <td>MK</td><td class="numeric" colspan ="2"><%= @revenue_collected.second.total_revenue.to_f.to_s rescue 0.0 %></td>
+    <td class="gray"></td>
+    <td class="gray"></td>
+    <td class="gray"></td>
+</tr>
+<tr class ="boldRow"><td class="leftTitle"  colspan="2">Total revenue:</td>
+    <% if @revenue_collected && @revenue_collected.size == 2 %>
+    <td>MK</td><td class="numeric" colspan ="2"><%= (@revenue_collected.first.total_revenue.to_f  +
+                                                    @revenue_collected.second.total_revenue.to_f  ).to_s %></td>
+    <td class="gray"></td>
+    <td class="gray"></td>
+    <td class="gray"></td>
+    <%  elsif @revenue_collected && @revenue_collected.size == 1 %>
 
+    <td>MK</td><td class="numeric" colspan ="2"><%= @revenue_collected.first.total_revenue.to_f.to_s %></td>
+    <td class="gray"></td>
+    <td class="gray"></td>
+    <td class="gray"></td>
+    <% else %>
+      <td>MK</td><td colspan ="4">No revenue collected</td>
+    <%  end %>
+</tr>
 </tbody>
 </table>
   
