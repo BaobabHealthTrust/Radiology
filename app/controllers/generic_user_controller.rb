@@ -180,18 +180,17 @@ class GenericUserController < ApplicationController
   end
 
   def update
-    #find_by_person_id(params[:id])
     @user = User.find(params[:id])
-
+  
     username = params[:user]['username'] rescue current_user.username
 
     if username
       @user.update_attributes(:username => username)
     end
-
+  
     PersonName.find(:all,:conditions =>["voided = 0 AND person_id = ?",@user.person_id]).each do | person_name |
       person_name.voided = 1
-      person_name.voided_by = current_user.person_id
+      person_name.voided_by = current_user.id
       person_name.date_voided = Time.now()
       person_name.void_reason = 'Edited name'
       person_name.save
