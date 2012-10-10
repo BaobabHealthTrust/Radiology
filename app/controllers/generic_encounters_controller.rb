@@ -1234,10 +1234,6 @@ class GenericEncountersController < ApplicationController
         observation[:value_numeric] = observation[:value_numeric].to_f * 18 if ( observation[:measurement_unit] == "mmol/l")
         observation.delete(:measurement_unit)
       end
-      
-			if encounter.type.name.upcase == 'FILM' && observation[:concept_name].upcase == 'FILM SIZE'
-					observation.delete(:parent_concept_name)
-			end
 
       if(observation[:parent_concept_name])
         concept_id = Concept.find_by_name(observation[:parent_concept_name]).id rescue nil
@@ -1346,38 +1342,34 @@ class GenericEncountersController < ApplicationController
 				observation.delete(:measurement_unit)
 			end
 
-			if encounter.type.name.upcase == 'FILM' && observation[:concept_name].upcase == 'FILM SIZE'
-					observation.delete(:parent_concept_name)
-			end
-			
 			if(observation[:parent_concept_name])
 				concept_id = Concept.find_by_name(observation[:parent_concept_name]).id rescue nil
-				observation[:obs_group_id] = Observation.find(:last, :conditions=> ['value_coded = ? AND encounter_id = ?',concept_id, encounter.id]).id rescue ""
+				observation[:obs_group_id] = Observation.find(:last, :conditions=> ['concept_id = ? AND encounter_id = ?', concept_id, encounter.id], :order => "obs_id ASC, date_created ASC").id rescue ""
 				observation.delete(:parent_concept_name)
 			end
 
 			extracted_value_numerics = observation[:value_numeric]
 			extracted_value_coded_or_text = observation[:value_coded_or_text]
       
-      #TODO : Added this block with Yam, but it needs some testing.
-      if params[:location]
-        if encounter.encounter_type == EncounterType.find_by_name("ART ADHERENCE").id
-          passed_concept_id = Concept.find_by_name(observation[:concept_name]).concept_id rescue -1
-          obs_concept_id = Concept.find_by_name("AMOUNT OF DRUG BROUGHT TO CLINIC").concept_id rescue -1
-          if observation[:order_id].blank? && passed_concept_id == obs_concept_id
-            order_id = Order.find(:first,
-                                  :select => "orders.order_id",
-                                  :joins => "INNER JOIN drug_order USING (order_id)",
-                                  :conditions => ["orders.patient_id = ? AND drug_order.drug_inventory_id = ? 
-                                                  AND orders.start_date < ?", encounter.patient_id, 
-                                                  observation[:value_drug], encounter.encounter_datetime.to_date],
-                                  :order => "orders.start_date DESC").order_id rescue nil
-            if !order_id.blank?
-              observation[:order_id] = order_id
-            end
-          end
-        end
-      end
+			#TODO : Added this block with Yam, but it needs some testing.
+			if params[:location]
+				if encounter.encounter_type == EncounterType.find_by_name("ART ADHERENCE").id
+					passed_concept_id = Concept.find_by_name(observation[:concept_name]).concept_id rescue -1
+					obs_concept_id = Concept.find_by_name("AMOUNT OF DRUG BROUGHT TO CLINIC").concept_id rescue -1
+					if observation[:order_id].blank? && passed_concept_id == obs_concept_id
+						order_id = Order.find(:first,
+							:select => "orders.order_id",
+							:joins => "INNER JOIN drug_order USING (order_id)",
+							:conditions => ["orders.patient_id = ? AND drug_order.drug_inventory_id = ? 
+										  AND orders.start_date < ?", encounter.patient_id, 
+										  observation[:value_drug], encounter.encounter_datetime.to_date],
+							:order => "orders.start_date DESC").order_id rescue nil
+						if !order_id.blank?
+							observation[:order_id] = order_id
+						end
+					end
+				end
+			end
       
 			if observation[:value_coded_or_text_multiple] && observation[:value_coded_or_text_multiple].is_a?(Array) && !observation[:value_coded_or_text_multiple].blank?
 				values = observation.delete(:value_coded_or_text_multiple)
