@@ -36,8 +36,7 @@
 			:helpText => "Film size",
 			:tt_pageStyleClass => "NoKeyboard NoInput small",
 			:order_id => @order.id,
-			:tt_onLoad => "setTimeout(updateNextFinish, 20)",
-			:tt_onUnload => "jQuery('#film_size_#{i} ~ #observations__parent_concept_name').val(jQuery('#film_size_#{i}').val())"
+			:tt_onLoad => "setTimeout(updateNextFinish, 20)"
 		} %>
 
 
@@ -46,6 +45,7 @@
 			:min => 0,
                         :max => 5,
 			:validationRule => "([0-9])",
+                        :parent_concept_name => "FILM SIZE",
 			:helpText => "Good film(s) used",
 		} %>
 
@@ -54,6 +54,7 @@
 			:min => 0,
                         :max => 5,
 			:validationRule => "([0-9])",
+                        :parent_concept_name => "FILM SIZE",
 			:helpText => "Wasted film(s) used",
 		 } %>
 
