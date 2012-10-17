@@ -3,6 +3,7 @@ production:
  use.user.selected.activities: no 
  filing.number.prefix: FN101,FN102
  auto_set_appointment: false
+ app.url: localhost
  statistics.show_encounter_types: RADIOLOGY EXAMINATION
  show.patient.confirmation: false
  current.health.facility: Kamuzu Central Hospital
@@ -20,6 +21,7 @@ development:
  create.from.dde.server: false
  filing.number.prefix: FN101,FN102
  auto_set_appointment: false
+ app.url: localhost:3000
  show.patient.confirmation: false
  statistics.show_encounter_types:  RADIOLOGY EXAMINATION
  current.health.facility: Kamuzu Central Hospital
