@@ -1,30 +1,22 @@
-<style type="text/css">
-  .weekHeader {
-    text-align:center;
-    padding-left:0px;
- }
-  .examinations {
-    text-align:left;
-    padding-left:10px;
- }
- .boldRow{
-  font-weight:bold;
-}
-.gray {
-  background-color: gray;
-}
-.numeric{
-  text-align:right;
-  padding-right: 10px;
-  padding-bottom: 5px;
-}
-.leftTitle
-{
-  text-align:left;
-  padding-left:10px;
-}
+<html>
+  <head>
+    <title></title>
+    <style type="text/css">
+      body {
+            font-family: Arial,sans-serif;
+      }
+      .bold {
+        font-weight: bold;
+        font-size: 0.9em;
+      }
+      .cell {
+        width: 25%;
+      }
+      .blank{
+        height: 50px;color:#ffffff;
+       }
 </style>
-
+</head>
 <body>
   <div id="head">
   <span><h2><%= Location.current_health_center.name.upcase %></h2></span>
@@ -32,7 +24,7 @@
 </div>
  <div class='scrollTableContainer'>
 
-<table class='dataTable' cellspacing='0'>
+<table width="90%" cellpadding="3" cellspacing="0" style="margin-left: 5%;">
 <thead>
 <tr>
   <th class ="examinations">EXAMINATIONS</th>
@@ -54,3 +46,4 @@
 </table>
 </div>
 </body>
+</html>

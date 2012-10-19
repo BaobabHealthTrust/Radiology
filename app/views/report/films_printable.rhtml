@@ -1,0 +1,151 @@
+<html>
+  <head>
+    <title></title>
+    <style type="text/css">
+     body {
+            font-family: Arial,sans-serif;
+      }
+      .bold {
+        font-weight: bold;
+        font-size: 0.9em;
+      }
+      .cell {
+        width: 25%;
+      }
+      .blank{
+        height: 50px;color:#ffffff;
+       }
+</style>
+</head>
+<body>
+ <% start_date = "#{1}-#{@month}-#{@year}".to_date.strftime("%B") %>
+<div id="head">
+  <span><h2><%= Location.current_health_center.name.upcase %></h2></span>
+  <span><h2>Monthly Radiological Statistics(Film usage)- <%= "#{start_date}  #{@year}" %></h2></span>
+</div>
+
+
+<div class='scrollTableContainer'>
+
+<table width="90%" cellpadding="3" cellspacing="0" style="margin-left: 5%;">
+     
+<thead>
+
+<tr>
+  <th class="filmSizesUsed">FILM SIZES USED</th>
+  <th class="weekHeader">WEEK 1</th>
+  <th class="weekHeader">WEEK 2</th>
+  <th class="weekHeader">WEEK 3</th>
+  <th class="weekHeader">WEEK 4</th>
+  <th class="weekHeader">WEEK 5</th>
+  <th class="weekHeader">TOTAL FILMS</th>
+  <th class="weekHeader">TOTAL BOXES</th>
+</tr>
+</thead>
+<tbody>
+<% @total_week1  = @total_week2 =  @total_week3 =  @total_week4 = @total_week5 = 0  %>
+<% @total_wasted_week1  = @total_wasted_week2 =  @total_wasted_week3 =  @total_wasted_week4 = @total_wasted_week5 = 0  %>
+<% @film_size_options.each do|film_size| %>
+<tr>
+  <td class="leftTitle"><%= film_size %></td>
+  <td class="numeric"><%= @aggregates[0][film_size].to_i || 0%> </td>
+  <td class="numeric"><%= @aggregates[1][film_size].to_i || 0%> </td>
+  <td class="numeric"><%= @aggregates[2][film_size].to_i || 0%> </td>
+  <td class="numeric"><%= @aggregates[3][film_size].to_i || 0%> </td>
+  <td class="numeric"><%= @aggregates[4][film_size].to_i || 0%> </td>
+
+      <%@total = @aggregates[0][film_size].to_i +
+                 @aggregates[1][film_size].to_i +
+                 @aggregates[2][film_size].to_i +
+                 @aggregates[3][film_size].to_i +
+                 @aggregates[4][film_size].to_i
+                 %>
+
+  <td class="numeric"><%= @total || 0 %> </td>
+  <td class="numeric"><%= @total.to_f/100.to_f %></td>
+  <%
+     @total_week1 += @aggregates[0][film_size].to_i
+     @total_week2 += @aggregates[1][film_size].to_i
+     @total_week3 += @aggregates[2][film_size].to_i
+     @total_week4 += @aggregates[3][film_size].to_i
+     @total_week5 += @aggregates[4][film_size].to_i
+
+     @total_wasted_week1 += @wasted_film[0][film_size].to_i
+     @total_wasted_week2 += @wasted_film[1][film_size].to_i
+     @total_wasted_week3 += @wasted_film[2][film_size].to_i
+     @total_wasted_week4 += @wasted_film[3][film_size].to_i
+     @total_wasted_week5 += @wasted_film[4][film_size].to_i
+  %>
+</tr>
+<%end%>
+<tr class ="boldRow"><td class="leftTitle">Total usable</td>
+    <td class="numeric"><%= @total_week1 %></td>
+    <td class="numeric"><%= @total_week2 %></td>
+    <td class="numeric"><%= @total_week3 %></td>
+    <td class="numeric"><%= @total_week4 %></td>
+    <td class="numeric"><%= @total_week5 %></td>
+    <td class="numeric"><%= @total_week1.to_i + @total_week2.to_i + @total_week3.to_i + @total_week4.to_i + @total_week5.to_i %></td>
+    <td class="gray"></td>
+</tr>
+<tr class ="boldRow"><td class="leftTitle">Throw outs</td>
+    <td class="numeric"><%= @total_wasted_week1 %></td>
+    <td class="numeric"><%= @total_wasted_week2 %></td>
+    <td class="numeric"><%= @total_wasted_week3 %></td>
+    <td class="numeric"><%= @total_wasted_week4 %></td>
+    <td class="numeric"><%= @total_wasted_week5 %></td>
+    <td class="numeric"><%= @total_wasted_week1.to_i + @total_wasted_week2.to_i + @total_wasted_week3.to_i + @total_wasted_week4.to_i + @total_wasted_week5.to_i %></td>
+    <td class="numeric"><%= (@total_wasted_week1.to_i + @total_wasted_week2.to_i + @total_wasted_week3.to_i + @total_wasted_week4.to_i + @total_wasted_week5.to_i).to_f/100.to_f %></td>
+</tr>
+<tr class ="boldRow"><td class="leftTitle">Total opened</td>
+    <td class="numeric"><%= @total_week1.to_i + @total_wasted_week1.to_i %></td>
+    <td class="numeric"><%= @total_week2.to_i + @total_wasted_week2.to_i %></td>
+    <td class="numeric"><%= @total_week3.to_i + @total_wasted_week3.to_i %></td>
+    <td class="numeric"><%= @total_week4.to_i + @total_wasted_week4.to_i%></td>
+    <td class="numeric"><%= @total_week5.to_i + @total_wasted_week5.to_i %></td>
+    <td class="numeric"><%= (@total_week1.to_i + @total_wasted_week1.to_i)+
+                                       (@total_week2.to_i + @total_wasted_week2.to_i)+
+                                       (@total_week3.to_i + @total_wasted_week3.to_i)+
+                                       (@total_week4.to_i + @total_wasted_week4.to_i)+
+                                       (@total_week5.to_i + @total_wasted_week5.to_i)%></td>
+    <td class="numeric"><%= ((@total_week1.to_i + @total_wasted_week1.to_i)+
+                                       (@total_week2.to_i + @total_wasted_week2.to_i)+
+                                       (@total_week3.to_i + @total_wasted_week3.to_i)+
+                                       (@total_week4.to_i + @total_wasted_week4.to_i)+
+                                       (@total_week5.to_i + @total_wasted_week5.to_i)).to_f/100.to_f %></td>
+</tr>
+
+<tr class ="boldRow"><td class="leftTitle"  colspan="2">Total cash collected:</td>
+    <td>MK</td><td class="numeric" colspan ="2"><%= @revenue_collected.first.total_revenue.to_f.to_s rescue 0.0 %></td>
+    <td class="gray"></td>
+    <td class="gray"></td>
+    <td class="gray"></td>
+</tr>
+<tr class ="boldRow"><td class="leftTitle"  colspan="2">Total invoiced:</td>
+    <td>MK</td><td class="numeric" colspan ="2"><%= @revenue_collected.second.total_revenue.to_f.to_s rescue 0.0 %></td>
+    <td class="gray"></td>
+    <td class="gray"></td>
+    <td class="gray"></td>
+</tr>
+<tr class ="boldRow"><td class="leftTitle"  colspan="2">Total revenue:</td>
+    <% if @revenue_collected && @revenue_collected.size == 2 %>
+    <td>MK</td><td class="numeric" colspan ="2"><%= (@revenue_collected.first.total_revenue.to_f  +
+                                                    @revenue_collected.second.total_revenue.to_f  ).to_s %></td>
+    <td class="gray"></td>
+    <td class="gray"></td>
+    <td class="gray"></td>
+    <%  elsif @revenue_collected && @revenue_collected.size == 1 %>
+
+    <td>MK</td><td class="numeric" colspan ="2"><%= @revenue_collected.first.total_revenue.to_f.to_s %></td>
+    <td class="gray"></td>
+    <td class="gray"></td>
+    <td class="gray"></td>
+    <% else %>
+      <td>MK</td><td colspan ="4">No revenue collected</td>
+    <%  end %>
+</tr>
+</tbody>
+</table>
+
+</div>
+</body>
+</html>
