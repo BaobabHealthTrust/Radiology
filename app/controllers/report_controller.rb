@@ -87,11 +87,11 @@ class ReportController < GenericReportController
      url = ''
      case params['report_type'].upcase
          when 'FILM USED'
-            url = "http://#{app_url}/report/films_printable?month=#{ params['month']}&year=#{ params['year']}"
+            url = "http://radiology/report/films_printable?month=#{ params['month']}&year=#{ params['year']}"
          when 'INVESTIGATIONS'
-            url = "http://#{app_url}/report/investigations_printable?month=#{ params['month']}&year=#{ params['year']}&investigation_type=#{ params['investigation_type']}"
+            url = "http://radiology/report/investigations_printable?month=#{ params['month']}&year=#{ params['year']}&investigation_type=#{ params['investigation_type']}"
          when 'RADIOLOGY'
-            url = "http://#{app_url}/report/radiology_printable?start_date=#{ params['start_date']}&end_date=#{ params['end_date']}"
+            url = "http://radiology/report/radiology_printable?start_date=#{ params['start_date']}&end_date=#{ params['end_date']}"
      end
   
      response = RestClient.get(url)
