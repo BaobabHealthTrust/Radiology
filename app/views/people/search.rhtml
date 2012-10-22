@@ -1,42 +1,21 @@
 <style>
-      #num{ display:none; }
-      #char{ display:none; }
-      .prev_page,.next_page {
-        -moz-user-select: none;
-        display: block;
-        padding-top: 20px;
-        margin-left:10px;
-        min-width: 140px;
-        height:60px;
-        float: left;
-        text-align: center;
-        vertical-align:middle;
-        background: url("../images/buttons/btn_left_blue.png") no-repeat scroll left center transparent;
-        font-size: 1.3em;
-        text-decoration: none;
-        border: 0 none;
-        color: white;
-        cursor: pointer;
-        font-weight: bold;
-        
 
-      }
 
-      .prev_page:hover, .next_page:hover
-      {
-         background: url("../images/buttons/btn_left_hover_blue.png") no-repeat scroll left center transparent; 
-         
-      }
-      .disabled {
+  .pagination{
+    display:none;
+  }
+  #num{ display:none; }
+  #char{ display:none; }
+  .prev_page,.next_page {
+  }
 
-         background: url("../images/buttons/btn_left_gray.png") no-repeat scroll left center transparent;
-      }
+  .prev_page:hover, .next_page:hover
+  { }
+  .disabled { }
 
-      .disabled:hover {
+  .disabled:hover {}
 
-         background: url("../images/buttons/btn_left_gray.png") no-repeat scroll left center transparent;
-      }
-      
+
 
 
 
@@ -44,7 +23,9 @@
 
 <script type="text/javascript" defer>
   var people = [{}];
-
+  var options;
+  var options1;
+  var options3;
 <%
 pos = 1
 @patients.each do |person|
@@ -56,9 +37,9 @@ pos = 1
           
     people[<%= pos %>]["Gender"] = "<%= person.sex %>";
 
-    <% if person.dead == 1 %>
-        people[<%= pos %>]["Status"] = "<%=h 'Died' if person.dead == 1 rescue '' -%>";
-    <% end %>
+  <% if person.dead == 1 %>
+      people[<%= pos %>]["Status"] = "<%=h 'Died' if person.dead == 1 rescue '' -%>";
+  <% end %>
     
     people[<%= pos %>]["Birthdate"] = "<%= person.birth_date rescue "" %>";
 
@@ -70,25 +51,25 @@ pos = 1
 
     people[<%= pos %>]["Current Residence"] = "<%=h person.current_residence -%>";
 
-    <% if !person.mothers_surname.blank? %>  
-        people[<%= pos %>]["Mother Surname"] = "<%=h person.mothers_surname -%>";
-    <% end %>
+  <% if !person.mothers_surname.blank? %>
+      people[<%= pos %>]["Mother Surname"] = "<%=h person.mothers_surname -%>";
+  <% end %>
 
-    <% if !person.arv_number.blank? %> 
-        people[<%= pos %>]["ARV Number"] = "<%=h person.arv_number rescue "" -%>";
-    <% end %>
+  <% if !person.arv_number.blank? %>
+      people[<%= pos %>]["ARV Number"] = "<%=h person.arv_number rescue "" -%>";
+  <% end %>
 
-    <% if !person.national_id.blank? %>     
-        people[<%= pos %>]["Patient National ID"] = "<%=h person.national_id rescue "" -%>";
-    <% end %>
-    
-    <% if !person.eid_number.blank? %>    
-        people[<%= pos %>]["EID Number"] = "<%=h person.eid_number rescue "" -%>";
-    <% end %>
+  <% if !person.national_id.blank? %>
+      people[<%= pos %>]["Patient National ID"] = "<%=h person.national_id rescue "" -%>";
+  <% end %>
 
-    <% if !person.pre_art_number.blank? %>    
-        people[<%= pos %>]["Pre-ART Number"] = "<%=h person.pre_art_number rescue "" -%>";
-    <% end %>
+  <% if !person.eid_number.blank? %>
+      people[<%= pos %>]["EID Number"] = "<%=h person.eid_number rescue "" -%>";
+  <% end %>
+
+  <% if !person.pre_art_number.blank? %>
+      people[<%= pos %>]["Pre-ART Number"] = "<%=h person.pre_art_number rescue "" -%>";
+  <% end %>
   <%
 
   pos = pos + 1
@@ -119,7 +100,12 @@ end -%>
   function newSearch() {
     document.location = "/people/search?relation=<%=h params[:relation] -%>"
   }
-
+  function check1(){
+    window.location = options1;
+  }
+  function check2() {
+    window.location = options;
+  }
   function setAttributes() {
 <%if params[:given_name] and params[:family_name] %>
       var buttondiv = __$("buttons");
@@ -127,7 +113,28 @@ end -%>
       buttondiv.innerHTML+= "<div id='tt_extraButtons'></div>"
       buttondiv.innerHTML+= "<button class='button navButton' id='newSearch' onmousedown='newSearch();'><span>New search</span></button>"
       buttondiv.innerHTML+= '<%= will_paginate @current_page, :page_links => false %>'
-     
+      if ((document.getElementsByTagName('a').length) == 1 ){
+        options3 = document.getElementsByTagName('a')[0];//Control variable
+        if (options3.getAttribute('class') == 'prev_page'){
+          options = document.getElementsByTagName('a')[0];
+          options1 = null
+        }
+        else {
+          options1 = document.getElementsByTagName('a')[0];
+          options = null
+        }
+      }
+      else {
+        options = document.getElementsByTagName('a')[0];
+        options1 = document.getElementsByTagName('a')[1];
+      }
+      if (options1 != undefined){
+        buttondiv.innerHTML+= "<button id='nextButton' class='blue' onClick='check1()'><span>Next</span></button>"
+      }
+      if (options != undefined){
+        buttondiv.innerHTML+= "<button id='prevButton' class='blue' onClick='check2()'><span>Previous</span></button>"
+      }
+
 <%end%>
   }
 </script>
