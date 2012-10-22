@@ -115,6 +115,17 @@ end -%>
       buttondiv.innerHTML+= '<%= will_paginate @current_page, :page_links => false %>'
       if ((document.getElementsByTagName('a').length) == 1 ){
         options3 = document.getElementsByTagName('a')[0];//Control variable
+        var options4 = document.getElementsByTagName('span');
+        for (var x = 0; x < options4.length; x++){
+          if (options4[x].getAttribute('class') == 'disabled prev_page'){
+            buttondiv.innerHTML+= "<button id='prevButton' class='gray'><span>Previous</span></button>"
+            buttondiv.innerHTML+= "<button id='nextButton' class='blue' onClick='check1()'><span>Next</span></button>"
+          }
+          if (options4[x].getAttribute('class') == 'disabled next_page'){
+            buttondiv.innerHTML+= "<button id='prevButton' class='blue' onClick='check2()'><span>Previous</span></button>"
+            buttondiv.innerHTML+= "<button id='prevButton' class='gray'><span>Next</span></button>"
+          }
+        }
         if (options3.getAttribute('class') == 'prev_page'){
           options = document.getElementsByTagName('a')[0];
           options1 = null
@@ -125,14 +136,10 @@ end -%>
         }
       }
       else {
+        buttondiv.innerHTML+= "<button id='prevButton' class='blue' onClick='check2()'><span>Previous</span></button>"
+        buttondiv.innerHTML+= "<button id='nextButton' class='blue' onClick='check1()'><span>Next</span></button>"
         options = document.getElementsByTagName('a')[0];
         options1 = document.getElementsByTagName('a')[1];
-      }
-      if (options1 != undefined){
-        buttondiv.innerHTML+= "<button id='nextButton' class='blue' onClick='check1()'><span>Next</span></button>"
-      }
-      if (options != undefined){
-        buttondiv.innerHTML+= "<button id='prevButton' class='blue' onClick='check2()'><span>Previous</span></button>"
       }
 
 <%end%>
