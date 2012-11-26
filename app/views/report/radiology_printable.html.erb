@@ -34,10 +34,10 @@
 <% total_exams = 0 %>
 <%@daily_report.each do |exam|%>
   <tr>
-  <td class="leftTitle"><%=exam.exam_type %> - <%= exam.exam_name %></td>
-  <td class="numeric"><%= exam.exam_total %></td>
+  <td class="leftTitle"><%=exam.first %> - <%= exam.second %></td>
+  <td class="numeric"><%= exam.third %></td>
   </tr>
-  <% total_exams += exam.exam_total.to_i %>
+  <% total_exams += exam.third.to_i %>
 <%end%>
 <tr class ="boldRow"><td class="leftTitle">Total Exams</td>
                      <td class="numeric"><%= total_exams %></td>
