@@ -405,29 +405,34 @@ ORDER BY clinic ASC"])
    
   def self.daily_report(start_date,end_date)
       radiology_order_type_id = OrderType.find_by_name('RADIOLOGY').order_type_id
+      radiology_encounter_id = EncounterType.find_by_name('RADIOLOGY EXAMINATION').id
       examination_concept_id = ConceptName.find_by_name('EXAMINATION').concept_id
       xray_concept_id = ConceptName.find_by_name('XRAY').concept_id
       ultrasound_concept_id = ConceptName.find_by_name('ULTRASOUND').concept_id
       ct_concept_id = ConceptName.find_by_name('CT SCAN').concept_id
       mri_concept_id = ConceptName.find_by_name('MRI SCAN').concept_id
-     
-      obs = Observation.find_by_sql("SELECT cnn.name as exam_type,o.concept_id as obs_concept_id,cn.name as exam_name,COUNT(o.value_coded) as exam_total FROM obs o
+      
+      obs = Observation.find_by_sql("SELECT od.concept_id as order_concept_id,o.value_coded as exam_value_coded,COUNT(o.value_coded) as exam_total FROM obs o
                                       INNER JOIN orders od
                                       ON od.encounter_id = o.encounter_id
-                                      INNER JOIN concept_name cn
-                                      ON cn.concept_id = o.value_coded
-                                      INNER JOIN concept_name cnn
-                                      ON cnn.concept_id = od.concept_id
+                                      INNER JOIN encounter en
+                                      ON en.encounter_id = o.encounter_id
                                       AND od.order_type_id = #{radiology_order_type_id}
                                       AND o.concept_id = #{examination_concept_id}
-                                      AND od.concept_id IN (#{xray_concept_id},#{ultrasound_concept_id},#{ct_concept_id},#{mri_concept_id})
+                                      AND en.encounter_type = #{radiology_encounter_id}
+                                      AND od.concept_id IN (#{xray_concept_id}, #{ultrasound_concept_id} ,#{ct_concept_id} ,#{mri_concept_id})
                                       AND od.voided = 0
                                       AND o.voided = 0
                                       AND DATE(o.obs_datetime) BETWEEN '#{start_date}' AND '#{end_date}'
                                       GROUP BY od.concept_id,o.value_coded
                                       ORDER BY od.concept_id DESC") rescue nil
-
-
+  
+     
+       @exam_line = []
+     obs.each do |ob|
+       @exam_line << [ConceptName.find_by_concept_id(ob[:order_concept_id]).name,ConceptName.find_by_concept_id(ob[:exam_value_coded]).name,ob[:exam_total]]
+     end
+       @exam_line
   end
   def self.revenue_collected(start_date,end_date)
     payment_amount_concept_id = ConceptName.find_by_name("PAYMENT AMOUNT").concept_id
