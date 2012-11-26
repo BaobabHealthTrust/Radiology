@@ -45,7 +45,7 @@ class ReportController < GenericReportController
           when "MRI SCAN"
               @investigation_options = ['Brain','Chest','Abdomen','Pelvis','Angiogram','Upper extremities, MRI scan','Lower extremities, MRI scan'].sort
           when "COMPUTED TOMOGRAPHY SCAN"
-              @investigation_options = ['Brain','Chest','Abdomen','Pelvis','Angiogram','Upper extrimities, CT scan','Lower extremities, CT scan'].sort
+              @investigation_options = ['Brain','Chest','Abdomen','Pelvis','Angiogram','Upper extrimities, CT scan','Lower extremities, CT scan','Myelogram'].sort
          end
          if @investigation_type.upcase == "XRAY"
              aggregated = Report.investigations(@investigation_type,@month.to_i,@year.to_i)
