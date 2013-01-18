@@ -22,62 +22,7 @@ class PeopleController < GenericPeopleController
     render :layout => 'menu'
 
   end
-=begin
-  def create
-    success = false
-    Person.session_datetime = session[:datetime].to_date rescue Date.today
-
-    #for now BART2 will use BART1 for patient/person creation until we upgrade BART1 to 2
-    #if GlobalProperty.find_by_property('create.from.remote') and property_value == 'yes'
-    #then we create person from remote machine
-    if create_from_remote
-      person_from_remote = PatientService.create_remote_person(params)
-      person = PatientService.create_from_form(person_from_remote["person"]) unless person_from_remote.blank?
-
-      if !person.blank?
-        success = true
-        person.patient.remote_national_id
-      end
-    else
-      success = true
-      person = PatientService.create_from_form(params[:person])
-    end
-
-    if params[:person][:patient] && success
-      PatientService.patient_national_id_label(person.patient)
-      unless (params[:relation].blank?)
-        redirect_to search_complete_url(person.id, params[:relation]) and return
-      else
- #Disable use of filing number and tb session because
- #they are not needed in radiology
-       tb_session = false
-       use_filing_number = false
-       if current_user.activities.include?('Manage Lab Orders') or current_user.activities.include?('Manage Lab Results') or
-        current_user.activities.include?('Manage Sputum Submissions') or current_user.activities.include?('Manage TB Clinic Visits') or
-         current_user.activities.include?('Manage TB Reception Visits') or current_user.activities.include?('Manage TB Registration Visits') or
-          current_user.activities.include?('Manage HIV Status Visits')
-         tb_session = true
-       end
-
-        if use_filing_number and not tb_session
-          PatientService.set_patient_filing_number(person.patient) 
-          archived_patient = PatientService.patient_to_be_archived(person.patient)
-          message = PatientService.patient_printing_message(person.patient,archived_patient,creating_new_patient = true)
-          unless message.blank?
-            print_and_redirect("/patients/filing_number_and_national_id?patient_id=#{person.id}" , next_task(person.patient),message,true,person.id)
-          else
-            print_and_redirect("/patients/filing_number_and_national_id?patient_id=#{person.id}", next_task(person.patient)) 
-          end
-        else
-          print_and_redirect("/patients/national_id_label?patient_id=#{person.id}", next_task(person.patient))
-        end
-      end
-    else
-      # Does this ever get hit?
-      redirect_to :action => "index"
-    end
-  end
-=end
+  
   def find_by_exam_number                                                       
     if request.post?
       index = 0 ; last_exam_num = params[:exam_number]                          
@@ -99,57 +44,7 @@ class PeopleController < GenericPeopleController
       end                                                                      
     end                                                                         
   end
-=begin
-def search
-		found_person = nil
-		if params[:identifier]
- 
-      if  params[:identifier].length == 9 && params[:identifier][0].chr == "R"
-         order = Order.find(:first,:conditions =>["accession_number = ? AND voided = 0",params[:identifier]])
-         if order
-           session[:examination_number] = order.accession_number
-           redirect_to :controller => 'patients', :action => 'show',:patient_id => order.patient_id,
-                       :encounter_date => order.date_created.to_date,:examination_number => order.accession_number and return
-         else
-           redirect_to :controller => 'clinic'
-         end
-      end
-
-			local_results = PatientService.search_by_identifier(params[:identifier])
-
-			if local_results.length > 1
-				@people = PatientService.person_search(params)
-			elsif local_results.length == 1
-				found_person = local_results.first
-			else
-				# TODO - figure out how to write a test for this
-				# This is sloppy - creating something as the result of a GET
-				if create_from_remote
-					found_person_data = PatientService.find_remote_person_by_identifier(params[:identifier])
-					found_person = PatientService.create_from_form(found_person_data['person']) unless found_person_data.nil?
-				end
-			end
-			if found_person
-        patient = DDEService::Patient.new(found_person.patient)
-        patient.check_old_national_id(params[:identifier])
-				if params[:relation]
-					redirect_to search_complete_url(found_person.id, params[:relation]) and return
-				else
-					redirect_to :action => 'confirm', :found_person_id => found_person.id, :relation => params[:relation] and return
-				end
-			end
-		end
-
-		@relation = params[:relation]
-		@people = PatientService.person_search(params)
-		@patients = []
-		@people.each do | person |
-			patient = PatientService.get_patient(person) rescue nil
-			@patients << patient
-		end
-
-	end
-=end
+  
   def search
 		found_person = nil
 		if params[:identifier]
