@@ -1,12 +1,16 @@
 class ReportController < GenericReportController
 
   def print_films_used
+      @logo = CoreService.get_global_property_value("logo").to_s rescue ''
+      @current_location_name = Location.current_health_center.name rescue ''
       @report_type = 'FILM USED'
       @month = (params[:month])
       @year = (params[:year])
   end
 
   def films_printable
+      @logo = CoreService.get_global_property_value("logo").to_s rescue ''
+      @current_location_name = Location.current_health_center.name rescue ''
       @month = (params[:month])
       @year = (params[:year])
       @film_size_options = ['13 x 18 cm','18 x 24 cm','18 x 43 cm','24 x 30 cm','30 x 40 cm','35 x 35 cm','35 x 43 cm']
@@ -19,6 +23,8 @@ class ReportController < GenericReportController
   end
 
   def print_investigation
+     @logo = CoreService.get_global_property_value("logo").to_s rescue ''
+     @current_location_name = Location.current_health_center.name rescue ''
      @month = (params[:month])
      @year = (params[:year])
      @investigation_type = (params[:investigation_type]) rescue ""
@@ -26,6 +32,8 @@ class ReportController < GenericReportController
   end
 
   def investigations_printable
+    @logo = CoreService.get_global_property_value("logo").to_s rescue ''
+    @current_location_name = Location.current_health_center.name rescue ''
     @month = (params[:month])
     @year = (params[:year])
     @investigation_type = (params[:investigation_type]) rescue ""
@@ -69,6 +77,8 @@ class ReportController < GenericReportController
   end
 
   def print_radiology_report
+     @logo = CoreService.get_global_property_value("logo").to_s rescue ''
+     @current_location_name = Location.current_health_center.name rescue ''
      @report_type = 'RADIOLOGY'
      @start_date = params[:start_date]
      @end_date = params[:end_date]
@@ -76,6 +86,8 @@ class ReportController < GenericReportController
   end
 
   def radiology_printable
+     @logo = CoreService.get_global_property_value("logo").to_s rescue ''
+     @current_location_name = Location.current_health_center.name rescue ''
      @start_date = params[:start_date]
      @end_date = params[:end_date]
      @daily_report = Report.daily_report(@start_date,@end_date)
@@ -83,6 +95,8 @@ class ReportController < GenericReportController
   end
 
   def print_report
+     @logo = CoreService.get_global_property_value("logo").to_s rescue ''
+     @current_location_name = Location.current_health_center.name rescue ''
      app_url = CoreService.get_global_property_value('app.url')
      url = ''
      case params['report_type'].upcase
