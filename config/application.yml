@@ -32,6 +32,7 @@ development:
  facility.fax: +265 1 765 380
  footer: Ministry of Health - Kamuzu Central Hospital - Department of Radiology<br/> Examinations Provided Conventional X-ray - Gastrointestinal and Urinary Tract Studies with Contrast - Mammography<br/> - Computertomography (Perfomed at Queen Elizabeth, Blantyre)<br/> General Ultrasound - Color Doppler Ultrasound - Echocardiography<br/> For Referral and Booking Please Call 0888 843 528 or 01 753 555 Ext. 222
  radiology.referral.locations: 1A/1B;2A/2B;3A;3B;4A;4B;OPD1;OPD2;Bottom/Bwaila;Dental;Eye;EMMW;ICU;Lighthouse;MAP;Peadiatric;Skin;UNC;Baylor;Other
+ logo: emblem.gif
 test: &TEST
  create_from_remote: no
  use.user.selected.activities: no
