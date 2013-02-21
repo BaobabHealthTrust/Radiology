@@ -247,6 +247,13 @@ class GenericPeopleController < ApplicationController
 
 	# This method is just to allow the select box to submit, we could probably do this better
 	def select
+    if !params[:person][:patient][:identifiers]['National id'].blank? &&
+        !params[:person][:names][:given_name].blank? &&
+          !params[:person][:names][:family_name].blank?
+      redirect_to :action => :search, :identifier => params[:person][:patient][:identifiers]['National id']
+      return
+    end rescue nil
+
     if !params[:identifier].blank? && !params[:given_name].blank? && !params[:family_name].blank?
       redirect_to :action => :search, :identifier => params[:identifier]
     elsif params[:person][:id] != '0' && Person.find(params[:person][:id]).dead == 1
@@ -266,7 +273,7 @@ class GenericPeopleController < ApplicationController
       redirect_to :action => :new, :gender => params[:gender], :given_name => params[:given_name], :family_name => params[:family_name], :family_name2 => params[:family_name2], :address2 => params[:address2], :identifier => params[:identifier], :relation => params[:relation]
     end
 	end
- 
+
   def create
    
     hiv_session = false
