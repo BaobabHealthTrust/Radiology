@@ -220,10 +220,10 @@ class PeopleController < GenericPeopleController
       @search_results.delete_if{|x,y| x == results.national_id}
       @patients << results
     end
-
-    (@search_results || {}).each do |npid , data |
-      @patients << data
-    end
+    #redundant
+    #(@search_results || {}).each do |npid , data |
+    #  @patients << data
+    #end
 	end
   
   protected
