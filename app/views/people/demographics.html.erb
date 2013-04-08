@@ -1,0 +1,149 @@
+<html>
+  <head>
+<style type="text/css">
+
+  table {
+    vertical-align:center;
+    width: 97%;
+    height: auto;
+    -moz-user-select:none;
+    border-style: solid;
+    border-width: 1px;
+    border-radius: 10px;
+  }
+  
+
+  .title {
+    font-size: 25px;
+    text-align: left;
+    border-style: solid;
+    border-width: 1px 1px 0px 0px;
+  }
+  .title-top {
+    font-size: 25px;
+    text-align: left;
+    border-style: solid;
+    border-width: 0px 1px 0px 0px;
+  }
+ .data {
+    font-size: 25px;
+    text-align: left;
+    border-style: solid;
+    border-width: 1px 1px 0px 0px;
+
+  }
+  .data-top {
+    font-size: 25px;
+    text-align: left;
+    border-style: solid;
+    border-width: 0px 1px 0px 0px;
+
+  }
+  a {
+    border-radius: 7px;
+		background-color: #4A708B;
+		border-bottom: 1px outset black;
+		border-style: outset;
+		border-top: 1px outset black;
+		color: white;
+		display: block;
+		padding: 12px 32px 12px 32px;
+		text-align: center;
+		text-decoration: none;
+  }
+
+  .container {
+    height: 92%;
+    background-color: white;
+    margin: 20px 20px 20px 20px;
+    overflow: auto;
+    -moz-border-radius: 10px;
+    padding-top: 2%;
+  }
+
+  td a{
+    padding-top: 5px;
+  }
+
+</style>
+
+<script type="text/javascript">
+  tt_cancel_destination = "/patients/show?id=<%= @patient_bean.patient_id%>";
+</script>
+  </head>
+  <body>
+<div class="container">
+  <div id="details" style="max-height:650px;overflow:auto;display:block">
+    <div>
+
+     <table>
+        <tr>
+          <td class='title-top'>
+              First Name
+          </td>
+          <td class='data-top'><%= @patient_bean.first_name %></td>
+		  <td><a href="edit_demographics?id=<%= @patient_bean.patient_id %>&field=first_name">Edit</a></td>
+        </tr>
+        <tr>
+          <td class='title'>Last Name</td>
+          <td class='data'><%= @patient_bean.last_name %></td>
+          <td><a href="edit_demographics?id=<%= @patient_bean.patient_id %>&field=last_name">Edit</a></td>
+        </tr>
+
+        <tr>
+          <td class='title'>Date of Birth</td>
+          <td class='data'><%= @patient_bean.birth_date %></td>
+          <td><a href="edit_demographics?id=<%= @patient_bean.patient_id %>&field=birthdate">Edit</a></td>
+        </tr>
+        <tr>
+          <td class='title'>Gender</td>
+          <td class='data'><%= @patient_bean.sex == "Male" ? "Mwamuna":"Mkazi"  %></td>
+          <td><a href="edit_demographics?id=<%= @patient_bean.patient_id %>&field=gender">Edit</a></td>
+        </tr>
+					<tr>
+            <td class='title'>Home District</td>
+            <td class='data'> <%= @patient_bean.home_district %></td>
+			<td><a href="edit_demographics?id=<%= @patient_bean.patient_id %>&field=home_district">Edit</a></td>
+          </tr>
+					<tr>
+            <td class='title'>Traditional Authority</td>
+            <td class='data'><%= @patient_bean.traditional_authority %></td>
+			<td><a href="edit_demographics?id=<%= @patient_bean.patient_id %>&field=home_district">Edit</a></td>
+          </tr>
+					<tr>
+            <td class='title'>Home Village</td>
+            <td class='data'> <%= @patient_bean.home_village %></td>
+ 			<td><a href="edit_demographics?id=<%= @patient_bean.patient_id %>&field=home_district">Edit</a></td>
+          </tr>
+					<tr>
+            <td class='title'>Current District</td>
+            <td class='data'> <%= @patient_bean.current_district   %></td>
+			<td><a href="edit_demographics?id=<%= @patient_bean.patient_id %>&field=current_district"> Edit</a></td>
+         <tr>
+            <td class='title'>Current Residence</td>
+            <td class='data'> <%= @patient_bean.current_residence %></td>
+			<td><a href="edit_demographics?id=<%= @patient_bean.patient_id %>&field=current_district"> Edit</a></td>
+          </tr>
+
+          <tr>
+            <td class='title'>Closest Landmark</td>
+            <td class='data'> <%= @patient_bean.landmark%></td>
+			<td><a href="edit_demographics?id=<%=@patient_bean.patient_id%>&field=landmark">Edit</a></td>
+          </tr>
+
+      </table>
+
+    </div>
+  </div>
+</div>
+
+<div id="footer">
+
+</div>
+
+</body>
+</html>
+
+
+
+  
