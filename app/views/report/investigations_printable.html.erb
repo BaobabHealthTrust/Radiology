@@ -1,0 +1,293 @@
+<html>
+  <head>
+    <title></title>
+    <%= javascript_include_tag "prototype" %>
+    <%= javascript_include_tag 'jquery' %>
+    <%= javascript_include_tag 'jquery_data_table.js' %>
+    <%= stylesheet_link_tag 'jquery.dataTables' %>
+    <%= stylesheet_link_tag 'dashboard' %>
+    <%= stylesheet_link_tag "mateme" %>
+    <%= stylesheet_link_tag fancy_or_high_contrast_touch %>
+    <script type="text/javascript" charset="utf8" src="/javascripts/jquery.dataTables.min.js"></script>
+    <script type="text/javascript">
+      jQuery(document).ready(function($) {
+          $('#table_id').dataTable({
+            "bAutoWidth": true,
+            "bPaginate": false,
+            "bProcessing": true,
+            "sScrollY": "450px",
+            "bInfo": true,
+            "bPaginate": false
+          });
+
+    search_box = $('#table_id').dataTable()
+    search = document.getElementsByTagName("input")[0];
+    search.setAttribute("id","search");
+    document.getElementById('search').setAttribute("onclick","showKeyboard();");
+    //xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    keyboard = document.getElementsByClassName("keypad")[0]
+    function getCharButtonSetID(character,id){
+      return '<button onMouseDown="press(\''+character+'\');" class="keyboardButton" id="'+id+'">' +"<span style='width:32px'>"+character+"</span>"+ "</button>";
+    }
+    function getButtonString(id,string){
+      return "<button \
+                            onMouseDown='press(this.id);' \
+                            class='keyboardButton' \
+                            id='"+id+"'>"+
+        string +
+        "</button>";
+    }
+
+    function getButtons(chars){
+      var buttonLine = "";
+      for(var i=0; i<chars.length; i++){
+        character = chars.substring(i,i+1)
+        buttonLine += getCharButtonSetID(character,character)
+      }
+      return buttonLine;
+    }
+
+    showAlphaKeypad();
+
+    function showAlphaKeypad(){
+      document.getElementById("keypad").style.height = "280";
+      keyboard.innerHTML= getButtons("0123456789") + "</br>"
+      keyboard.innerHTML+= getButtons("QWERTYUIOP") + "</br>"
+      keyboard.innerHTML+= getButtons("ASDFGHJKL:") + "</br>"
+      keyboard.innerHTML+= getButtons("ZXCVBNM,.?")
+      keyboard.innerHTML+= getButtonString('backspace','<span>Bksp</span>')
+      keyboard.innerHTML+= getButtonString('Space','<span>Space</span>')
+      keyboard.innerHTML+= getButtonString('clear','<span>Clear</span>')
+    }
+
+    function showNumericKeypad(){
+      document.getElementById("keypad").style.height = "145";
+      keyboard.innerHTML = getButtons("123")
+      keyboard.innerHTML+= getButtons("456")
+      keyboard.innerHTML+= getButtons("7890")
+      keyboard.innerHTML+= getButtonString('space','<span>Space</span>')
+      keyboard.innerHTML+= getButtonString('clear','<span>Clear</span>')
+      keyboard.innerHTML+= getButtonString('backspace','<span>Bksp</span>')
+      keyboard.innerHTML+= getButtonString('abc','<span>abc</span>')
+      keyboard.innerHTML+= getButtonString('dash','<span>-</span>')
+      keyboard.innerHTML+= getButtonString('slash','<span>/</span>')
+    }
+
+  })
+    </script>
+
+    <script>
+
+      function showKeyboard(){
+        key = document.getElementById("keypad")
+        if(key.style.display == 'none' || key.style.display == ""){
+          key.style.display = "inline";
+          return
+        }
+
+        key.style.display = "none";
+      }
+
+      function press(pressedChar){
+        switch (pressedChar) {
+          case 'backspace':
+            search.value = search.value.substring(0,search.value.length-1);
+            search_box.fnFilter(search.value)
+            return;
+          case 'Space':
+            search.value+= " "
+            search_box.fnFilter(search.value)
+            return
+          case 'clear':
+            search.value = ""
+            search_box.fnFilter(search.value)
+            return
+          case 'num':
+            showNumericKeypad();
+            return
+          case 'slash':
+            search.value+= "/"
+            search_box.fnFilter(search.value)
+            return
+          case 'dash':
+            search.value+= "-"
+            search_box.fnFilter(search.value)
+            return
+          case 'abc':
+            showAlphaKeypad();
+            return
+        }
+        search.value+= pressedChar
+        search_box.fnFilter(search.value)
+      }
+      //xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    </script>
+
+    <style>
+#backspace{
+        position:absolute;
+        left:100px;
+        bottom:2px;
+      }
+
+      #Space{
+        position:absolute;
+        display:block;
+        left:220px;
+        bottom:2px;
+        width:200px;
+      }
+
+      #clear{
+        position:absolute;
+        left:470px;
+        bottom:2px;
+      }
+       #num{
+        position:absolute;
+        left:470px;
+        bottom:2px;
+        width:200px;
+      }
+      #keypad{
+        background-color: #FFFFFF;
+        border: 2px solid #9999FF;
+        border-radius: 15px 15px 15px 15px;
+        display: none;
+        height: 345px !important;
+        position: absolute;
+        right: 13px;
+        top: 117px;
+        width: 648px;
+      }
+    </style>
+    <style>
+        div {
+        -moz-user-select: none;
+      }
+      .basic_span {
+        position:relative;
+        width:50%;
+        display:block;
+        float:left;
+      }
+
+      .logo {
+        float:left
+      }
+
+      #table_id {
+        width: 100%;
+      }
+
+      #table_id_filter{
+        position:absolute;
+        top:0px;
+        right:1%;
+        margin-top:-40px;
+      }
+
+      #table_id_filter input{
+        padding:0.5em;
+      }
+
+
+      .dataTables_length select {
+        font-size: 25px;
+      }
+      .horizontal_line hr{
+        position:absolute;
+        bottom:20px;
+      }
+      #table_id_info{
+        left: 10px;
+        position: absolute;
+        top: 537px;
+        font-weight:bold;
+      }
+      #table_id_length{
+        display:none;
+      }
+       #table_id_paginate{
+        display:none;
+      }
+      #num{ display:none; }
+      #char{ display:none; }
+
+    </style>
+</head>
+<body>
+   <%= image_tag(@logo, :class => "logo")%>
+   <% start_date = "#{1}-#{@month}-#{@year}".to_date.strftime("%B") %>
+   <br /><b style="margin-left:75px"><%= @current_location_name %></b><br />
+   <b style="margin-left:75px">Monthly Radiological Statistics</b><br />
+   <b style="margin-left:75px"><%=  @investigation_type.titlecase %> Report</b><br />
+   <b style="margin-left:75px">Date: <%= "#{start_date}  #{@year}" %></b><br />
+
+<div class='scrollTableContainer'>
+
+<table id="table_id">
+<thead>
+
+<tr style="background-color: gray; line-height: 2em; text-align: left">
+  <th class ="examinations"><%= @investigation_type.upcase %> EXAMINATIONS</th>
+  <th class ="weekHeader">WEEK 1</th>
+  <th class ="weekHeader">WEEK 2</th>
+  <th class ="weekHeader">WEEK 3</th>
+  <th class ="weekHeader">WEEK 4</th>
+  <th class ="weekHeader">WEEK 5</th>
+  <th class ="weekHeader"s>TOTAL</th>
+</tr>
+</thead>
+<tbody>
+<% @total_week1  = @total_week2 =  @total_week3 =  @total_week4 = @total_week5 = 0  %>
+<% @investigation_options.each do|part| %>
+<tr>
+  <td class="leftTitle"><%=part%></td>
+  <td class="numeric"><%= @aggregates[0][part] || 0%> </td>
+  <td class="numeric"><%= @aggregates[1][part] || 0%> </td>
+  <td class="numeric"><%= @aggregates[2][part] || 0%> </td>
+  <td class="numeric"><%= @aggregates[3][part] || 0%> </td>
+  <td class="numeric"><%= @aggregates[4][part] || 0%> </td>
+
+      <%@total = @aggregates[0][part].to_i +
+                 @aggregates[1][part].to_i +
+                 @aggregates[2][part].to_i +
+                 @aggregates[3][part].to_i +
+                 @aggregates[4][part].to_i
+                 %>
+
+  <td class="numeric"><%= @total || 0 %> </td>
+  <%
+     @total_week1 += @aggregates[0][part].to_i
+     @total_week2 += @aggregates[1][part].to_i
+     @total_week3 += @aggregates[2][part].to_i
+     @total_week4 += @aggregates[3][part].to_i
+     @total_week5 += @aggregates[4][part].to_i
+  %>
+</tr>
+<%end%>
+</tbody>
+<tfoot>
+<tr class ="boldRow" style="background-color: gray; line-height: 2em">
+    <td class="leftTitle">Total Exams</td>
+    <td class="numeric"><%= @total_week1 %></td>
+    <td class="numeric"><%= @total_week2 %></td>
+    <td class="numeric"><%= @total_week3 %></td>
+    <td class="numeric"><%= @total_week4 %></td>
+    <td class="numeric"><%= @total_week5 %></td>
+    <td class="numeric"><%= @total_week1.to_i + @total_week2.to_i + @total_week3.to_i + @total_week4.to_i + @total_week5.to_i %></td>
+</tr>
+</tfoot>
+</table>
+   <div class="horizontal_line">
+      <hr width="100%" color="gray"/>
+    </div>
+    <div id="keypad">
+      <span class="keypad">
+      </span>
+
+  </div>
+</div>
+</body>
+</html>

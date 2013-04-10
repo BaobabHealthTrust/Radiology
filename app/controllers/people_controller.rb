@@ -107,7 +107,7 @@ class PeopleController < GenericPeopleController
         redirect_to :action => 'find_by_exam_number' and return                 
       else                  
         session[:examination_number] = order.accession_number
- redirect_to :controller => 'patients', :action => 'show',:patient_id => order.patient_id,:encounter_date => order.date_created.to_date and return
+        redirect_to :controller => 'patients', :action => 'show',:patient_id => order.patient_id,:encounter_date => order.date_created.to_date and return
       end                                                                      
     end                                                                         
   end

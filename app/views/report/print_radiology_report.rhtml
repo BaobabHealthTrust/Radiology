@@ -1,0 +1,43 @@
+<script src="/javascripts/standard.js" type="text/javascript"></script>
+<script src="/javascripts/touchScreenToolkit.js" type="text/javascript"></script>
+<style type="text/css">
+  #nav {
+    background-color: #333333;
+    border-top:3px solid #99AAB7;
+    color:#CADCEA;
+    height:80px;
+    width:100%;
+    bottom:0px;
+    position:absolute;
+    overflow:hidden;
+    z-index: 1000;
+  }
+  #footer {
+    background-color: #333333;
+  }
+  #main {
+    width: 99.7%;
+    height: 88.5%;
+  }
+</style>
+
+<iframe id="main" src="/report/radiology_printable/?start_date=<%=@start_date%>&end_date=<%=@end_date%><%= (params[:ret] ? "&ret=" + params[:ret] : "") %>"></iframe>
+<div id="nav">
+  <button class="green" onclick="window.location = '/clinic/index'" style="float: right; margin: 10px;">
+    <span>
+      Finish
+    </span>
+  </button>
+
+
+  <button class="blue" onclick="if(__$('popupBox')){__$('popupBox').innerHTML = '<p>Printing. Please wait...</p>'};
+    showStatus(); window.location ='/report/report_print?start_date=<%=@start_date%>&end_date=<%=@end_date%>&report_type=<%=@report_type%>&user_id=<%=
+        session[:user_id] %><%= (params[:ret] ? "&ret=" + params[:ret] : "") %>'"
+          style="float: right; margin: 10px;">
+    <span>
+      Print
+    </span>
+  </button>
+</div>
+
+<div id="popupBox"> </div>

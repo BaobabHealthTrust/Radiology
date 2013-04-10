@@ -13,6 +13,7 @@ Rails::Initializer.run do |config|
 	# config.time_zone = 'UTC'
 	config.gem 'warden'
 	config.gem 'devise'
+    config.gem 'pdfkit'
 	config.gem 'will_paginate', :version => '~> 2.3.16'  
 	config.action_controller.session = {
 		:session_key => 'bart_session',
@@ -29,6 +30,8 @@ require 'has_many_through_association_extension'
 require 'bantu_soundex'
 require 'json'
 require 'colorfy_strings'
+require 'rest_client'
+require 'pdfkit'
 
 ActiveSupport::Inflector.inflections do |inflect|
   inflect.irregular 'person_address', 'person_address'
