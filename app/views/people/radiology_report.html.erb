@@ -1,5 +1,14 @@
 <script src="/javascripts/standard.js" type="text/javascript"></script>
 <script src="/javascripts/touchscreenToolkit.js" type="text/javascript"></script>
+<script>
+
+  function changeClass(){
+    today = document.getElementById('today')
+      if (today){
+        today.setAttribute("class","green")
+      }
+    }
+</script>
 <style type="text/css">
 
   .dateselector {
@@ -17,13 +26,15 @@
   font-size: 25px;
   padding-left: 5px;
   font-weight: bold;}
-  
+  #Unknown{
+  display: none;
+  }
 </style>
 
 
 <% form_tag "/report/print_radiology_report", :method => :post do %>
 
-    <%= text_field_tag("start_date", nil, {:field_type => 'date', :helpText => 'Start date'}) %>
-    <%= text_field_tag("end_date", nil, {:field_type => 'date', :helpText => 'End date'}) %>
+    <%= text_field_tag("start_date", nil, {:field_type => 'date', :helpText => 'Start date', :tt_onLoad => "changeClass();"}) %>
+    <%= text_field_tag("end_date", nil, {:field_type => 'date', :helpText => 'End date', :tt_onLoad => "changeClass();"}) %>
 
 <%end%>
