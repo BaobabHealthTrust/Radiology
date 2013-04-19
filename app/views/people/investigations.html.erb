@@ -18,6 +18,18 @@
   padding-left: 5px;
   font-weight: bold;
   }
+  #tt_page_select_year .inputFrameClass{
+    height: 581px;   
+  }
+  #tt_page_select_year .inputFrameClass .options{
+    height: 570px;
+  }
+  #tt_page_select_month .inputFrameClass{
+    height: 581px;
+  }
+  #tt_page_select_month .inputFrameClass .options{
+    height: 570px;
+  }
 </style>
 
 
@@ -34,7 +46,7 @@
     end%>
    
      <%=  select_tag :year, options_for_select(@years),
-     {:helpText => "Select year"} %>
+     {:helpText => "Select year", :tt_onLoad => "document.getElementById('keyboard').style.display='none'"} %>
     <%=  select_tag :month, options_for_select(@months),
      {:helpText => "Select month"} %>
    <%=  select_tag :investigation_type, options_for_select(@investigation_options),
