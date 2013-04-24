@@ -134,7 +134,7 @@
 
   <%when 'birthdate'%>
     <%= text_field_tag "person[birth_year]", nil,
-      {:helpText => 'Date of Birth',
+      {:helpText => 'Year of Birth',
       :field_type => 'number',
       :absoluteMin => "1890",
       :min => "1940",
@@ -154,7 +154,7 @@
       :condition => '$("person_birth_year").value == "Unknown"',
       :tt_pageStyleClass => "Numeric NumbersOnly"} %>
 
-    <%= text_field_tag "person[birth_day]",  nil, :field_type => 'number', :helpText => 'Tsiku lanu lobadwa', :absoluteMin => 1, :absoluteMax => 31, :condition => '($("person_birth_year").value != "Unknown") && ($("person_birth_month").value != "Unknown")', :tt_onLoad => "getDayOfMonthPicker($('person_birth_year').value,$('person_birth_month').value)"%>
+    <%= text_field_tag "person[birth_day]",  nil, :field_type => 'number', :helpText => 'Birth Day', :absoluteMin => 1, :absoluteMax => 31, :condition => '($("person_birth_year").value != "Unknown") && ($("person_birth_month").value != "Unknown")', :tt_onLoad => "getDayOfMonthPicker($('person_birth_year').value,$('person_birth_month').value)"%>
 
   <%when 'city_village
     '%>
