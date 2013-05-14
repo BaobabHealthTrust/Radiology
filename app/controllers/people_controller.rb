@@ -115,6 +115,16 @@ class PeopleController < GenericPeopleController
   def search
     found_person = nil
     if params[:identifier]
+	  exam_number = params[:identifier]
+      if exam_number.length == 9 and exam_number.first == 'R'
+		order = Order.find(:first,:conditions =>["accession_number = ? AND voided = 0",exam_number])
+      	unless order.blank?                  
+			session[:examination_number] = order.accession_number
+			redirect_to :controller => 'patients', :action => 'show',:patient_id => order.patient_id,
+						:encounter_date => order.date_created.to_date and return
+      	end                                                      
+      end
+
       local_results = PatientService.search_by_identifier(params[:identifier])
       if local_results.length > 1
         redirect_to :action => 'duplicates' ,:search_params => params
