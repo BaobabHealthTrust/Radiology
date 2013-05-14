@@ -46,7 +46,7 @@ class ReportController < GenericReportController
           when "ULTRASOUND"
              @investigation_options = ['Breast','Musculoskeletal','Carotid doppler','Abdominal doppler and color flow',
                             'Prostate gland, scrotum and penis','Thyroid and parathyroid glands',
-                            'Peritheral arterial and venous duplex','Abdomen','Obsterics,fetal','Female pelvis, gynaecology',
+                            'Peritheral arterial and venous duplex','Abdomen','Obstetrics, fetal','Female pelvis, gynaecology',
                             'Echocardiography','Neonatal brain','Transvaginal','Transrectal',
                             'Prostate','Focussed assessment with sonography in trauma','Umbilical artery doppler','Ultrasound guided procedures'].sort
 
