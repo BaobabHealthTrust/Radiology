@@ -38,6 +38,11 @@ class PeopleController < GenericPeopleController
         success = true
       end
 
+      #If we are creating from DDE then we must create a footprint of the
+      #just created patient to enable future
+      DDEService.create_footprint(PatientService.get_patient(person).national_id, session[:location_id])
+
+
     #for now BART2 will use BART1 for patient/person creation until we upgrade BART1 to 2
     #if GlobalProperty.find_by_property('create.from.remote') and property_value == 'yes'
     #then we create person from remote machine
