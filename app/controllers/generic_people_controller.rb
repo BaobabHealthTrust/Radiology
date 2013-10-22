@@ -226,11 +226,12 @@ class GenericPeopleController < ApplicationController
         if patient_id.length != 6 and create_from_dde_server
           patient.check_old_national_id(patient_id)
           #creating patient's footprint so that we can track them later when they visit other sites
-          DDEService.create_footprint(PatientService.get_patient(person).national_id, Location.find(session[:location_id]).name)
+          DDEService.create_footprint(PatientService.get_patient(person).national_id, "Radiology")
+
           print_and_redirect("/patients/national_id_label?patient_id=#{person.id}", next_task(person.patient)) and return
         end
         #creating patient's footprint so that we can track them later when they visit other sites
-        DDEService.create_footprint(PatientService.get_patient(person).national_id, Location.find(session[:location_id]).name)
+        DDEService.create_footprint(PatientService.get_patient(person).national_id, "Radiology")
       end
       redirect_to search_complete_url(params[:person][:id], params[:relation]) and return unless params[:person][:id].blank? || params[:person][:id] == '0'
 
