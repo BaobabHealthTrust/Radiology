@@ -231,6 +231,17 @@ class GenericApplicationController < ActionController::Base
       User.current = current_user
     end
 
+    def get_previous_encounters(patient_id)
+     session_date = (session[:datetime].to_date rescue Date.today.to_date) - 1.days
+     session_date = session_date.to_s + ' 23:59:59'
+     previous_encounters = Encounter.find(:all,
+              :conditions => ["encounter.voided = ? and patient_id = ? and encounter.encounter_datetime <= ?", 0, patient_id, session_date],
+              :include => [:observations],:order => "encounter.encounter_datetime DESC"
+            )
+
+    return previous_encounters
+  end
+
 
 private
 
