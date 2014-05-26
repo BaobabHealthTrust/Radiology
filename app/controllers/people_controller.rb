@@ -12,6 +12,18 @@ class PeopleController < GenericPeopleController
     @task = main_next_task(Location.current_location, @person.patient, session_date.to_date)
     @arv_number = PatientService.get_patient_identifier(@person, 'ARV Number')
 	  @patient_bean = PatientService.get_patient(@person)
+    
+    @previous_visits = get_previous_encounters(@found_person_id)
+    @encounter_dates = @previous_visits.map{|encounter| encounter.encounter_datetime.to_date}.uniq.first(6) rescue []
+    @past_encounter_dates = @encounter_dates
+    @session_date = Date.today if !session[:datetime]
+  	@services = []
+  	PatientService.previous_referral_section(@person,@session_date).map do |service|
+  		if service.obs_datetime.to_date != @session_date.to_date
+  			@services << service
+  		end
+  	end
+   
     render :layout => 'menu'
 
   end
