@@ -793,17 +793,6 @@ class GenericPatientsController < ApplicationController
     render :template => 'dashboards/visit_history_tab', :layout => false
   end
 
-   def get_previous_encounters(patient_id)
-     session_date = (session[:datetime].to_date rescue Date.today.to_date) - 1.days
-     session_date = session_date.to_s + ' 23:59:59'
-     previous_encounters = Encounter.find(:all,
-              :conditions => ["encounter.voided = ? and patient_id = ? and encounter.encounter_datetime <= ?", 0, patient_id, session_date],
-              :include => [:observations],:order => "encounter.encounter_datetime DESC"
-            )
-
-    return previous_encounters
-  end
-
   def treatment_dashboard
 	  @patient_bean = PatientService.get_patient(@patient.person)
     @amount_needed = 0
