@@ -24,7 +24,8 @@ class PeopleController < GenericPeopleController
   		end
   	end
    
-    render :layout => 'menu'
+    #render :layout => 'menu'
+    render :template => 'people/confirm', :layout => false
 
   end
 
