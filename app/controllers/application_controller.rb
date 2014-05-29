@@ -2,7 +2,7 @@ class ApplicationController < GenericApplicationController
 
   def next_form(location , patient , session_date = Date.today)
     #for Radiology department we do not need auto form select
-    task = Task.first rescue Task.new()
+    task = Task.first || Task.new()
     task.encounter_type = nil
     task.url = "/patients/show/#{patient.id}"
     return task
@@ -15,7 +15,7 @@ class ApplicationController < GenericApplicationController
     end
 
     #for Radiology department we do not need auto form select
-    task = Task.first rescue Task.new()
+    task = Task.first || Task.new()
     task.encounter_type = nil
     task.url = "/patients/show/#{patient.id}"
     return task
