@@ -373,26 +373,106 @@ ORDER BY clinic ASC"])
          end_date = ((start_date.to_date + 1.week) - 1.day).strftime("%Y-%m-%d 23:59:59")
       end
       
-      
-       enema_concept_id = ConceptName.find_by_name('Enema').concept_id
-       meal_concept_id  = ConceptName.find_by_name('Meal').concept_id
-       swallow_concept_id = ConceptName.find_by_name('Swallow').concept_id
+       case  order_concept_name.upcase
+          when "XRAY"
+           enema_concept_id = ConceptName.find_by_name('Enema').concept_id
+							 meal_concept_id  = ConceptName.find_by_name('Meal').concept_id
+							 swallow_concept_id = ConceptName.find_by_name('Swallow').concept_id
+							 meal_follow_concept_id = ConceptName.find_by_name('Meal follow-through').concept_id
+							 acu_concept_id = ConceptName.find_by_name('Ascending cysto-urethrography').concept_id
+							 c_concept_id = ConceptName.find_by_name('Cystography').concept_id
+							 cm_concept_id = ConceptName.find_by_name('Cystogramurethrogram').concept_id
+							 ru_concept_id = ConceptName.find_by_name('Retrograde urography').concept_id
+							 mc_concept_id = ConceptName.find_by_name('Micturating Cysto-urethrography').concept_id
+							 
+							 obs = Observation.find_by_sql("SELECT cn.name as examination,COUNT(o.value_coded) as cnt FROM obs o
+								                             INNER JOIN encounter e
+								                             ON o.encounter_id = e.encounter_id
+								                             INNER JOIN concept_name cn
+								                             ON o.value_coded = cn.concept_id
+								                             INNER JOIN orders od
+								                             ON od.encounter_id = o.encounter_id
+								                             WHERE od.voided = 0
+								                             AND od.concept_id = #{order_concept_id}
+								                             AND od.order_type_id = #{order_type_id}
+								                             AND e.encounter_type = #{radiology_examination_encounter_id}
+								                             AND o.concept_id = #{detailed_examination_concept_id}
+								                             AND o.value_coded IN (#{enema_concept_id},
+								                                                   #{meal_concept_id},
+								                                                   #{swallow_concept_id}, 
+								                                                   #{meal_concept_id},
+								                                                   #{acu_concept_id},
+								                                                   #{c_concept_id},
+								                                                   #{cm_concept_id}, 
+								                                                   #{ru_concept_id},
+								                                                   #{mc_concept_id})
+								                             AND o.obs_datetime BETWEEN '#{start_date}' AND '#{end_date}'
+								                             GROUP BY cn.name")
+				   
+          
+          when "COMPUTED TOMOGRAPHY SCAN"
+
+           brain_concept_id = ConceptName.find_by_name('Brain').concept_id
+				   fb_concept_id  = ConceptName.find_by_name('Facial bones').concept_id
+				   s_concept_id = ConceptName.find_by_name('Sinuses').concept_id
+				   tb_concept_id = ConceptName.find_by_name('Temporal Bone').concept_id
+				   th_concept_id = ConceptName.find_by_name('Trauma Head').concept_id
+
+           cr_concept_id = ConceptName.find_by_name('Chest routine').concept_id
+				   hrct_concept_id  = ConceptName.find_by_name('HRCT').concept_id
+				   pe_concept_id = ConceptName.find_by_name('Pulmonary embolism').concept_id
+				   cl_concept_id = ConceptName.find_by_name('Cervical').concept_id
+				   cx_concept_id = ConceptName.find_by_name('Coccyx').concept_id
+
+           lr_concept_id = ConceptName.find_by_name('Lumbar').concept_id
+				   sm_concept_id  = ConceptName.find_by_name('Sacrum').concept_id
+				   tc_concept_id = ConceptName.find_by_name('Thoracic').concept_id
+				   tl_concept_id = ConceptName.find_by_name('Thoraco-Lumbar').concept_id
+
+           a_concept_id  = ConceptName.find_by_name('Aorta').concept_id
+				   c_concept_id = ConceptName.find_by_name('Carotid').concept_id
+				   p_concept_id = ConceptName.find_by_name('Peripheral').concept_id
+           cbr_concept_id = ConceptName.find_by_name('Cerebral').concept_id
+				   
+				   
+				   obs = Observation.find_by_sql("SELECT cn.name as examination,COUNT(o.value_coded) as cnt FROM obs o
+				                                 INNER JOIN encounter e
+				                                 ON o.encounter_id = e.encounter_id
+				                                 INNER JOIN concept_name cn
+				                                 ON o.value_coded = cn.concept_id
+				                                 INNER JOIN orders od
+				                                 ON od.encounter_id = o.encounter_id
+				                                 WHERE od.voided = 0
+				                                 AND od.concept_id = #{order_concept_id}
+				                                 AND od.order_type_id = #{order_type_id}
+				                                 AND e.encounter_type = #{radiology_examination_encounter_id}
+				                                 AND o.concept_id = #{detailed_examination_concept_id}
+				                                 AND o.value_coded IN (#{brain_concept_id},
+				                                                       #{fb_concept_id},
+				                                                       #{s_concept_id}, 
+				                                                       #{tb_concept_id},
+				                                                       #{th_concept_id},
+                                                               #{cr_concept_id},
+				                                                       #{hrct_concept_id},
+				                                                       #{pe_concept_id}, 
+				                                                       #{cl_concept_id},
+				                                                       #{cx_concept_id},
+																															 #{lr_concept_id},
+				                                                       #{sm_concept_id},
+				                                                       #{tc_concept_id}, 
+				                                                       #{tl_concept_id},
+                                                               #{a_concept_id},
+																															 #{c_concept_id},
+																															 #{p_concept_id},
+																															 #{cbr_concept_id})
+				                                 AND o.obs_datetime BETWEEN '#{start_date}' AND '#{end_date}'
+				                                 GROUP BY cn.name")
      
-       obs = Observation.find_by_sql("SELECT cn.name as examination,COUNT(o.value_coded) as cnt FROM obs o
-                                     INNER JOIN encounter e
-                                     ON o.encounter_id = e.encounter_id
-                                     INNER JOIN concept_name cn
-                                     ON o.value_coded = cn.concept_id
-                                     INNER JOIN orders od
-                                     ON od.encounter_id = o.encounter_id
-                                     WHERE od.voided = 0
-                                     AND od.concept_id = #{order_concept_id}
-                                     AND od.order_type_id = #{order_type_id}
-                                     AND e.encounter_type = #{radiology_examination_encounter_id}
-                                     AND o.concept_id = #{detailed_examination_concept_id}
-                                     AND o.value_coded IN (#{enema_concept_id},#{meal_concept_id},#{swallow_concept_id})
-                                     AND o.obs_datetime BETWEEN '#{start_date}' AND '#{end_date}'
-                                     GROUP BY cn.name")
+               
+              
+       end
+
+       
      
 
       obs.each do |ob|

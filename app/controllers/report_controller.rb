@@ -39,25 +39,32 @@ class ReportController < GenericReportController
     @investigation_type = (params[:investigation_type]) rescue ""
     case  @investigation_type.upcase
           when "XRAY"
-            @investigation_options = ['Abdomen','Chest,xray','Constrast GI Studies','Constrast UT Studies','Contrast Study Bronchogram','Contrast Study Hystero-Salpingogram','Contrast Study Sinogram',
-                      'Contrast Study Sialogram','Lower limb','Pelvis girdle','Skull',
-                      'Spine','Upper limb'].sort
+            @investigation_options = ['Abdomen','Chest,xray','Ascending cysto-urethrography','Cystography',
+																			'Cystogramurethrogram','Retrograde urography','Micturating Cysto-urethrography',
+																			'Enema','Contrast Study Bronchogram','Contrast Study Hystero-Salpingogram','Contrast Study Sinogram',
+                     								  'Contrast Study Sialogram','Lower limb','Pelvis girdle','Skull',
+                                      'Spine','Upper limb','Meal','Meal follow-through','Swallow'].sort
 
           when "ULTRASOUND"
-             @investigation_options = ['Abdomen,US','Carotid doppler','Contrast Echocardiography','Echocardiography,plain',
-                            'Female pelvis-gynaecology','Male pelvis',
-                            'Peritheral arterial and venous duplex','Stress Echocardiography','Superficial structures','Trans-vaginal',
-                            'Trans-rectal','Ultrasound guided procedures'].sort
+             @investigation_options = ['Abdomen,US','Carotid doppler','Contrast Echocardiography','Echocardiography,plain', 
+																			'Female pelvis-gynaecology','Male pelvis','Musculoskeletal','Neonatal brain','Obstetric',
+																			'Peripheral arterial and venous duplex','Stress Echocardiography','Superficial structures',
+																			'Trans-vaginal','Trans-rectal','Ultrasound guided procedures'].sort
 
           when "MRI SCAN"
               @investigation_options = ['Abdomen, MR','Angiogram,MR','Brain','Cardiac','Pelvis'].sort
           when "COMPUTED TOMOGRAPHY SCAN"
-              @investigation_options = ['Abdomen, CT','Angiogram,CT','Cardiac','Chest','CT guided procedure','Head, CT','Lower extremities, CT scan','Pelvis','Polytrauma','Spine','Upper extremities,CT scan','Virtual Colonoscopy'].sort
+              @investigation_options = ['Abdomen, CT','Cardiac','Chest routine','CT guided procedure',
+                                        'Lower extremities, CT scan', 'Pelvis','Polytrauma','Brain','Upper extremities, CT scan',
+																				'Virtual Colonoscopy','Trauma Head','Temporal Bone','Facial Bones','Sinuses','HRCT',
+                                        'Pulmonary embolism','Cervical','Coccyx','Lumbar','Sacrum','Thoracic',
+																				'Thoracico-Lumbar','Aorta','Carotid','Peripheral','Cerebral'].sort
           when "BONE DENSITOMETRY"
               @investigation_options = ['Bone densitometry']
           when "MAMMOGRAPHY"
              @investigation_options = ['Mammography']
          end
+
          if @investigation_type.upcase == "XRAY"
              aggregated = Report.investigations(@investigation_type,@month.to_i,@year.to_i)
              aggregates_detailed =  Report.detailed_investigations(@investigation_type,@month.to_i,@year.to_i)
@@ -76,6 +83,27 @@ class ReportController < GenericReportController
          else
             @aggregates = Report.investigations(@investigation_type,@month.to_i,@year.to_i)
          end
+
+
+        if @investigation_type.upcase == "COMPUTED TOMOGRAPHY SCAN"
+             aggregated = Report.investigations(@investigation_type,@month.to_i,@year.to_i)
+             aggregates_detailed =  Report.detailed_investigations(@investigation_type,@month.to_i,@year.to_i)
+             aggregating = aggregated.merge(aggregates_detailed){|key,oldval,newval| [*oldval] + [*newval] }
+             @aggregates = Hash.new()
+             aggregating.each do|key,examination|
+               @aggregates[key] = Hash.new()
+                unless examination.blank?
+                  examination.each do |exam|
+                    unless exam.blank?
+                     @aggregates[key][exam[0]] = exam[1]
+                    end
+                  end
+                end
+             end
+         else
+            @aggregates = Report.investigations(@investigation_type,@month.to_i,@year.to_i)
+         end
+
     render :layout => false
   end
 
