@@ -9,7 +9,7 @@
 
     <%= hidden_field_tag "id" , params[:id] %>
    
-   <% @investigation_options = ['Xray','Ultrasound','MRI scan','Computed tomography scan'].sort %>
+   <% @investigation_options = ['Xray','Ultrasound','MRI scan','Computed tomography scan','Bone densitometry','Mammography'].sort %>
    <% @months = [['January','1'],['February','2'],['March','3'],['April','4'],
                  ['May','5'],['June','6'],['July','7'],['August','8'],
                  ['September','9'],['October','10'],['November','11'],['December','12']]%>
@@ -17,11 +17,11 @@
    <% Date.today.year.downto(2004) do |year| @years << year.to_s
     end%>
    
-     <%=  select_tag :year, options_for_select(@years),
+    <%= select_tag :year, options_for_select(@years),
      {:helpText => "Select year"} %>
-    <%=  select_tag :month, options_for_select(@months),
+    <%= select_tag :month, options_for_select(@months),
      {:helpText => "Select month"} %>
-   <%=  select_tag :investigation_type, options_for_select(@investigation_options),
+    <%= select_tag :investigation_type, options_for_select(@investigation_options),
      {:helpText => "Select type of investigation"} %>
   
 <%end%>

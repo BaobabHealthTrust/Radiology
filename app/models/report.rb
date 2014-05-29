@@ -411,7 +411,9 @@ ORDER BY clinic ASC"])
       ultrasound_concept_id = ConceptName.find_by_name('ULTRASOUND').concept_id
       ct_concept_id = ConceptName.find_by_name('CT SCAN').concept_id
       mri_concept_id = ConceptName.find_by_name('MRI SCAN').concept_id
-      
+      bd_concept_id = ConceptName.find_by_name('BONE DENSITOMETRY').concept_id
+      m_concept_id = ConceptName.find_by_name('MAMMOGRAPHY').concept_id
+
       obs = Observation.find_by_sql("SELECT od.concept_id as order_concept_id,o.value_coded as exam_value_coded,COUNT(o.value_coded) as exam_total FROM obs o
                                       INNER JOIN orders od
                                       ON od.encounter_id = o.encounter_id
@@ -420,7 +422,12 @@ ORDER BY clinic ASC"])
                                       AND od.order_type_id = #{radiology_order_type_id}
                                       AND o.concept_id = #{examination_concept_id}
                                       AND en.encounter_type = #{radiology_encounter_id}
-                                      AND od.concept_id IN (#{xray_concept_id}, #{ultrasound_concept_id} ,#{ct_concept_id} ,#{mri_concept_id})
+                                      AND od.concept_id IN (#{xray_concept_id}, 
+																														#{ultrasound_concept_id} ,
+																														#{ct_concept_id},
+                                                            #{mri_concept_id}, 
+																														#{bd_concept_id}, 
+																														#{m_concept_id} )
                                       AND od.voided = 0
                                       AND o.voided = 0
                                       AND DATE(o.obs_datetime) BETWEEN '#{start_date}' AND '#{end_date}'

@@ -39,21 +39,24 @@ class ReportController < GenericReportController
     @investigation_type = (params[:investigation_type]) rescue ""
     case  @investigation_type.upcase
           when "XRAY"
-            @investigation_options = ['Skull','Chest','Upper limb','Lower limb','Stenum','Shoulder exam','Abdomen',
-                      'Spine','Pelvis','Contrast UT studies','HSG',
-                      'Mammography','Sinogram','Sialogram','Bronchogram','Enema','Swallow','Meal'].sort
+            @investigation_options = ['Abdomen','Chest,xray','Constrast GI Studies','Constrast UT Studies','Contrast Study Bronchogram','Contrast Study Hystero-Salpingogram','Contrast Study Sinogram',
+                      'Contrast Study Sialogram','Lower limb','Pelvis girdle','Skull',
+                      'Spine','Upper limb'].sort
 
           when "ULTRASOUND"
-             @investigation_options = ['Breast','Musculoskeletal','Carotid doppler','Abdominal doppler and color flow',
-                            'Prostate gland, scrotum and penis','Thyroid and parathyroid glands',
-                            'Peritheral arterial and venous duplex','Abdomen','Obstetrics, fetal','Female pelvis, gynaecology',
-                            'Echocardiography','Neonatal brain','Transvaginal','Transrectal',
-                            'Prostate','Focussed assessment with sonography in trauma','Umbilical artery doppler','Ultrasound guided procedures'].sort
+             @investigation_options = ['Abdomen,US','Carotid doppler','Contrast Echocardiography','Echocardiography,plain',
+                            'Female pelvis-gynaecology','Male pelvis',
+                            'Peritheral arterial and venous duplex','Stress Echocardiography','Superficial structures','Trans-vaginal',
+                            'Trans-rectal','Ultrasound guided procedures'].sort
 
           when "MRI SCAN"
-              @investigation_options = ['Brain','Chest','Abdomen','Pelvis','Angiogram','Upper extremities, MRI scan','Lower extremities, MRI scan'].sort
+              @investigation_options = ['Abdomen, MR','Angiogram,MR','Brain','Cardiac','Pelvis'].sort
           when "COMPUTED TOMOGRAPHY SCAN"
-              @investigation_options = ['Brain','Chest','Abdomen','Pelvis','Angiogram','Upper extrimities, CT scan','Lower extremities, CT scan','Myelogram'].sort
+              @investigation_options = ['Abdomen, CT','Angiogram,CT','Cardiac','Chest','CT guided procedure','Head, CT','Lower extremities, CT scan','Pelvis','Polytrauma','Spine','Upper extremities,CT scan','Virtual Colonoscopy'].sort
+          when "BONE DENSITOMETRY"
+              @investigation_options = ['Bone densitometry']
+          when "MAMMOGRAPHY"
+             @investigation_options = ['Mammography']
          end
          if @investigation_type.upcase == "XRAY"
              aggregated = Report.investigations(@investigation_type,@month.to_i,@year.to_i)
@@ -119,6 +122,7 @@ class ReportController < GenericReportController
   end
   
   private
+
   def concept_set_options(concept_name)
     concept_id = concept_id = ConceptName.find_by_name(concept_name).concept_id
     set = ConceptSet.find_all_by_concept_set(concept_id, :order => 'sort_weight')
