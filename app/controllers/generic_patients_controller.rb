@@ -205,7 +205,12 @@ class GenericPatientsController < ApplicationController
   end
 
 	def past_visits_summary
-    @previous_visits  = get_previous_encounters(params[:patient_id])
+    radiology_encounters = params[:radiology_encounters] rescue nil
+    unless radiology_encounters.blank?
+    	@previous_visits  = get_previous_radiology_encounters(params[:patient_id])
+    else
+    	@previous_visits  = get_previous_encounters(params[:patient_id])
+    end
 
     @encounter_dates = @previous_visits.map{|encounter| encounter.encounter_datetime.to_date}.uniq.first(6) rescue []
 
@@ -222,7 +227,7 @@ class GenericPatientsController < ApplicationController
 
     render :template => 'dashboards/past_visits_summary_tab', :layout => false
   end
-  
+
   def patient_dashboard
     session_date = session[:datetime].to_date rescue Date.today
     @patient_bean = PatientService.get_patient(Person.find(params[:patient_id] || params[:found_person_id]))
