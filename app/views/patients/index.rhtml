@@ -57,6 +57,7 @@
             <select id="links">
               <%  if exam_number.nil? %>
                 <option value='/investigation/new/<%=@patient_bean.patient_id%>'>Investigation</option>
+                <option value='/patients/generate_booking?patient_id=<%= @patient.id -%>'>Appointment</option>
                 <option value='/people/demographics?id=<%=@patient.id%>'>Edit Demographics</option>
                 <!--option value='/patients/dashboard_print_national_id/<%=@patient_bean.patient_id%>'>Print Registration</option-->
               <%  else %>

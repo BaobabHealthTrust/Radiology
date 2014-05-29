@@ -11,8 +11,10 @@ class GenericEncountersController < ApplicationController
       AND encounter_datetime >= ? AND encounter_datetime <= ?",
       ConceptName.find_by_name('Appointment date').concept_id,
       type.id, params[:encounter]["patient_id"],session_date.strftime("%Y-%m-%d 00:00:00"),             
-      session_date.strftime("%Y-%m-%d 23:59:59")]).encounter
-      appointment_encounter.void("Given a new appointment date")
+      session_date.strftime("%Y-%m-%d 23:59:59")]).encounter rescue nil
+      unless appointment_encounter.blank?
+        appointment_encounter.void("Given a new appointment date")
+      end
     end
     	
     if params['encounter']['encounter_type_name'] == 'TB_INITIAL'
@@ -326,7 +328,7 @@ class GenericEncountersController < ApplicationController
 		elsif params[:location] # Migration
 		  user_person_id = encounter[:provider_id]
 		else
-		  user_person_id = User.find_by_user_id(encounter[:provider_id]).person_id
+		  user_person_id = User.find_by_user_id(encounter[:provider_id]).person_id rescue 1
 		end
 		encounter.provider_id = user_person_id
 
