@@ -184,7 +184,7 @@
 <label for='summary'>Summary</label>
 <%= text_field_tag :summary, nil,
 		{	 :helpText => "Summary",
-                         :tt_onLoad => "showBarcode();$('clearButton').style.display='none';",
+                         :tt_onLoad => "showBarcode();$('clearButton').style.display='none';$('keyboard').style.display='none';",
 			 :optional => "true", :tt_pageStyleClass => "NoControls" } %>
 
 <%end%>
