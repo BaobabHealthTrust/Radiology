@@ -297,16 +297,19 @@ class PatientsController < GenericPatientsController
   def number_of_booked_patients
     date = params[:date].to_date
     encounter_type = EncounterType.find_by_name('APPOINTMENT')
-    concept_id = ConceptName.find_by_name('APPOINTMENT DATE').concept_id
-
+    concept_id = ConceptName.find_by_name('RETURN VISIT DATE').concept_id
+   
     start_date = date.strftime('%Y-%m-%d 00:00:00')
     end_date = date.strftime('%Y-%m-%d 23:59:59')
 
+    
     appointments = Observation.find_by_sql("SELECT count(*) AS count FROM obs
       INNER JOIN encounter e USING(encounter_id) WHERE concept_id = #{concept_id}
       AND encounter_type = #{encounter_type.id} AND value_datetime >= '#{start_date}'
       AND value_datetime <= '#{end_date}' AND obs.voided = 0 GROUP BY value_datetime")
+    
     count = appointments.first.count unless appointments.blank?
+
     count = '0' if count.blank?
     render :text => (count.to_i >= 0 ? {params[:date] => count}.to_json : 0)
   end
