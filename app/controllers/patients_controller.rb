@@ -208,38 +208,6 @@ class PatientsController < GenericPatientsController
                                               Concept.find(item.concept_set).fullname
                                             }.join(';')
     @referral_locations = CoreService.get_global_property_value("radiology.referral.locations").split(';')
-    
-    @type = EncounterType.find_by_name("APPOINTMENT").id rescue nil
-
-    if(@type)
-      @enc = Encounter.find(:all, :conditions =>
-          ["voided = 0 AND encounter_type = ?", @type])
-
-      @counts = {}
-
-      @enc.each do |e|
-      	 observations = []
-         observations = e.observations
-       
-			   observations.each do |obs| 
-					  if !obs.value_datetime.blank?
-					    obs_date = obs.value_datetime
-					    yr = obs_date.to_date.strftime("%Y")
-					    mt = obs_date.to_date.strftime("%m").to_i-1
-					    dy = obs_date.to_date.strftime("%d").to_i
-
-					    if(!@counts[(yr.to_s + "-" + mt.to_s + "-" + dy.to_s)])
-					      @counts[(yr.to_s + "-" + mt.to_s + "-" + dy.to_s)] = {}
-					      @counts[(yr.to_s + "-" + mt.to_s + "-" + dy.to_s)]["count"] = 0
-					    end
-
-					    @counts[(yr.to_s + "-" + mt.to_s + "-" + dy.to_s)][e.patient_id] = true
-					    @counts[(yr.to_s + "-" + mt.to_s + "-" + dy.to_s)]["count"] += 1
-					  end
-			    end
-      end
-    end
-    
   end
   
   def remove_booking
