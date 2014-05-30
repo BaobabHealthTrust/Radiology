@@ -198,7 +198,17 @@ class PatientsController < GenericPatientsController
 
   def generate_booking
     @patient = Patient.find(params[:patient_id]  || params[:id] || session[:patient_id]) rescue nil
-
+    radiology_tests_id = ConceptName.find_by_name("LIST OF RADIOLOGY TESTS").concept_id
+    @examination_sets = ConceptSet.find( :all,
+                                          :select => "DISTINCT concept_set",
+                                          :conditions => ["concept_set IN (SELECT concept_id FROM concept_set
+                                            WHERE concept_set IN (SELECT concept_id FROM concept_set WHERE concept_set = ?))",
+                                            radiology_tests_id]).map{ | item |
+                                              next if item.concept_set.blank?
+                                              Concept.find(item.concept_set).fullname
+                                            }.join(';')
+    @referral_locations = CoreService.get_global_property_value("radiology.referral.locations").split(';')
+    
     @type = EncounterType.find_by_name("APPOINTMENT").id rescue nil
     if(@type)
       @enc = Encounter.find(:all, :conditions =>
