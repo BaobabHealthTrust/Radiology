@@ -2,6 +2,7 @@ class Order < ActiveRecord::Base
   set_table_name :orders
   set_primary_key :order_id
   include Openmrs
+  self.default_scope :conditions => "#{self.table_name}.voided = 0"
   belongs_to :order_type, :conditions => {:retired => 0}
   belongs_to :concept, :conditions => {:retired => 0}
   belongs_to :encounter, :conditions => {:voided => 0}
