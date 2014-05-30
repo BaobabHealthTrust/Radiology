@@ -67,37 +67,30 @@
 
 <form id="frmMain" action="/encounters/create/" method="post">
   
-<%= hidden_field_tag "encounter[encounter_type_name]", "RADIOLOGY EXAMINATION" %>
-<%= hidden_field_tag "encounter[patient_id]", @patient.id %>
-<%= hidden_field_tag "encounter[encounter_datetime]", DateTime.now() %>
-<%= hidden_field_tag "encounter[provider_id]", current_user.user_id %>
+	<%= hidden_field_tag "encounter[encounter_type_name]", "RADIOLOGY EXAMINATION" %>
+	<%= hidden_field_tag "encounter[patient_id]", @patient.id %>
+	<%= hidden_field_tag "encounter[encounter_datetime]", DateTime.now() %>
+	<%= hidden_field_tag "encounter[provider_id]", current_user.user_id %>
 
-<%= hidden_field_tag  :examination_number, @next_exam_number %>
+	<%= hidden_field_tag  :examination_number, @next_exam_number %>
 
-<%= touch_select_tag "RADIOLOGY TEST", @patient, concept_set_options("LIST OF RADIOLOGY TESTS"),
-		{	:id => "list_of_radiology_test",
-		 	:helpText => "Please select the type of examination" } %>
-
-
-<%= touch_select_tag "Examination", @patient, nil,
-		{	:id => "examination",
-			:tt_onLoad => 'set_ajaxURL_for_suggestions($("list_of_radiology_test").value);',
-                        :tt_pageStyleClass => "Keyboard",
-		 	:helpText => "Please select the examination" } %>
-
-<%= touch_select_tag "Detailed examination", @patient, nil,
-		{	:id => "detailed_examination",
-		 	:condition => 'examination_sets.contains($("examination").value)',
-                        :tt_onLoad => 'set_ajaxURL_for_suggestions($("examination").value);',
-                        :tt_pageStyleClass => "Keyboard",
-		 	:helpText => "Please select the detailed examination" } %>
+	<%= touch_select_tag "RADIOLOGY TEST", @patient, concept_set_options("LIST OF RADIOLOGY TESTS"),
+			{	:id => "list_of_radiology_test",
+			 	:helpText => "Please select the type of examination" } %>
 
 
-<%= touch_select_tag "REFERRED FROM", @patient, options_for_select(@referral_locations),
-                     {:id => "referred_by",
-                      :helpText => "Referred from",
-                      :tt_pageStyleClass => "Keyboard"
-                      } %>
+	 <%= touch_select_tag "Examination", @patient, nil,
+			{	:id => "examination",
+				:tt_onLoad => 'set_ajaxURL_for_suggestions($("list_of_radiology_test").value);',
+		                      :tt_pageStyleClass => "Keyboard",
+			 	:helpText => "Please select the examination" } %>
+
+	 <%= touch_select_tag "Detailed examination", @patient, nil,
+			{	:id => "detailed_examination",
+			 	:condition => 'examination_sets.contains($("examination").value)',
+		                      :tt_onLoad => 'set_ajaxURL_for_suggestions($("examination").value);',
+		                      :tt_pageStyleClass => "Keyboard",
+			 	:helpText => "Please select the detailed examination" } %>
 
   <%= hidden_field_tag "encounter[encounter_type_name]", "APPOINTMENT" %>
   <%= hidden_field_tag "encounter[patient_id]", @patient.id %>
