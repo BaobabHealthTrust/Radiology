@@ -33,7 +33,7 @@ class EncountersController < GenericEncountersController
     end
 
     
-    
+    @patient = Patient.find(params[:encounter][:patient_id]) rescue nil
     if params['encounter']['encounter_type_name'].to_s.upcase == "APPOINTMENT" && !params[:report_url].nil? && !params[:report_url].match(/report/).nil?
         concept_id = ConceptName.find_by_name("RETURN VISIT DATE").concept_id
         encounter_id_s = Observation.find_by_sql("SELECT encounter_id
