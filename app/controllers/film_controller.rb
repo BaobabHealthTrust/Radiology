@@ -1,7 +1,7 @@
 class FilmController < ApplicationController
   def size
     exam_number = params[:examination_number]
-    @order = Order.find(:first,:conditions => ["accession_number = ? AND voided = 0",exam_number])
+    @order = Order.find(:first,:conditions => ["accession_number = ?",exam_number])
     @patient = Patient.find(@order.patient_id)
     @encounter_date = params[:encounter_date]
   end
