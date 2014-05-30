@@ -20,7 +20,7 @@
     <%= select_tag :year, options_for_select(@years),
      {:helpText => "Select year"} %>
     <%= select_tag :month, options_for_select(@months),
-     {:helpText => "Select month"} %>
+     {:helpText => "Select month" ,:tt_onLoad => "$('keyboard').style.display = 'none';} %>
     <%= select_tag :investigation_type, options_for_select(@investigation_options),
      {:helpText => "Select type of investigation"} %>
   
