@@ -246,7 +246,8 @@ class GenericApplicationController < ActionController::Base
      session_date = (session[:datetime].to_date rescue Date.today.to_date) - 1.days
      session_date = session_date.to_s + ' 23:59:59'
      radiology_encounter_type_id = EncounterType.find_by_name("RADIOLOGY EXAMINATION").encounter_type_id
-     previous_radiology_encounters = Encounter.find(:all,:conditions => ["encounter.voided = ? and encounter.encounter_type = ? and patient_id = ? and encounter.encounter_datetime <= ?", 0,radiology_encounter_type_id, patient_id, session_date],
+     appointment_encounter_type_id = EncounterType.find_by_name("APPOINTMENT")
+     previous_radiology_encounters = Encounter.find(:all,:conditions => ["encounter.voided = ? and (encounter.encounter_type = ? or  encounter.encounter_type = ?) and patient_id = ? and encounter.encounter_datetime <= ?", 0,radiology_encounter_type_id, appointment_encounter_type_id, patient_id, session_date],
               :include => [:observations],:order => "encounter.encounter_datetime DESC"
             )
 

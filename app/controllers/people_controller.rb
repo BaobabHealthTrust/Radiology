@@ -13,7 +13,7 @@ class PeopleController < GenericPeopleController
     @arv_number = PatientService.get_patient_identifier(@person, 'ARV Number')
 	  @patient_bean = PatientService.get_patient(@person)
     
-    @previous_visits = get_previous_encounters(@found_person_id)
+    @previous_visits = get_previous_radiology_encounters(@found_person_id)
     @encounter_dates = @previous_visits.map{|encounter| encounter.encounter_datetime.to_date}.uniq.first(6) rescue []
     @past_encounter_dates = @encounter_dates
     @session_date = Date.today if !session[:datetime]
