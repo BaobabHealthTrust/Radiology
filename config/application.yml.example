@@ -4,7 +4,7 @@ production:
  filing.number.prefix: FN101,FN102
  auto_set_appointment: false
  app.url: localhost
- statistics.show_encounter_types: RADIOLOGY EXAMINATION
+ statistics.show_encounter_types: RADIOLOGY EXAMINATION, APPOINTMENT
  show.patient.confirmation: false
  current.health.facility: Kamuzu Central Hospital
  hod: Dr Chipa, Consultant Radiologist
@@ -24,7 +24,7 @@ development:
  auto_set_appointment: false
  app.url: localhost:3000
  show.patient.confirmation: false
- statistics.show_encounter_types:  RADIOLOGY EXAMINATION
+ statistics.show_encounter_types:  RADIOLOGY EXAMINATION, APPOINTMENT
  current.health.facility: Kamuzu Central Hospital
  hod: Dr Chipa, Consultant Radiologist
  facility.address.l1: P.O. Box 149

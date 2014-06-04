@@ -118,11 +118,11 @@ class PatientsController < GenericPatientsController
 	  start_date = session_date.strftime('%Y-%m-%d 00:00:00')
 	  end_date = session_date.strftime('%Y-%m-%d 23:59:59')
     if params[:examination_number]
-      order = Order.find(:first, :conditions => ["accession_number = ?  AND voided = 0",params[:examination_number]])
+     
+      order = Order.find(:first, :conditions => ["accession_number = ?",params[:examination_number]])
 
-      @encounters = Encounter.find(:all,:joins => "LEFT JOIN orders ON encounter.encounter_id = orders.encounter_id
-      																							LEFT JOIN obs ON encounter.encounter_id = obs.encounter_id",
-      															:conditions => ["orders.order_id = ? OR obs.order_id = ?", order.order_id, order.order_id],
+      @encounters = Encounter.find(:all,:joins => "LEFT JOIN orders ON encounter.encounter_id = orders.encounter_id",
+      															:conditions => ["orders.order_id = ?", order.order_id],
                                    :group => ["encounter_id"],:order => "encounter_datetime DESC")
     else
       @encounters = Encounter.find(:all, :conditions => ["patient_id = ? AND encounter_datetime >= ? AND encounter_datetime <= ?",
