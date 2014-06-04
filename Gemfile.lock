@@ -32,8 +32,8 @@ GEM
     net-http-persistent (2.7)
     nokogiri (1.5.5)
     ntlm-http (0.1.1)
-    passenger (4.0.38)
-      daemon_controller (>= 1.2.0)
+    passenger (4.0.8)
+      daemon_controller (>= 1.1.0)
       rack
       rake (>= 0.8.1)
     pdfkit (0.5.2)
@@ -68,7 +68,7 @@ DEPENDENCIES
   json
   mechanize
   mysql2 (< 0.3)
-  passenger
+  passenger (= 4.0.8)
   pdfkit
   rails (= 2.3.5)
   rake (= 0.8.7)
