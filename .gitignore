@@ -17,3 +17,4 @@ rerun.txt
 nbproject
 log/*
 Gemfile.lock
+.ruby-version
