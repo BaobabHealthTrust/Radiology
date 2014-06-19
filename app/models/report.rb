@@ -381,7 +381,7 @@ ORDER BY clinic ASC"])
 							 meal_follow_concept_id = ConceptName.find_by_name('Meal follow-through').concept_id
 							 acu_concept_id = ConceptName.find_by_name('Ascending cysto-urethrography').concept_id
 							 c_concept_id = ConceptName.find_by_name('Cystography').concept_id
-							 cm_concept_id = ConceptName.find_by_name('Cystogramurethrogram').concept_id
+							 cm_concept_id = ConceptName.find_by_name('Cysto-Urethrogram').concept_id
 							 ru_concept_id = ConceptName.find_by_name('Retrograde urography').concept_id
 							 mc_concept_id = ConceptName.find_by_name('Micturating Cysto-urethrography').concept_id
 							 
