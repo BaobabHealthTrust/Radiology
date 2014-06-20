@@ -81,12 +81,8 @@ class ReportController < GenericReportController
                   end
                 end
              end
-         else
-            @aggregates = Report.investigations(@investigation_type,@month.to_i,@year.to_i)
-         end
-
-
-        if @investigation_type.upcase == "COMPUTED TOMOGRAPHY SCAN"
+         
+          elsif @investigation_type.upcase == "COMPUTED TOMOGRAPHY SCAN"
              aggregated = Report.investigations(@investigation_type,@month.to_i,@year.to_i)
              aggregates_detailed =  Report.detailed_investigations(@investigation_type,@month.to_i,@year.to_i)
              aggregating = aggregated.merge(aggregates_detailed){|key,oldval,newval| [*oldval] + [*newval] }
