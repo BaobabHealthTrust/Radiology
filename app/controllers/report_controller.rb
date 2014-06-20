@@ -40,7 +40,7 @@ class ReportController < GenericReportController
     case  @investigation_type.upcase
           when "XRAY"
             @investigation_options = ['Abdomen','Chest,xray','Ascending cysto-urethrography','Cystography',
-																			'Cystogramurethrogram','Intravenous urography','Retrograde urography',
+																			'Cysto-Urethrogram','Intravenous urography','Retrograde urography',
                                       'Micturating Cysto-urethrography','Enema','Contrast Study Bronchogram',
                                       'Contrast Study Hystero-Salpingogram','Contrast Study Sinogram',
                      								  'Contrast Study Sialogram','Lower limb','Pelvis girdle','Skull',
