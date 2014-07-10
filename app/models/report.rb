@@ -342,7 +342,7 @@ ORDER BY clinic ASC"])
      
 
       obs.each do |ob|
-         weeks[count][ob.examination] = ob.cnt
+         weeks[count][ob.examination.squish] = ob.cnt
       end
          
     end
