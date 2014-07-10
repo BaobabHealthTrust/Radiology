@@ -384,6 +384,7 @@ ORDER BY clinic ASC"])
 							 cm_concept_id = ConceptName.find_by_name('Cysto-Urethrogram').concept_id
 							 ru_concept_id = ConceptName.find_by_name('Retrograde urography').concept_id
 							 mc_concept_id = ConceptName.find_by_name('Micturating Cysto-urethrography').concept_id
+               iu_concept_id = ConceptName.find_by_name('Intravenous urography').concept_id
 							 
 							 obs = Observation.find_by_sql("SELECT cn.name as examination,COUNT(o.value_coded) as cnt FROM obs o
 								                             INNER JOIN encounter e
@@ -405,6 +406,7 @@ ORDER BY clinic ASC"])
 								                                                   #{c_concept_id},
 								                                                   #{cm_concept_id}, 
 								                                                   #{ru_concept_id},
+                                                                   #{iu_concept_id},
 								                                                   #{mc_concept_id})
 								                             AND o.obs_datetime BETWEEN '#{start_date}' AND '#{end_date}'
 								                             GROUP BY cn.name")
