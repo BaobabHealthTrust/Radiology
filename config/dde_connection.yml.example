@@ -1,5 +1,5 @@
 default: &default
-  application_name: registration
+  application_name: radiology
   dde_server: 127.0.0.1:3000
   dde_username: admin
   dde_password: password
