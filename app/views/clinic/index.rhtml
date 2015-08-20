@@ -19,9 +19,15 @@
               <th colspan=2>Home Page</th>
             </tr>
             <h1 id='project_name'>
-              <div style="margin-top: 26px; color: #6281A7; font-size: 0.8em">
+              <!--div style="margin-top: 26px; color: #6281A7; font-size: 0.8em">
                 <%location_name = (@location.downcase == "outpatient" ? "OPD" : "Radiology") %>
                   <span style="font-size: 40px;"><%= location_name %></span>
+              </div-->
+              <div style="margin-top: 15px; margin-bottom: -10px; color: #6281A7; font-size: 0.8em">
+                <%location_name = (@location.downcase == "outpatient" ? "OPD" : "Radiology") %>
+                <span style="font-size: 0.6em;"><%= location_name %></span>
+                <br/>
+                <span style="font-size: 12px; font-style: italic; color: #333;"><%= app_version %></span>
               </div>
             </h1>
 
