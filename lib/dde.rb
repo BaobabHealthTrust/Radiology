@@ -196,7 +196,7 @@ module DDE
           {"country_of_residence" => "Country of Residence"}
       ]
 
-      fields.each do |field|
+      (fields || []).each do |field|
 
         if (local["person_attributes"][field.keys[0]] rescue nil).to_s.strip.downcase != (person["person_attributes"][field.keys[0]] rescue nil).to_s.strip.downcase
           pattribute = PersonAttribute.find_by_person_attribute_type_id(PersonAttributeType.find_by_name(field[field.keys[0]]).id, :conditions => ["person_id = ?", patient.person.person_id]) rescue nil
@@ -208,13 +208,13 @@ module DDE
             pattribute.save!
 
           else
-
+          
             PersonAttribute.create(
                 "person_id" => patient.person.person_id,
                 "value" => (person["person_attributes"][field.keys[0]] rescue nil),
                 "person_attribute_type_id" => PersonAttributeType.find_by_name(field[field.keys[0]]).id,
                 "uuid" => (PersonAttribute.find_by_sql("SELECT UUID() uuid").first.uuid)
-            )
+            ) rescue nil
 
           end
 

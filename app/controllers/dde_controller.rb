@@ -47,11 +47,14 @@ class DdeController < ApplicationController
 
     json = JSON.parse(params["person"]) rescue {}
 
+    #raise json["_id"].inspect
+
     if (json["patient"]["identifiers"].class.to_s.downcase == "hash" rescue false)
 
       tmp = json["patient"]["identifiers"]
-
+      
       json["patient"]["identifiers"] = []
+      
 
       tmp.each do |key, value|
 
@@ -60,7 +63,8 @@ class DdeController < ApplicationController
       end
 
     end
-
+     
+    
     patient_id = DDE.search_and_or_create(json.to_json) # rescue nil
 
     # raise patient_id.inspect
