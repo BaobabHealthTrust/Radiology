@@ -118,7 +118,7 @@ module ApplicationHelper
   def version
     #"Bart Version: #{BART_VERSION}#{' ' + BART_SETTINGS['installation'] if BART_SETTINGS}, #{File.ctime(File.join(RAILS_ROOT, 'config', 'environment.rb')).strftime('%d-%b-%Y')}"
     style = "style='background-color:red;'" unless session[:datetime].blank?
-    "Radiology: National EMR - <span #{style}>#{(session[:datetime].to_date rescue Date.today).strftime('%A, %d-%b-%Y')}</span>"
+    "Radiology: National EMR <span style=font-size:0.8em;>#{app_version}</span>- <span #{style}>#{(session[:datetime].to_date rescue Date.today).strftime('%A, %d-%b-%Y')}</span>&nbsp;&nbsp;"
   end
   
   def welcome_message
@@ -321,4 +321,7 @@ module ApplicationHelper
     end                                                                         
   end
 
+  def app_version
+      `git describe`.gsub(/\n/, '')
+  end
 end
