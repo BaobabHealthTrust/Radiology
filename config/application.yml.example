@@ -20,6 +20,7 @@ development:
  create.from.remote: false
  use.user.selected.activities: no
  create.from.dde.server: false
+ use.filing.number: false
  filing.number.prefix: FN101,FN102
  auto_set_appointment: false
  app.url: localhost:3000
