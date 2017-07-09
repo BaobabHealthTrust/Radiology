@@ -59,6 +59,11 @@ class PeopleController < GenericPeopleController
     #for now BART2 will use BART1 for patient/person creation until we upgrade BART1 to 2
     #if GlobalProperty.find_by_property('create.from.remote') and property_value == 'yes'
     #then we create person from remote machine
+    elsif create_from_dde2_server 
+
+     person = PatientService.create_patient_from_dde2(params)
+     success = true 
+
     elsif create_from_remote
       person_from_remote = PatientService.create_remote_person(params)
       person = PatientService.create_from_form(person_from_remote["person"]) unless person_from_remote.blank?
