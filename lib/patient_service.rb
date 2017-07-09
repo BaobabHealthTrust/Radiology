@@ -1391,6 +1391,7 @@ people = Person.find(:all, :include => [{:names => [:person_name_code]}, :patien
     } unless identifier.blank? rescue nil
     return people unless people.blank?
     create_from_dde_server = CoreService.get_global_property_value('create.from.dde.server').to_s == "true" rescue false
+    create_from_dde2_server = CoreService.get_global_property_value('create.from.dde2.server').to_s == "true" rescue false
     if create_from_dde_server
       dde_server = GlobalProperty.find_by_property("dde_server_ip").property_value rescue ""
       dde_server_username = GlobalProperty.find_by_property("dde_server_username").property_value rescue ""
@@ -1448,8 +1449,6 @@ people = Person.find(:all, :include => [{:names => [:person_name_code]}, :patien
       passed["person"].merge!("identifiers" => {"National id" => passed_national_id})
       return [self.create_from_form(passed["person"])]
     elsif create_from_dde2_server
-
-        
 
         person = JSON.parse(DDE2Service.search_by_identifier(identifier)) rescue nil
         return [] if data.blank?
