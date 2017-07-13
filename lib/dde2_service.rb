@@ -435,7 +435,7 @@ module DDE2Service
         "home_district"=> (patient_bean.home_district || 'Other'),
         "token" => self.token
     }
-
+   
     if !result['attributes']['country_of_residence'].blank? && !result['attributes']['country_of_residence'].match(/Malawi/i)
       result['current_district'] = 'Other'
       result['current_ta'] = 'Other'
