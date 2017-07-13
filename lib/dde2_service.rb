@@ -135,13 +135,13 @@ module DDE2Service
     
 
 
-
-    result['attributes'].each do |k, v|
-      if v.blank? || v.match(/^N\/A$|^null$|^undefined$|^nil$/i)
-        result['attributes'].delete(k)  unless [true, false].include?(v)
+    if result['attributes'].present?
+      result['attributes'].each do |k, v|
+        if v.blank? || v.match(/^N\/A$|^null$|^undefined$|^nil$/i)
+          result['attributes'].delete(k)  unless [true, false].include?(v)
+        end
       end
     end
-
     result['identifiers'].each do |k, v|
       if v.blank? || v.match(/^N\/A$|^null$|^undefined$|^nil$/i)
         result['identifiers'].delete(k)  unless [true, false].include?(v)

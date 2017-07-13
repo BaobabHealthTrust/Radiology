@@ -31,8 +31,6 @@ class PeopleController < GenericPeopleController
 
   def create
     success = false
-    end rescue nil
-
     Person.session_datetime = session[:datetime].to_date rescue Date.today
     identifier = params[:identifier] rescue nil
     if identifier.blank?
@@ -57,13 +55,11 @@ class PeopleController < GenericPeopleController
                                    :identifier_type => PatientIdentifierType.find_by_name("National id").id
           )
         end
-
        success = true
       else
         flash[:error] = "Invalid demographics format"
         redirect_to "/" and return
       end
-
     elsif create_from_remote
       person_from_remote = PatientService.create_remote_person(params)
       person = PatientService.create_from_form(person_from_remote["person"]) unless person_from_remote.blank?
@@ -135,23 +131,21 @@ class PeopleController < GenericPeopleController
     end                                                                         
   end
   
-   def search
+  def search
 
     found_person = nil
-    if params[:identifier]
+		if params[:identifier]
+      params[:identifier] = params[:identifier].strip
       exam_number = params[:identifier]
       if exam_number.length == 9 and exam_number.first == 'R'
-             order = Order.find(:first,
-                                :conditions =>["accession_number = ? AND voided = 0",
-                                exam_number])
+		order = Order.find(:first,:conditions =>["accession_number = ? AND voided = 0",exam_number])
       	unless order.blank?                  
-			       session[:examination_number] = order.accession_number
-             redirect_to :controller => 'patients', :action => 'show',:patient_id => order.patient_id,
-             :encounter_date => order.date_created.to_date and return
+			session[:examination_number] = order.accession_number
+			redirect_to :controller => 'patients', :action => 'show',:patient_id => order.patient_id,
+						:encounter_date => order.date_created.to_date and return
       	end                                                      
       end
 
-      params[:identifier] = params[:identifier].strip
 			local_results = DDE2Service.search_all_by_identifier(params[:identifier])
 			if local_results.length > 1
 				redirect_to :action => 'duplicates' ,:search_params => params
@@ -262,7 +256,7 @@ class PeopleController < GenericPeopleController
 		(@search_results || {}).each do | npid , data |
 			@patients << data
 		end
-  end
+	end
   
   def conflicts
 
@@ -404,6 +398,10 @@ class PeopleController < GenericPeopleController
 
     redirect_to next_task(p.patient)
   end
+
+
+
+
   
   protected
 
