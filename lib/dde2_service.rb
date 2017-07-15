@@ -422,6 +422,19 @@ module DDE2Service
   end
 
   def self.update_demographics(patient_bean)
+    birth_date = nil
+    if patient_bean.birthdate_estimated.present? && patient_bean.birthdate_estimated == 1
+      if patient_bean.birth_date.split("/").second == "???"
+        birth_date = Date.new(patient_bean.birth_date.split("/").third.to_i,7,1).strftime("%Y-%m-%d")
+      elsif patient_bean.birth_date.split("/").first == "??"
+        birth_date = Date.new(patient_bean.birth_date.split("/").third.to_i,
+                             patient_bean.birth_date.split("/").second.to_i,1)..strftime("%Y-%m-%d")
+      else
+        birth_date = patient_bean.birth_date.to_date.strftime("%Y-%m-%d")
+      end  
+    else   
+      birth_date = patient_bean.birth_date.to_date.strftime("%Y-%m-%d")
+    end
 
     result = {
         "npid" => patient_bean.national_id,
@@ -434,7 +447,7 @@ module DDE2Service
             "citizenship" => (patient_bean.citizenship rescue ""),
             "country_of_residence" => (patient_bean.country_of_residence rescue ""),
         },
-        "birthdate"=> (patient_bean.birth_date.to_date.strftime("%Y-%m-%d") rescue patient_bean.birth_date),
+        "birthdate"=> birth_date,
         "birthdate_estimated" => (patient_bean.birthdate_estimated == '0' ? false : true),
         "current_residence"=> patient_bean.landmark,
         "current_village"=> patient_bean.current_residence,
