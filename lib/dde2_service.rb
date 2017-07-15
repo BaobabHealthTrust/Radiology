@@ -354,19 +354,27 @@ module DDE2Service
         "relation"=>""
     }
 
-    passed["person"].merge!("identifiers" => {"National id" => passed_national_id})
-
     if p['attributes'].present? && p['attributes']["occupation"].present?
       passed["person"].merge!("attributes" => {"occupation" => p['attributes']["occupation"]})
     end   
 
+    if p['attributes'].present? && p['attributes']["home_phone_number"].present?
+      passed["person"].merge!("attributes" => {"home_phone_number" => p['attributes']["home_phone_number"]})
+    end 
+    
+    if p['attributes'].present? && p['attributes']["office_phone_number"].present?
+      passed["person"].merge!("attributes" => {"office_phone_number" => p['attributes']["office_phone_number"]})
+    end  
+
     if p['attributes'].present? && p['attributes']["cell_phone_number"].present?
       passed["person"].merge!("attributes" => {"cell_phone_number" => p['attributes']["cell_phone_number"]})
-    end   
+    end  
     
     if p['attributes'].present? && p['attributes']["citizenship"].present?
       passed["person"].merge!("attributes" => {"citizenship" => p['attributes']["citizenship"]})
     end   
+    
+    passed["person"].merge!("identifiers" => {"National id" => passed_national_id})
 
     return [PatientService.create_from_form(passed["person"])]
     return people
