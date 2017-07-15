@@ -101,12 +101,21 @@ module DDE2Service
     gender = (params['person']['gender'].match(/F/i)) ? "Female" : "Male"
 
     birthdate = nil
+    age_estimate = false
     if params['person']['age_estimate'].present?
       birthdate = Date.new(date.to_date.year - params['person']['age_estimate'].to_i, 7, 1).strftime("%Y-%m-%d")
+      age_estimate = true
+    elsif params['person']['birth_month'] == "Unknown"   
+      birthdate = Date.new(params['person']['birth_year'].to_i, 7, 1).strftime("%Y-%m-%d")
+      age_estimate = true
+    elsif params['person']['birth_day'] == "00"   
+      birthdate = Date.new(params['person']['birth_year'].to_i, params['person']['birth_month'].to_i, 1).strftime("%Y-%m-%d")
+      age_estimate = true  
     else
-      params['person']['birth_month'] = params['person']['birth_month'].rjust(2, '0')
-      params['person']['birth_day'] = params['person']['birth_day'].rjust(2, '0')
-      birthdate = "#{params['person']['birth_year']}-#{params['person']['birth_month']}-#{params['person']['birth_day']}"
+      birth_month = params['person']['birth_month']
+      birth_day = params['person']['birth_day']
+      birth_year = params['person']['birth_year']
+      birthdate = Date.new(birth_year.to_i, birth_month.to_i, birth_day.to_i).strftime("%Y-%m-%d")
     end
 
     citizenship = params['person']['race']
@@ -121,7 +130,7 @@ module DDE2Service
         "middle_name"=> (params['person']['names']['middle_name'] || "N/A"),
         "gender"=> gender,
         "birthdate"=> birthdate,
-        "birthdate_estimated" => (params['person']['age_estimate'].blank? ? false : true),
+        "birthdate_estimated" => age_estimate,
         "identifiers"=> ids,
         "current_residence"=> params['person']['addresses']['address1'],
         "current_village" => params['person']['addresses']['city_village'],
