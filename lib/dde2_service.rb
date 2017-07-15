@@ -280,16 +280,22 @@ module DDE2Service
 
     return people unless people.blank?
 
-    p = DDE2Service.search_by_identifier(identifier)
-    return [] if p.blank?
-    return "found duplicate identifiers" if p.count > 1
+    remote = DDE2Service.search_by_identifier(identifier)
+    return [] if remote.blank?
+    return "found duplicate identifiers" if remote.count > 1
 
-    p = p.first
+    p = nil
+
+    p = remote.first if p.blank?
+
+    return [] if p.blank?
+
     passed_national_id = p["npid"]
 
     unless passed_national_id.blank?
       patient = PatientIdentifier.find(:first,
-                                       :conditions =>["voided = 0 AND identifier = ? AND identifier_type = 3",passed_national_id]).patient rescue nil
+                                       :conditions =>["voided = 0 AND identifier = ? AND identifier_type = 3",
+                                       passed_national_id]).patient rescue nil
       return [patient.person] unless patient.blank?
     end
 
@@ -299,19 +305,15 @@ module DDE2Service
     birthdate_estimated = p["birthdate_estimated"]
     gender = p["gender"].match(/F/i) ? "Female" : "Male"
     passed = {
-        "person"  =>{
-                   "occupation"        =>p['attributes']["occupation"],
-                   "age_estimate"      => birthdate_estimated,
-                   "cell_phone_number" =>p["attributes"]["cell_phone_number"],
-                   "citizenship"       => p['attributes']["citizenship"],
+        "person"  =>{"age_estimate"      => birthdate_estimated,
                    "birth_month"       => birthdate_month ,
-                   "addresses"         =>{"address1"=>p['addresses']["current_residence"],
-                                         'township_division' => p['current_ta'],
-                                         "address2"=>p['addresses']["home_district"],
-                                         "city_village"=>p['addresses']["current_village"],
-                                         "state_province"=>p['addresses']["current_district"],
-                                         "neighborhood_cell"=>p['addresses']["home_village"],
-                                         "county_district"=>p['addresses']["home_ta"]},
+                   "addresses"         =>{"address1"=> (p['addresses']["current_residence"] || ""),
+                                         'township_division' => (p['current_ta'] || ""),
+                                         "address2"=> (p['addresses']["home_district"] || ""),
+                                         "city_village"=> (p['addresses']["current_village"] || ""),
+                                         "state_province"=> (p['addresses']["current_district"] || ""),
+                                         "neighborhood_cell"=> (p['addresses']["home_village"] || ""),
+                                         "county_district"=> (p['addresses']["home_ta"] || "")},
                    "gender"            => gender ,
                    "patient"           =>{"identifiers"=>{"National id" => p["npid"]}},
                    "birth_day"         =>birthdate_day,
@@ -327,6 +329,18 @@ module DDE2Service
     }
 
     passed["person"].merge!("identifiers" => {"National id" => passed_national_id})
+
+    if p['attributes'].present? && p['attributes']["occupation"].present?
+      passed["person"].merge!("attributes" => {"occupation" => p['attributes']["occupation"]})
+    end   
+
+    if p['attributes'].present? && p['attributes']["cell_phone_number"].present?
+      passed["person"].merge!("attributes" => {"cell_phone_number" => p['attributes']["cell_phone_number"]})
+    end   
+    
+    if p['attributes'].present? && p['attributes']["citizenship"].present?
+      passed["person"].merge!("attributes" => {"citizenship" => p['attributes']["citizenship"]})
+    end   
 
     return [PatientService.create_from_form(passed["person"])]
     return people
