@@ -410,12 +410,6 @@ module DDE2Service
         npid = PatientIdentifier.find_by_identifier_and_identifier_type_and_patient_id(patient_bean.national_id,
                 npid_type, patient_bean.patient_id)
 
-        npid.update_attributes(
-            :voided => true,
-            :voided_by => User.current.id,
-            :void_reason => 'Reassigned NPID',
-            :date_voided => Time.now
-        )
         PatientIdentifier.create(
             :patient_id => npid.patient_id,
             :creator => User.current.id,
@@ -428,6 +422,13 @@ module DDE2Service
             :creator => User.current.id,
             :identifier =>  data['npid'],
             :identifier_type => npid_type
+        )
+        
+         npid.update_attributes(
+            :voided => true,
+            :voided_by => User.current.id,
+            :void_reason => 'Reassigned NPID',
+            :date_voided => Time.now
         )
       end
 
