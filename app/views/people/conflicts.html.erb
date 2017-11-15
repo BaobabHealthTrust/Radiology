@@ -82,7 +82,7 @@
   <!--
 
   -->
-  <h3 class="msg">Select patient to continue ....</h3>
+  <h3 class="msg">Select (Re-Assign ID or Create) Patient to continue ...</h3>
   <table style="width: 100%; border-top: 1px solid lightgray">
     <tr>
         <td style="width: 57%;">
@@ -96,8 +96,9 @@
     </tr>
     <%color = 'white'
       row_number = 0
+       note = ''
       ( @local_duplicates || {} ).each do | patient |
-        if row_number == 0
+        if row_number == 0 && params[:identifier].blank?
           note = 'New'
         else
           note = 'Local'
@@ -146,7 +147,7 @@
        phone = patient['attributes']['cell_phone_number'] rescue nil
     %>
 
-        <tr class='row' data = '<%= patient.to_json%>' onmousedown="view(this, false);">
+        <tr class='row' scan_identifier="<%= params[:identifier]%>" data = '<%= patient.to_json%>' onmousedown="view(this, false);">
           <td class="color_<%=row_number % 2 == 0 ? 'white' : 'darkslatedgray'%> row_number_<%=row_number%>"><%= (patient['names']['given_name'] + ' ' + patient['names']['family_name']) + " (#{gender})"  || '&nbsp;' %></td>
           <td class="color_<%=row_number % 2 == 0 ? 'white' : 'darkslatedgray'%> row_number_<%=row_number%>"><%=  patient['addresses']['home_ta'] || '&nbsp;' %></td>
           <td class="color_<%=row_number % 2 == 0 ? 'white' : 'darkslatedgray'%> row_number_<%=row_number%>" style="text-align:center;"><%= patient['addresses']['home_village'] || '&nbsp;' %></td>
@@ -176,7 +177,7 @@
 </div>
 
 <div id="footer" style="position: absolute; bottom: 1px; right: 10px;width: 99.5%;left: 0.25%;background: #333333">
-  <button id="nextButton" class="button navButton green" onclick="__$('form').submit()"><span>Select</span></button>
+  <button id="nextButton" class="button navButton green" onclick="__$('form').submit()"><span>Create</span></button>
   <button id="cancelButton" class="button navButton red" onclick="window.location = '/'"><span>Cancel</span></button>
 </div>
 
@@ -211,7 +212,7 @@
       var gender = {'F': 'Female', 'M': 'Male'}
       setTimeout(function () {
           if (local == true) {
-              __$("patient_number").innerHTML = data['npid'];
+              __$("patient_number").innerHTML = (data['npid'].length > 10 ? "" : data['npid']);
               __$("given_name").innerHTML = data['given_name'];
               __$("middle_name").innerHTML = data['middle_name'];
               __$("family_name").innerHTML = data['family_name'];
@@ -223,10 +224,10 @@
               __$("current_district").innerHTML = data['current_district'];
               __$("current_village").innerHTML = data['current_village'];
               __$("landmark").innerHTML = data['current_residence'];
-              __$("nextButton").innerHTML = "<span>Create</span>"
+              __$("nextButton").innerHTML = "<span>Re-Assign ID</span>"
 
           } else if (local == false) {
-              __$("patient_number").innerHTML = data['npid'];
+              __$("patient_number").innerHTML = (data['npid'].length > 10 ? "" : data['npid']);;
               __$("given_name").innerHTML = data['names']['given_name'];
               __$("middle_name").innerHTML = data['names']['middle_name'];
               __$("family_name").innerHTML = data['names']['family_name'];
@@ -240,7 +241,7 @@
                   __$("current_village").innerHTML = data['addresses']['current_village'];
                   __$("landmark").innerHTML = data['addresses']['current_residence'];
               }
-              __$("nextButton").innerHTML = "<span>Select</span>"
+              __$("nextButton").innerHTML = "<span>Create</span>"
           }
 
           for (var i = 0; i < valNodes.length; i++) {
@@ -257,6 +258,12 @@
       var input = document.createElement('input');
       input.setAttribute('name', 'data');
       input.setAttribute('value', node.getAttribute('data'));
+      input.setAttribute('type', 'hidden');
+      form.appendChild(input);
+
+      var input = document.createElement('input');
+      input.setAttribute('name', 'scan_identifier');
+      input.setAttribute('value', node.getAttribute('scan_identifier'));
       input.setAttribute('type', 'hidden');
 
       form.appendChild(input);
