@@ -119,6 +119,7 @@ class ReportController < GenericReportController
      @start_date = params[:start_date]
      @end_date = params[:end_date]
      @daily_report = Report.daily_report(@start_date,@end_date)
+
      render :layout => false
   end
 
@@ -129,17 +130,20 @@ class ReportController < GenericReportController
      url = ''
      case params['report_type'].upcase
          when 'FILM USED'
-            url = "http://radiology/report/films_printable?month=#{ params['month']}&year=#{ params['year']}"
+            url = "http://#{app_url}/report/films_printable?month=#{ params['month']}&year=#{ params['year']}"
          when 'INVESTIGATIONS'
-            url = "http://radiology/report/investigations_printable?month=#{ params['month']}&year=#{ params['year']}&investigation_type=#{ params['investigation_type']}"
-         when 'RADIOLOGY'
-            url = "http://radiology/report/radiology_printable?start_date=#{ params['start_date']}&end_date=#{ params['end_date']}"
+            url = "http://#{app_url}/report/investigations_printable?month=#{ params['month']}&year=#{ params['year']}&investigation_type=#{ params['investigation_type']}"
+         when 'RADIOLOGY' 
+            url = "http://#{app_url}/report/radiology_printable?start_date=#{ params['start_date']}&end_date=#{ params['end_date']}"
      end
   
      response = RestClient.get(url)
      pages = PDFKit.new(response, :page_size => 'A4')
-     send_data(pages.to_pdf,:type=>"application/label; charset=utf-8",:stream=> false,
-      :filename=>"#{params[:month]}#{params[:year]}#{rand(10000)}.pdf",:disposition => "inline")
+     send_data(pages.to_pdf,:type=>"application/pdf; charset=utf-8",
+              :stream=> false,
+              :filename=>"#{params[:month]}#{params[:year]}#{rand(10000)}.pdf",
+              :disposition => "attachment")
+              
   end
 
   def report_print
