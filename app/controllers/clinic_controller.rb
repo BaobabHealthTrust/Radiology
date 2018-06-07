@@ -11,7 +11,9 @@ class ClinicController < GenericClinicController
   end
 
   def properties_tab
-    @settings = []
+    @settings = [
+      ["DDE Configuration", "/dde/dde_login"]
+    ]
     render :layout => false
   end
   
