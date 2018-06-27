@@ -14,6 +14,10 @@ module ApplicationHelper
     content << "</form>"
     content
   end
+
+  def military_site?
+    return false
+  end
   
   def img_button_submit_to_with_confirm(url, image, options = {}, params = {})
     content = ""
